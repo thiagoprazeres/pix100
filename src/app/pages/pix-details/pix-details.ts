@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PixService } from '../../services/pix-service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-pix-details',
@@ -22,19 +21,6 @@ export class PixDetails {
       this.pix.set(this.pixService.buscarPorTxid(params['txid']) || null);
       console.log('PIX details:', this.pix());
     });
-  }
-
-  async generateQRCode() {
-    if (this.pix()) {
-      try {
-        const dataUrl = await QRCode.toDataURL(this.pix()!.payload.toBRCode());
-        return dataUrl;
-      } catch (error) {
-        console.error('Erro ao gerar QR Code:', error);
-        return '';
-      }
-    }
-    return '';
   }
 
   goBack() {

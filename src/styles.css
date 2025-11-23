@@ -1,3 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Geist:wght@100..900&display=swap');
 
-@import "tailwindcss";
+@theme {
+  --default-font-family: 'Geist', var(--font-sans);
+  --font-display: 'Caveat', sans-serif;
+}
+
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes: lofi --default;
+}
+
+@layer utilities {
+  .text-rotate {
+    font-family: 'Caveat', cursive;
+  }
+  .dock-active:after {
+    @apply h-px;
+  }
+  .dock-active {
+    @apply scale-105 transition-all duration-200 font-bold;
+    svg {
+      @apply transition-all duration-200 stroke-2;
+    }
+  }
+}

@@ -1,0 +1,127 @@
+<form [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
+  <header>
+    <div class="navbar">
+      <div class="flex-1">
+        <h1 class="text-xl ml-4 font-bold">{{ !!!perfilService.perfil() ? 'Criar perfil' : 'Perfil' }}</h1>
+      </div>
+      <div class="flex-none">
+        <button type="submit" class="btn btn-primary btn-block">Salvar</button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="w-full my-4 px-2">
+      <div class="space-y-3 px-4">
+        <section class="text-center mb-5">
+          <h1 class="text-5xl font-black">
+            PIX100
+
+            <br />
+            <span class="text-lg font-extralight">
+              Cobranças
+              <span class="text-rotate text-2xl">
+                <span class="justify-items-center">
+                  <span>Rápidas</span>
+                  <span>Simples</span>
+                  <span>Inteligentes</span>
+                  <span>Seguras</span>
+                </span>
+              </span>
+              em um toque
+            </span>
+          </h1>
+        </section>
+        <p class="text-sm mb-10">
+          Defina aqui os dados fixos do recebedor. Depois, na tela de PIX, você só informa valor,
+          descrição.
+        </p>
+        @if(erro){
+        <div class="alert alert-error text-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="m15 9-6 6" />
+            <path d="m9 9 6 6" />
+          </svg>
+          <span>Verifique os campos preenchidos</span>
+        </div>
+        } @if(sucesso){
+        <div class="alert alert-success text-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <span>Perfil salvo com sucesso!</span>
+        </div>
+        }
+
+        <div class="form-control">
+          <label class="label"> Chave PIX </label>
+          <input
+            type="text"
+            class="input validator w-full"
+            placeholder="E-mail, telefone, CPF/CNPJ ou chave aleatória"
+            required
+            formControlName="pixKey"
+          />
+          <p class="validator-hint">Chave PIX é obrigatória</p>
+        </div>
+
+        <div class="form-control">
+          <label class="label">Nome do recebedor</label>
+          <input
+            type="text"
+            class="input validator w-full"
+            placeholder="Seu nome completo"
+            required
+            formControlName="merchantName"
+          />
+          <p class="validator-hint">Nome do recebedor é obrigatório</p>
+        </div>
+
+        <div class="form-control">
+          <label class="label"> Cidade do recebedor </label>
+          <input
+            type="text"
+            class="input validator w-full"
+            placeholder="São Paulo"
+            required
+            formControlName="merchantCity"
+          />
+          <p class="validator-hint">Cidade do recebedor é obrigatória</p>
+        </div>
+        @if(perfilService.perfil()){
+
+        <div class="form-control mt-4 gap-2">
+          <button
+            type="button"
+            class="btn btn-outline btn-block btn-error mt-10"
+            (click)="limparPerfil()"
+          >
+            Limpar configurações
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+  </main>
+</form>

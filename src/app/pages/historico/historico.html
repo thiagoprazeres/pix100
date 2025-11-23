@@ -1,0 +1,36 @@
+<header class="navbar bg-base-200 px-4">
+  <h1 class="text-xl ml-4 font-bold">Histórico</h1>
+</header>
+
+<main class="p-4 space-y-4">
+  @if(historico.length === 0) {
+  <p class="text-center text-sm opacity-70 mt-10">Nenhum PIX gerado ainda.</p>
+  } @else {
+  <div class="flex justify-end">
+    <button type="button" class="btn btn-sm btn-outline btn-error" (click)="limparHistorico()">
+      Limpar histórico
+    </button>
+  </div>
+  <div class="space-y-3">
+    @for(pix of historico; track pix.txid) {
+    <a
+      [routerLink]="['/pix', pix.txid]"
+      class="card bg-white card-bordered shadow hover:bg-base-100 transition p-4"
+    >
+      <div class="flex justify-between">
+        <div>
+          <p class="font-medium">{{ pix.amount | currency }}</p>
+          <p class="text-xs opacity-70">{{ pix.infoAdicional || 'Sem descrição' }}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] opacity-60">
+            {{ pix.createdAt | date : 'short' }}
+          </p>
+          <p class="text-[10px] opacity-60">TXID: {{ pix.txid }}</p>
+        </div>
+      </div>
+    </a>
+    }
+  </div>
+  }
+</main>

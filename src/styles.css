@@ -11,6 +11,15 @@
 }
 
 @layer utilities {
+  html, body {
+    background-color: var(--color-base-200)
+  }
+  header.navbar {
+    @apply sticky top-0 z-50 bg-base-200/50 backdrop-blur;
+    h1 {
+      @apply text-xl font-bold;
+    }
+  }
   .text-rotate {
     font-family: 'Caveat', cursive;
   }

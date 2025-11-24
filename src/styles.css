@@ -6,9 +6,7 @@
 }
 
 @import 'tailwindcss';
-@plugin "daisyui" {
-  themes: lofi --default;
-}
+@plugin "daisyui";
 
 @layer utilities {
   .text-rotate {

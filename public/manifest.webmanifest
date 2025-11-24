@@ -1,6 +1,6 @@
 {
-  "name": "pix100",
-  "short_name": "pix100",
+  "name": "PIX100",
+  "short_name": "PIX100",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

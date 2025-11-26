@@ -10,6 +10,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 })
 export class PixDetails {
   txid = signal('');
+  showToast = signal(false);
 
   private activatedRoute = inject(ActivatedRoute);
   private readonly pixService = inject(PixService);
@@ -33,7 +34,8 @@ export class PixDetails {
       navigator.clipboard
         .writeText(brcode)
         .then(() => {
-          alert('Código PIX copiado para a área de transferência!');
+          this.showToast.set(true);
+          setTimeout(() => this.showToast.set(false), 3000);
         })
         .catch((err) => {
           console.error('Falha ao copiar: ', err);

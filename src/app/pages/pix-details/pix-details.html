@@ -45,7 +45,7 @@
 <main>
   <div class="p-4">
     @if (pix()) {
-    <div class="mt-4 space-y-2 text-center">
+    <div class="mt-4 space-y-2">
       <h1 class="text-lg font-semibold">Pagamento por PIX Copia e Cola</h1>
       <p class="text-sm">
         Copie o código PIX abaixo ou leia o QR Code no aplicativo bancário favorito para realizar o
@@ -58,11 +58,26 @@
           class="max-w-full mx-auto rounded-lg shadow-lg"
         />
       </p>
-      <p><strong>TXID</strong><br />{{ pix().txid }}</p>
-      <p><strong>Data</strong><br />{{ pix().createdAt | date }}</p>
-      <p><strong>Valor</strong><br />{{ pix().amount | currency }}</p>
-      <p><strong>Descrição</strong><br />{{ pix().infoAdicional || 'Nenhuma' }}</p>
-      <p class="text-sm font-mono break-all">{{ pix().brcode }}</p>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="font-bold">TXID</div>
+        <div class="col-span-2">{{ pix().txid }}</div>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="font-bold">Data</div>
+        <div class="col-span-2">{{ pix().createdAt | date }}</div>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="font-bold">Valor</div>
+        <div class="col-span-2">{{ pix().amount | currency }}</div>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="font-bold">Descrição</div>
+        <div class="col-span-2">{{ pix().infoAdicional || 'Nenhuma' }}</div>
+      </div>
+      <div class="text-center space-y-3 mt-5">
+        <div class="font-bold">Código PIX</div>
+        <div class="col-span-2 text-sm font-mono break-all">{{ pix().brcode }}</div>
+      </div>
       <p>
         <button class="btn btn-primary btn-block mt-5" (click)="copyToClipboard()">
           <svg
@@ -86,4 +101,11 @@
     </div>
     }
   </div>
+  @if (showToast()) {
+  <div class="toast z-50 toast-center relative top-px">
+    <div class="alert alert-success alert-xs">
+      <span>Código PIX copiado para a área de transferência!</span>
+    </div>
+  </div>
+  }
 </main>

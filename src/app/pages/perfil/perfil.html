@@ -11,7 +11,7 @@
   </header>
   <main>
     <div class="w-full my-4 px-2">
-      <div class="space-y-3 px-4">
+      <div class="px-4">
         <section class="text-center mb-5">
           <h1 class="text-5xl font-black">
             PIX100
@@ -75,8 +75,10 @@
         }
 
         <div class="form-control">
-          <label class="label"> Chave PIX </label>
+          <label for="pixKey" class="label"> Chave PIX </label>
           <input
+            id="pixKey"
+            name="pixKey"
             type="text"
             class="input validator w-full"
             placeholder="E-mail, telefone, CPF/CNPJ ou chave aleatória"
@@ -87,8 +89,10 @@
         </div>
 
         <div class="form-control">
-          <label class="label">Nome do recebedor</label>
+          <label for="merchantName" class="label">Nome do recebedor</label>
           <input
+            id="merchantName"
+            name="merchantName"
             type="text"
             class="input validator w-full"
             placeholder="Seu nome completo"
@@ -99,8 +103,9 @@
         </div>
 
         <div class="form-control">
-          <label class="label"> Cidade do recebedor </label>
+          <label for="merchantCity" class="label"> Cidade do recebedor </label>
           <input
+            id="merchantCity"
             type="text"
             class="input validator w-full"
             placeholder="São Paulo"

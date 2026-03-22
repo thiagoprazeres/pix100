@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MaskitoDirective } from '@maskito/angular';
+import { maskitoNumberOptionsGenerator, maskitoParseNumber } from '@maskito/kit';
 import { PerfilService } from '../../services/perfil-service';
 import { PixService } from '../../services/pix-service';
 import { PixInterface } from '../../interfaces/pix-interface';
@@ -7,7 +9,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pix',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MaskitoDirective],
   templateUrl: './pix.html',
 })
 export class Pix {
@@ -20,10 +22,19 @@ export class Pix {
 
   protected readonly perfil = this.perfilService.perfil();
 
+  readonly maskitoOptions = maskitoNumberOptionsGenerator({
+    min: 0,
+    maximumFractionDigits: 2,
+    prefix: 'R$ ',
+    minimumFractionDigits: 2,
+    decimalSeparator: ',',
+    thousandSeparator: '.',
+  });
+
   pixForm = new FormGroup({
-    transactionAmount: new FormControl<number | null>(null, {
+    transactionAmount: new FormControl<string | null>(null, {
       nonNullable: false,
-      validators: [Validators.required, Validators.min(0.01)],
+      validators: [Validators.required],
     }),
     infoAdicional: new FormControl<string>(''),
   });
@@ -34,8 +45,17 @@ export class Pix {
       this.sucesso = false;
       return;
     }
+    const amountStr = this.pixForm.value.transactionAmount;
+    const amount = amountStr ? maskitoParseNumber(amountStr, { decimalSeparator: ',' }) : 0;
+
+    if (amount <= 0) {
+      this.erro = true;
+      this.sucesso = false;
+      return;
+    }
+
     const pix: PixInterface = {
-      transactionAmount: this.pixForm.value.transactionAmount!,
+      transactionAmount: amount,
       infoAdicional: this.pixForm.value.infoAdicional ?? undefined,
     };
     this.pixService.gerarPix(pix).then(resultado => {

@@ -24,6 +24,13 @@
         formControlName="transactionAmount"
       />
       <p class="validator-hint">Valor é obrigatório</p>
+      <div class="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide text-nowrap">
+        <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(2)">+ R$ 2</button>
+        <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(5)">+ R$ 5</button>
+        <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(10)">+ R$ 10</button>
+        <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(50)">+ R$ 50</button>
+        <button type="button" class="btn btn-sm btn-ghost rounded-full shrink-0" (click)="limparValor()">Limpar</button>
+      </div>
     </div>
     <div class="form-control">
       <label class="label">Descrição (opcional)</label>

@@ -23,6 +23,8 @@ export class Perfil implements OnInit, OnDestroy {
   erro = false;
 
   perfilForm = new FormGroup({
+    id: new FormControl<string>(''),
+    titulo: new FormControl<string>('Meu Perfil', [Validators.required]),
     tipoChave: new FormControl<'cpf' | 'cnpj' | 'telefone' | 'email' | 'aleatoria'>('cpf', [Validators.required]),
     pixKey: new FormControl('', [Validators.required]),
     merchantName: new FormControl('', [Validators.required]),
@@ -65,16 +67,7 @@ export class Perfil implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const perfil = this.perfilService.perfil();
-
-    if (perfil) {
-      this.perfilForm.patchValue({
-        tipoChave: perfil.tipoChave || 'cpf',
-        pixKey: perfil.pixKey,
-        merchantName: perfil.merchantName,
-        merchantCity: perfil.merchantCity,
-      });
-    }
+    this.carregarFormulario();
 
     this.perfilForm.controls.tipoChave.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -105,6 +98,8 @@ export class Perfil implements OnInit, OnDestroy {
     }
 
     const valueToSave: PerfilInterface = {
+      id: this.perfilForm.value.id || this.gerarId(),
+      titulo: this.perfilForm.value.titulo || 'Meu Perfil',
       tipoChave: type!,
       pixKey: key,
       merchantName: this.perfilForm.value.merchantName!,
@@ -118,10 +113,33 @@ export class Perfil implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
-  limparPerfil() {
-    if (confirm('Tem certeza que deseja limpar as configurações?')) {
+  carregarFormulario() {
+    const perfil = this.perfilService.perfil();
+    if (perfil) {
+      this.perfilForm.patchValue({ ...perfil });
+    } else {
+      this.perfilForm.reset({ id: this.gerarId(), titulo: 'Novo Perfil', tipoChave: 'cpf' });
+    }
+  }
+
+  gerarId() {
+    return Math.random().toString(36).substring(2, 9);
+  }
+
+  selecionarPerfil(id: string) {
+    this.perfilService.tornarAtivo(id);
+    this.carregarFormulario();
+  }
+
+  novoPerfil() {
+    this.perfilService.tornarAtivo('');
+    this.carregarFormulario();
+  }
+
+  removerPerfil() {
+    if (confirm('Tem certeza que deseja excluir este perfil?')) {
       this.perfilService.limparPerfil();
-      this.perfilForm.reset({ tipoChave: 'cpf' });
+      this.carregarFormulario();
     }
   }
 }

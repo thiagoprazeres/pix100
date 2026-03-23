@@ -1,4 +1,6 @@
 export interface PerfilInterface {
+  id: string;
+  titulo: string;
   merchantName: string;
   merchantCity: string;
   pixKey: string;

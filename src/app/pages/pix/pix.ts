@@ -65,4 +65,15 @@ export class Pix {
       this.router.navigate(['/pix', resultado.txid]);
     });
   }
+
+  adicionarValor(adicional: number) {
+    const currentStr = this.pixForm.value.transactionAmount;
+    const currentVal = currentStr ? maskitoParseNumber(currentStr, { decimalSeparator: ',' }) : 0;
+    const newVal = currentVal + adicional;
+    this.pixForm.controls.transactionAmount.setValue(newVal.toFixed(2).replace('.', ','));
+  }
+
+  limparValor() {
+    this.pixForm.controls.transactionAmount.setValue('');
+  }
 }

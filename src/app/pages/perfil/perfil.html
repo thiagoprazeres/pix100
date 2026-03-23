@@ -40,7 +40,7 @@
           descrição para criar o PIX Copia e Cola.
         </p>
         @if(erro){
-        <div class="alert alert-error text-sm">
+        <div class="alert alert-error text-sm mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -59,7 +59,7 @@
           <span>Verifique os campos preenchidos</span>
         </div>
         } @if(sucesso){
-        <div class="alert alert-success text-sm">
+        <div class="alert alert-success text-sm mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -77,6 +77,49 @@
           <span>Perfil salvo com sucesso!</span>
         </div>
         }
+
+        @if (perfilService.perfis().length > 0) {
+        <div class="mb-8 text-left">
+          <h2 class="text-sm font-bold opacity-70 mb-3 uppercase tracking-wide">Meus Perfis</h2>
+          <div class="flex flex-col gap-2">
+            @for (p of perfilService.perfis(); track p.id) {
+              <div 
+                class="card bg-base-100 shadow-sm border-2 cursor-pointer transition select-none"
+                [class.border-primary]="p.id === perfilService.perfil()?.id"
+                [class.border-transparent]="p.id !== perfilService.perfil()?.id"
+                (click)="selecionarPerfil(p.id)"
+              >
+                <div class="card-body p-4 flex-row items-center justify-between">
+                  <div>
+                    <h3 class="font-bold">{{ p.titulo }}</h3>
+                    <p class="text-xs opacity-70">{{ p.merchantName }}</p>
+                  </div>
+                  @if (p.id === perfilService.perfil()?.id) {
+                    <div class="badge badge-primary">Ativo</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <button type="button" class="btn btn-outline btn-sm btn-block mt-3" (click)="novoPerfil()">
+            + Criar Novo Perfil
+          </button>
+        </div>
+        
+        <div class="divider">Editando Perfil</div>
+        }
+
+        <div class="form-control mb-4">
+          <label for="titulo" class="label font-bold">Nome deste Perfil</label>
+          <input
+            id="titulo"
+            type="text"
+            class="input validator w-full"
+            placeholder="Ex: Minha Empresa"
+            required
+            formControlName="titulo"
+          />
+        </div>
 
         <div class="form-control mb-4">
           <label class="label font-bold">Tipo de Chave PIX</label>
@@ -155,14 +198,13 @@
           Salvar
         </button>
         @if(perfilService.perfil()){
-
         <div class="form-control mt-4 gap-2">
           <button
             type="button"
             class="btn btn-outline btn-block btn-error mt-10"
-            (click)="limparPerfil()"
+            (click)="removerPerfil()"
           >
-            Limpar configurações
+            Excluir Perfil Atual
           </button>
         </div>
         }

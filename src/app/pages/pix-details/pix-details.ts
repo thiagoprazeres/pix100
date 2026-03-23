@@ -49,6 +49,10 @@ export class PixDetails {
       alert('O seu dispositivo não suporta Web Share API.');
       return;
     }
+
+    // Copia preventivamente o código para o clipboard (Fallback)
+    this.copyToClipboard();
+
     const pix = this.pix();
     // Converte o base64 em File
     const file = this.base64ToFile(pix.qrBase64, 'pix.png', 'image/png');

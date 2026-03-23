@@ -140,6 +140,37 @@ export class PixDetails {
     });
   }
 
+  async salvarImagem() {
+    const pix = this.pix();
+    if (!pix || !pix.qrBase64) return;
+    try {
+      const perfil = this.perfilService.perfil();
+      const mName = perfil ? perfil.merchantName : 'Recebedor';
+      const mCity = perfil ? perfil.merchantCity : '';
+
+      const ticketBase64 = await this.gerarTicketBase64(pix, mName, mCity);
+      const link = document.createElement('a');
+      link.href = ticketBase64;
+      link.download = `pix-recibo-${pix.txid || 'app'}.png`;
+      link.click();
+    } catch (err) {
+      console.error(err);
+      alert('Falha ao salvar a imagem.');
+    }
+  }
+
+  enviarWhatsApp() {
+    const pix = this.pix();
+    if (!pix) return;
+    
+    const formatador = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    const valor = formatador.format(pix.amount);
+    
+    const texto = `Olá! Segue o PIX para pagamento no valor de *${valor}*.\n\nCopie o código abaixo e cole no aplicativo do seu banco:\n\n${pix.brcode}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
   base64ToFile(base64: string, filename: string, mime = 'image/png'): File {
     const arr = base64.split(',');
     const bstr = atob(arr[1]);

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, HostListener, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PerfilService } from './services/perfil-service';
 import { ThemeService } from './services/theme-service';
@@ -14,4 +14,25 @@ export class App {
   perfilService = inject(PerfilService);
   themeService = inject(ThemeService);
   version = packageJson.version;
+
+  deferredPrompt = signal<any>(null);
+
+  @HostListener('window:beforeinstallprompt', ['$event'])
+  onBeforeInstallPrompt(e: Event) {
+    e.preventDefault();
+    this.deferredPrompt.set(e);
+  }
+
+  installPwa() {
+    const prompt = this.deferredPrompt();
+    if (prompt) {
+      prompt.prompt();
+      prompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('App instalado!');
+        }
+        this.deferredPrompt.set(null);
+      });
+    }
+  }
 }

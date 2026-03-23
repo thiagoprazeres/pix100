@@ -161,7 +161,11 @@
             [maskito]="maskitoOptions"
             formControlName="pixKey"
           />
-          <p class="validator-hint">Chave PIX é obrigatória</p>
+          @if (perfilForm.controls.pixKey.errors?.['required'] || perfilForm.controls.pixKey.errors?.['documentoInvalido']) {
+            <p class="validator-hint">
+              {{ perfilForm.controls.pixKey.errors?.['documentoInvalido'] ? 'Documento matematicamente inválido (CPF/CNPJ incorreto).' : 'Chave PIX é obrigatória' }}
+            </p>
+          }
         </div>
 
         <div class="form-control">

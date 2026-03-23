@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PixService } from '../../services/pix-service';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -10,8 +10,20 @@ import { RouterLink } from '@angular/router';
 })
 export class Historico {
   private readonly pixService = inject(PixService);
+  showToast = signal(false);
 
   historico = this.pixService.historico();
+
+  copiarPixRapido(pix: any, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (pix.brcode) {
+      navigator.clipboard.writeText(pix.brcode).then(() => {
+        this.showToast.set(true);
+        setTimeout(() => this.showToast.set(false), 3000);
+      });
+    }
+  }
 
   limparHistorico() {
     if (confirm('Tem certeza que deseja limpar todo o histórico?')) {

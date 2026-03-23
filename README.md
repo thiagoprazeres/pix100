@@ -1,59 +1,44 @@
-# Pix100
+# PIX100
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.0.
+Aplicativo ágil, seguro e inteligente para a geração de cobranças PIX, Copia e Cola e QR Codes na velocidade da luz. Criado em Angular 21 com DaisyUI e TailwindCSS.
 
-## Development server
+## 🚀 Funcionalidades
 
-To start a local development server, run:
+- **Gerador de PIX**: Criação instantânea de QR Code e "PIX Copia e Cola" contendo o TXID, Valor e Descrição.
+- **Perfil / Configurações**: Perfis persistentes no navegador para preenchimento rápido.
+  - Suporte inteligente à **Chave PIX**, com máscaras nativas para **CPF/CNPJ**, **Telefone** e **E-mail** usando a biblioteca `Maskito`, garantindo o PIX sempre formatado corretamente.
+- **Tema Escuro (Dark Mode)**: Chaveamento limpo entre os temas Escuro e Claro através do `Theme Controller` do DaisyUI, com persistência ativada.
+- **PWA Ready**: Cache completo através do Angular Service Worker (`@angular/service-worker`), operando 100% offline se instalado no celular como um app nativo.
+- **Compartilhamento Nativo Inteligente**: O envio pelo WhatsApp não perde dados! Utilização da `Web Share API` juntamente com um *Fallback Automático* para a "Área de Transferência" (Garantindo que o "Pix Copia e Cola" chegue intacto ao recebedor da imagem).
+
+## 🛠️ Tecnologias
+
+- [Angular 21](https://angular.dev/) (Standalone Components e Signals API)
+- [Tailwind CSS 4](https://tailwindcss.com/)
+- [DaisyUI 5](https://daisyui.com/)
+- [Maskito](https://maskito.dev/) para lidar com máscaras avançadas.
+- Biblioteca `pix-utils` para a montagem do payload e geração do QR Code Base64 criptografado.
+
+## 🖥️ Como rodar localmente
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Inicie o servidor de desenvolvimento:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Acesse `http://localhost:4200` no navegador. O *"Hot Reload"* refletirá mudanças nos arquivos automaticamente.
 
-## Code scaffolding
+## 📦 Build e Compilação para Produção
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Para fechar o pacote final com otimizações extremas para a pasta `dist/pix100`:
 
 ```bash
-ng generate --help
+ng build --configuration production
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

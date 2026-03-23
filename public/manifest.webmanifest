@@ -53,5 +53,21 @@
       "type": "image/png",
       "purpose": "maskable any"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Gerar PIX Rápido",
+      "short_name": "Gerar PIX",
+      "description": "Criar um novo PIX Copia e Cola",
+      "url": "/",
+      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Ver Histórico",
+      "short_name": "Histórico",
+      "description": "Acessar seus recebimentos anteriores",
+      "url": "/historico",
+      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+    }
   ]
 }

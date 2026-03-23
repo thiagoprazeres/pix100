@@ -75,14 +75,29 @@
         }
 
         <div class="form-control mb-4">
-          <label class="label">Tipo de Chave PIX</label>
-          <select formControlName="tipoChave" class="select select-bordered w-full">
-            <option value="cpf">CPF</option>
-            <option value="cnpj">CNPJ</option>
-            <option value="telefone">Telefone (Celular)</option>
-            <option value="email">E-mail</option>
-            <option value="aleatoria">Chave Aleatória (EVP)</option>
-          </select>
+          <label class="label font-bold">Tipo de Chave PIX</label>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="radio" formControlName="tipoChave" value="cpf" class="radio radio-primary radio-sm" />
+              <span class="label-text">CPF</span>
+            </label>
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="radio" formControlName="tipoChave" value="cnpj" class="radio radio-primary radio-sm" />
+              <span class="label-text">CNPJ</span>
+            </label>
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="radio" formControlName="tipoChave" value="telefone" class="radio radio-primary radio-sm" />
+              <span class="label-text">Celular</span>
+            </label>
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="radio" formControlName="tipoChave" value="email" class="radio radio-primary radio-sm" />
+              <span class="label-text">E-mail</span>
+            </label>
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="radio" formControlName="tipoChave" value="aleatoria" class="radio radio-primary radio-sm" />
+              <span class="label-text">Aleatória</span>
+            </label>
+          </div>
         </div>
 
         <div class="form-control">
@@ -90,7 +105,8 @@
           <input
             id="pixKey"
             name="pixKey"
-            type="text"
+            [type]="inputType"
+            [attr.inputmode]="inputMode"
             autocomplete="on"
             class="input validator w-full"
             placeholder="Informe a sua chave"

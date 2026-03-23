@@ -47,6 +47,21 @@ export class Perfil implements OnInit, OnDestroy {
     return null;
   }
 
+  get inputType(): string {
+    const tipo = this.perfilForm.value.tipoChave;
+    if (tipo === 'email') return 'email';
+    if (tipo === 'telefone') return 'tel';
+    return 'text';
+  }
+
+  get inputMode(): string {
+    const tipo = this.perfilForm.value.tipoChave;
+    if (tipo === 'cpf' || tipo === 'cnpj') return 'numeric';
+    if (tipo === 'telefone') return 'tel';
+    if (tipo === 'email') return 'email';
+    return 'text';
+  }
+
   ngOnInit() {
     const perfil = this.perfilService.perfil();
 

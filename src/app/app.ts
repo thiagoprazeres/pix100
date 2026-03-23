@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PerfilService } from './services/perfil-service';
+import { ThemeService } from './services/theme-service';
 import packageJson from '../../package.json';
 
 @Component({
@@ -11,5 +12,6 @@ import packageJson from '../../package.json';
 })
 export class App {
   perfilService = inject(PerfilService);
+  themeService = inject(ThemeService);
   version = packageJson.version;
 }

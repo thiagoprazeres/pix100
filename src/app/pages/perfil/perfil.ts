@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { PerfilService } from '../../services/perfil-service';
 import { PerfilInterface } from '../../interfaces/perfil-interface';
+import { ThemeService } from '../../services/theme-service';
 import { Router } from '@angular/router';
 import { MaskitoDirective } from '@maskito/angular';
 import { MaskitoOptions } from '@maskito/core';
@@ -14,6 +15,7 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class Perfil implements OnInit, OnDestroy {
   perfilService = inject(PerfilService);
+  themeService = inject(ThemeService);
   router = inject(Router);
   private destroy$ = new Subject<void>();
 

@@ -1,37 +1,74 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { PerfilService } from '../../services/perfil-service';
 import { PerfilInterface } from '../../interfaces/perfil-interface';
 import { Router } from '@angular/router';
+import { MaskitoDirective } from '@maskito/angular';
+import { MaskitoOptions } from '@maskito/core';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MaskitoDirective],
   templateUrl: './perfil.html',
 })
-export class Perfil implements OnInit {
+export class Perfil implements OnInit, OnDestroy {
   perfilService = inject(PerfilService);
   router = inject(Router);
+  private destroy$ = new Subject<void>();
 
   sucesso = false;
   erro = false;
 
   perfilForm = new FormGroup({
+    tipoChave: new FormControl<'cpf' | 'cnpj' | 'telefone' | 'email' | 'aleatoria'>('cpf', [Validators.required]),
     pixKey: new FormControl('', [Validators.required]),
     merchantName: new FormControl('', [Validators.required]),
     merchantCity: new FormControl('', [Validators.required]),
   });
+
+  readonly maskCpf: MaskitoOptions = {
+    mask: [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/]
+  };
+
+  readonly maskCnpj: MaskitoOptions = {
+    mask: [/\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/]
+  };
+
+  readonly maskTelefone: MaskitoOptions = {
+    mask: ['+', '5', '5', ' ', '(', /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
+  };
+
+  get maskitoOptions(): MaskitoOptions | null {
+    const tipo = this.perfilForm.value.tipoChave;
+    if (tipo === 'cpf') return this.maskCpf;
+    if (tipo === 'cnpj') return this.maskCnpj;
+    if (tipo === 'telefone') return this.maskTelefone;
+    return null;
+  }
 
   ngOnInit() {
     const perfil = this.perfilService.perfil();
 
     if (perfil) {
       this.perfilForm.patchValue({
+        tipoChave: perfil.tipoChave || 'cpf',
         pixKey: perfil.pixKey,
         merchantName: perfil.merchantName,
         merchantCity: perfil.merchantCity,
       });
     }
+
+    this.perfilForm.controls.tipoChave.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.perfilForm.controls.pixKey.setValue('');
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   salvarPerfil() {
@@ -41,7 +78,23 @@ export class Perfil implements OnInit {
       return;
     }
 
-    this.perfilService.salvarPerfil(this.perfilForm.value as PerfilInterface);
+    let key = this.perfilForm.value.pixKey!;
+    const type = this.perfilForm.value.tipoChave;
+
+    if (type === 'cpf' || type === 'cnpj') {
+      key = key.replace(/\D/g, '');
+    } else if (type === 'telefone') {
+      key = key.replace(/[\s\(\)\-]/g, '');
+    }
+
+    const valueToSave: PerfilInterface = {
+      tipoChave: type!,
+      pixKey: key,
+      merchantName: this.perfilForm.value.merchantName!,
+      merchantCity: this.perfilForm.value.merchantCity!,
+    };
+
+    this.perfilService.salvarPerfil(valueToSave);
 
     this.sucesso = true;
     this.erro = false;
@@ -49,8 +102,9 @@ export class Perfil implements OnInit {
   }
 
   limparPerfil() {
-    confirm('Tem certeza que deseja limpar as configurações?') &&
-      this.perfilService.limparPerfil() &&
-      this.perfilForm.reset();
+    if (confirm('Tem certeza que deseja limpar as configurações?')) {
+      this.perfilService.limparPerfil();
+      this.perfilForm.reset({ tipoChave: 'cpf' });
+    }
   }
 }

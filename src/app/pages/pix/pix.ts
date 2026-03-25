@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
 import { maskitoNumberOptionsGenerator, maskitoParseNumber } from '@maskito/kit';
-import { PerfilService } from '../../services/perfil-service';
-import { PixService } from '../../services/pix-service';
-import { PixInterface } from '../../interfaces/pix-interface';
+import { PerfilService } from '../../application/perfil.service';
+import { ChavePixService } from '../../application/chave-pix.service';
+import { CobrancaService } from '../../application/cobranca.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -13,16 +13,16 @@ import { Router } from '@angular/router';
   templateUrl: './pix.html',
 })
 export class Pix {
-  private readonly perfilService = inject(PerfilService);
-  private readonly pixService = inject(PixService);
+  readonly perfilService = inject(PerfilService);
+  readonly chavePixService = inject(ChavePixService);
+  private readonly cobrancaService = inject(CobrancaService);
   private readonly router = inject(Router);
 
-  sucesso = false;
-  erro = false;
+  gerando = signal(false);
+  erro = signal<string | null>(null);
+  mostrarVencimento = signal(false);
 
-  protected readonly perfil = this.perfilService.perfil();
-
-  readonly maskitoOptions = maskitoNumberOptionsGenerator({
+  readonly maskValor = maskitoNumberOptionsGenerator({
     min: 0,
     maximumFractionDigits: 2,
     prefix: 'R$ ',
@@ -32,48 +32,67 @@ export class Pix {
   });
 
   pixForm = new FormGroup({
-    transactionAmount: new FormControl<string | null>(null, {
-      nonNullable: false,
-      validators: [Validators.required],
-    }),
+    transactionAmount: new FormControl<string | null>(null, [Validators.required]),
     infoAdicional: new FormControl<string>(''),
+    vencimento: new FormControl<string>(''),
   });
 
-  salvarPix() {
-    if (this.pixForm.invalid) {
-      this.erro = true;
-      this.sucesso = false;
+  async gerarCobranca(): Promise<void> {
+    const perfil = this.perfilService.perfil();
+    const chaveAtiva = this.chavePixService.chaveAtiva();
+
+    if (!perfil) {
+      this.erro.set('Perfil não configurado.');
       return;
     }
+    if (!chaveAtiva) {
+      this.erro.set('Nenhuma chave Pix ativa. Acesse "Chaves" para cadastrar.');
+      return;
+    }
+
     const amountStr = this.pixForm.value.transactionAmount;
     const amount = amountStr ? maskitoParseNumber(amountStr, { decimalSeparator: ',' }) : 0;
-
     if (amount <= 0) {
-      this.erro = true;
-      this.sucesso = false;
+      this.erro.set('Informe um valor maior que zero.');
       return;
     }
 
-    const pix: PixInterface = {
-      transactionAmount: amount,
-      infoAdicional: this.pixForm.value.infoAdicional ?? undefined,
-    };
-    this.pixService.gerarPix(pix).then(resultado => {
-      console.log('PIX gerado:', resultado);
-      this.sucesso = true;
-      this.erro = false;
-      this.router.navigate(['/pix', resultado.txid]);
-    });
+    const vencimentoStr = this.pixForm.value.vencimento;
+    const vencimento = vencimentoStr ? new Date(vencimentoStr).getTime() : undefined;
+
+    this.gerando.set(true);
+    this.erro.set(null);
+    try {
+      const cobranca = await this.cobrancaService.gerar({
+        perfil,
+        chaveAtiva,
+        valor: amount,
+        descricao: this.pixForm.value.infoAdicional || undefined,
+        vencimento,
+      });
+      this.router.navigate(['/cobranca', cobranca.id]);
+    } catch (e: any) {
+      this.erro.set(e?.message ?? 'Erro ao gerar cobrança.');
+    } finally {
+      this.gerando.set(false);
+    }
   }
 
-  adicionarValor(adicional: number) {
+  adicionarValor(adicional: number): void {
     const currentStr = this.pixForm.value.transactionAmount;
     const currentVal = currentStr ? maskitoParseNumber(currentStr, { decimalSeparator: ',' }) : 0;
     const newVal = currentVal + adicional;
     this.pixForm.controls.transactionAmount.setValue(newVal.toFixed(2).replace('.', ','));
   }
 
-  limparValor() {
+  limparValor(): void {
     this.pixForm.controls.transactionAmount.setValue('');
+  }
+
+  toggleVencimento(): void {
+    this.mostrarVencimento.update((v) => !v);
+    if (!this.mostrarVencimento()) {
+      this.pixForm.controls.vencimento.setValue('');
+    }
   }
 }

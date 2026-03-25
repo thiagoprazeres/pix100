@@ -4,16 +4,40 @@ import {
   isDevMode,
   LOCALE_ID,
   DEFAULT_CURRENCY_CODE,
+  APP_INITIALIZER,
+  inject,
 } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
+import { MigrationService } from './infrastructure/storage/migration.service';
+import { PerfilService } from './application/perfil.service';
+import { ChavePixService } from './application/chave-pix.service';
+import { CobrancaService } from './application/cobranca.service';
 
 import ptBr from '@angular/common/locales/pt';
 import { registerLocaleData } from '@angular/common';
 
 registerLocaleData(ptBr, 'pt-BR');
+
+function initializeApp(): () => Promise<void> {
+  const migration = inject(MigrationService);
+  const perfilService = inject(PerfilService);
+  const chavePixService = inject(ChavePixService);
+  const cobrancaService = inject(CobrancaService);
+
+  return async () => {
+    perfilService.registerDependentServices(chavePixService, cobrancaService);
+    await migration.runIfNeeded();
+    await perfilService.init();
+    const perfil = perfilService.perfil();
+    if (perfil) {
+      await chavePixService.init(perfil.id);
+      await cobrancaService.init(perfil.id);
+    }
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,5 +49,6 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
+    { provide: APP_INITIALIZER, useFactory: initializeApp, multi: true },
   ],
 };

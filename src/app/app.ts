@@ -1,6 +1,7 @@
 import { Component, inject, HostListener, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { PerfilService } from './services/perfil-service';
+import { PerfilService } from './application/perfil.service';
+import { ChavePixService } from './application/chave-pix.service';
 import { ThemeService } from './services/theme-service';
 import packageJson from '../../package.json';
 
@@ -12,6 +13,7 @@ import packageJson from '../../package.json';
 })
 export class App {
   perfilService = inject(PerfilService);
+  chavePixService = inject(ChavePixService);
   themeService = inject(ThemeService);
   version = packageJson.version;
 

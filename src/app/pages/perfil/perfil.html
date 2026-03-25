@@ -2,7 +2,7 @@
   <header class="navbar">
     <div class="flex-1">
       <h1 class="text-xl ml-4 font-bold">
-        {{ !!!perfilService.perfil() ? 'Criar perfil' : 'Perfil' }}
+        {{ !perfilService.perfil() ? 'Criar Perfil' : 'Meu Perfil' }}
       </h1>
     </div>
     <div class="flex-none">
@@ -16,175 +16,53 @@
   <main>
     <div class="w-full my-4 px-2">
       <div class="px-4">
-        <section class="text-center mb-5">
-          <h1 class="text-5xl font-black">
-            PIX100
-
-            <br />
-            <span class="text-lg font-extralight">
-              Cobranças
-              <span class="text-rotate text-2xl">
-                <span class="justify-items-center">
-                  <span>Rápidas</span>
-                  <span>Simples</span>
-                  <span>Inteligentes</span>
-                  <span>Seguras</span>
-                </span>
-              </span>
-              em um toque
-            </span>
-          </h1>
-        </section>
-        <p class="text-sm mb-10">
-          Defina aqui os dados fixos do recebedor. Depois, na tela de PIX, você só informa valor,
-          descrição para criar o PIX Copia e Cola.
-        </p>
-        @if(erro){
-        <div class="alert alert-error text-sm mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="m15 9-6 6" />
-            <path d="m9 9 6 6" />
-          </svg>
-          <span>Verifique os campos preenchidos</span>
-        </div>
-        } @if(sucesso){
-        <div class="alert alert-success text-sm mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="m9 12 2 2 4-4" />
-          </svg>
-          <span>Perfil salvo com sucesso!</span>
-        </div>
+        @if (!perfilService.perfil()) {
+          <section class="text-center mb-6">
+            <h1 class="text-5xl font-black">Origem100</h1>
+            <p class="text-sm font-extralight mt-2 opacity-70">Cobranças Pix simples e organizadas</p>
+          </section>
+          <p class="text-sm mb-6 opacity-70">
+            Configure o recebedor. Depois, cadastre suas chaves Pix e comece a cobrar.
+          </p>
         }
 
-        @if (perfilService.perfis().length > 0) {
-        <div class="mb-8 text-left">
-          <h2 class="text-sm font-bold opacity-70 mb-3 uppercase tracking-wide">Meus Perfis</h2>
-          <div class="flex flex-col gap-2">
-            @for (p of perfilService.perfis(); track p.id) {
-              <div 
-                class="card bg-base-100 shadow-sm border-2 cursor-pointer transition select-none"
-                [class.border-primary]="p.id === perfilService.perfil()?.id"
-                [class.border-transparent]="p.id !== perfilService.perfil()?.id"
-                (click)="selecionarPerfil(p.id)"
-              >
-                <div class="card-body p-4 flex-row items-center justify-between">
-                  <div>
-                    <h3 class="font-bold">{{ p.titulo }}</h3>
-                    <p class="text-xs opacity-70">{{ p.merchantName }}</p>
-                  </div>
-                  @if (p.id === perfilService.perfil()?.id) {
-                    <div class="badge badge-primary">Ativo</div>
-                  }
-                </div>
-              </div>
-            }
+        @if (erro()) {
+          <div class="alert alert-error text-sm mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+            <span>{{ erro() }}</span>
           </div>
-          <button type="button" class="btn btn-outline btn-sm btn-block mt-3" (click)="novoPerfil()">
-            + Criar Novo Perfil
-          </button>
-        </div>
-        
-        <div class="divider">Editando Perfil</div>
+        }
+        @if (sucesso()) {
+          <div class="alert alert-success text-sm mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Perfil salvo com sucesso!</span>
+          </div>
         }
 
         <div class="form-control mb-4">
-          <label for="titulo" class="label font-bold">Nome deste Perfil</label>
-          <input
-            id="titulo"
-            type="text"
-            class="input validator w-full"
-            placeholder="Ex: Minha Empresa"
-            required
-            formControlName="titulo"
-          />
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label font-bold">Tipo de Chave PIX</label>
-          <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-            <label class="label cursor-pointer justify-start gap-2">
-              <input type="radio" formControlName="tipoChave" value="cpf" class="radio radio-primary radio-sm" />
-              <span class="label-text">CPF</span>
-            </label>
-            <label class="label cursor-pointer justify-start gap-2">
-              <input type="radio" formControlName="tipoChave" value="cnpj" class="radio radio-primary radio-sm" />
-              <span class="label-text">CNPJ</span>
-            </label>
-            <label class="label cursor-pointer justify-start gap-2">
-              <input type="radio" formControlName="tipoChave" value="telefone" class="radio radio-primary radio-sm" />
-              <span class="label-text">Celular</span>
-            </label>
-            <label class="label cursor-pointer justify-start gap-2">
-              <input type="radio" formControlName="tipoChave" value="email" class="radio radio-primary radio-sm" />
-              <span class="label-text">E-mail</span>
-            </label>
-            <label class="label cursor-pointer justify-start gap-2">
-              <input type="radio" formControlName="tipoChave" value="aleatoria" class="radio radio-primary radio-sm" />
-              <span class="label-text">Aleatória</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-control">
-          <label for="pixKey" class="label"> Chave PIX </label>
-          <input
-            id="pixKey"
-            name="pixKey"
-            [type]="inputType"
-            [attr.inputmode]="inputMode"
-            autocomplete="on"
-            class="input validator w-full"
-            placeholder="Informe a sua chave"
-            required
-            [maskito]="maskitoOptions"
-            formControlName="pixKey"
-          />
-          @if (perfilForm.controls.pixKey.errors?.['required'] || perfilForm.controls.pixKey.errors?.['documentoInvalido']) {
-            <p class="validator-hint">
-              {{ perfilForm.controls.pixKey.errors?.['documentoInvalido'] ? 'Documento matematicamente inválido (CPF/CNPJ incorreto).' : 'Chave PIX é obrigatória' }}
-            </p>
-          }
-        </div>
-
-        <div class="form-control">
-          <label for="merchantName" class="label">Nome completo</label>
+          <label for="merchantName" class="label font-bold">
+            Nome do recebedor
+            <span class="label-text-alt opacity-60">nome completo, social ou fantasia</span>
+          </label>
           <input
             id="merchantName"
             name="merchantName"
             type="text"
             autocomplete="name"
             class="input validator w-full"
-            placeholder="Seu nome completo"
+            placeholder="Ex: João da Silva ou Minha Loja ME"
             required
+            minlength="3"
             formControlName="merchantName"
           />
-          <p class="validator-hint">Nome completo é obrigatório</p>
+          <p class="validator-hint">Mínimo 3 caracteres. Evite usar só o primeiro nome.</p>
         </div>
 
-        <div class="form-control">
-          <label for="merchantCity" class="label"> Cidade </label>
+        <div class="form-control mb-6">
+          <label for="merchantCity" class="label font-bold">
+            Cidade
+            <span class="label-text-alt opacity-60">usada no QR Code</span>
+          </label>
           <input
             id="merchantCity"
             name="merchantCity"
@@ -197,20 +75,26 @@
           />
           <p class="validator-hint">Cidade é obrigatória</p>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key-round-icon lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-          Salvar
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="salvando()">
+          @if (salvando()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          }
+          Salvar Perfil
         </button>
-        @if(perfilService.perfil()){
-        <div class="form-control mt-4 gap-2">
-          <button
-            type="button"
-            class="btn btn-outline btn-block btn-error mt-10"
-            (click)="removerPerfil()"
-          >
-            Excluir Perfil Atual
-          </button>
-        </div>
+
+        @if (perfilService.perfil()) {
+          <div class="mt-10">
+            <button
+              type="button"
+              class="btn btn-outline btn-block btn-error"
+              (click)="removerPerfil()"
+            >
+              Excluir Perfil e Todos os Dados
+            </button>
+          </div>
         }
       </div>
     </div>

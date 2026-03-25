@@ -1,30 +1,45 @@
 <header class="navbar">
-  <h1 class="ml-4">Criar PIX Copia e Cola</h1>
+  <h1 class="ml-4 font-bold">Nova Cobrança</h1>
 </header>
 <main>
-  <div class="hero">
-    <div class="hero-content text-center">
-      <div>
-        <h1 class="text-xl font-bold">{{ perfil?.merchantName }}</h1>
-        <p class="text-sm font-extralight">{{ perfil?.pixKey }}</p>
-        <p class="text-xs">{{ perfil?.merchantCity }}</p>
+  @if (chavePixService.chaveAtiva()) {
+    <div class="hero py-4">
+      <div class="hero-content text-center">
+        <div>
+          <p class="text-lg font-bold">{{ perfilService.perfil()?.merchantName }}</p>
+          <p class="text-xs font-mono opacity-60 mt-1">{{ chavePixService.chaveAtiva()?.valor }}</p>
+          <p class="text-xs opacity-50">{{ perfilService.perfil()?.merchantCity }}</p>
+        </div>
       </div>
     </div>
-  </div>
-  <form [formGroup]="pixForm" (ngSubmit)="salvarPix()" class="px-6">
+  } @else {
+    <div class="alert alert-warning mx-4 mt-4 text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <span>Nenhuma chave Pix ativa. Acesse <strong>Chaves</strong> para cadastrar.</span>
+    </div>
+  }
+
+  <form [formGroup]="pixForm" (ngSubmit)="gerarCobranca()" class="px-6 pb-6">
+    @if (erro()) {
+      <div class="alert alert-error text-sm mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+        {{ erro() }}
+      </div>
+    }
+
     <div class="form-control">
       <label class="label">Valor</label>
       <input
         type="text"
         inputmode="numeric"
         class="input validator w-full"
-        placeholder="Valor"
+        placeholder="R$ 0,00"
         required
-        [maskito]="maskitoOptions"
+        [maskito]="maskValor"
         formControlName="transactionAmount"
       />
       <p class="validator-hint">Valor é obrigatório</p>
-      <div class="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide text-nowrap">
+      <div class="flex gap-2 mt-3 overflow-x-auto pb-2 text-nowrap">
         <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(2)">+ R$ 2</button>
         <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(5)">+ R$ 5</button>
         <button type="button" class="btn btn-sm btn-outline btn-primary rounded-full shrink-0" (click)="adicionarValor(10)">+ R$ 10</button>
@@ -32,39 +47,41 @@
         <button type="button" class="btn btn-sm btn-ghost rounded-full shrink-0" (click)="limparValor()">Limpar</button>
       </div>
     </div>
-    <div class="form-control">
+
+    <div class="form-control mt-2">
       <label class="label">Descrição (opcional)</label>
       <input
         type="text"
-        class="input validator w-full"
-        placeholder="Descrição"
+        class="input w-full"
+        placeholder="Ex: Produto X, Serviço Y..."
         formControlName="infoAdicional"
       />
     </div>
-    <div class="form-control mt-4 gap-2">
-      <button type="submit" class="btn btn-primary btn-block">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-scan-qr-code-icon lucide-scan-qr-code"
-        >
-          <path d="M17 12v4a1 1 0 0 1-1 1h-4" />
-          <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-          <path d="M17 8V7" />
-          <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-          <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-          <path d="M7 17h.01" />
-          <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-          <rect x="7" y="7" width="5" height="5" rx="1" />
-        </svg>
-        Gerar PIX Copia e Cola
+
+    <div class="form-control mt-2">
+      <label class="label cursor-pointer justify-start gap-3">
+        <input type="checkbox" class="toggle toggle-primary toggle-sm" [checked]="mostrarVencimento()" (change)="toggleVencimento()" />
+        <span class="label-text">Definir vencimento</span>
+      </label>
+      @if (mostrarVencimento()) {
+        <input
+          type="date"
+          class="input w-full mt-1"
+          formControlName="vencimento"
+        />
+        <p class="text-xs opacity-60 mt-1">O Pix estático é válido tecnicamente mesmo após o vencimento. Esta data é uma política do produto.</p>
+      }
+    </div>
+
+    <div class="form-control mt-6">
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="gerando() || !chavePixService.chaveAtiva()">
+        @if (gerando()) {
+          <span class="loading loading-spinner loading-sm"></span>
+          Gerando...
+        } @else {
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 12v4a1 1 0 0 1-1 1h-4"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M17 8V7"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M7 17h.01"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="5" height="5" rx="1"/></svg>
+          Gerar Cobrança
+        }
       </button>
     </div>
   </form>

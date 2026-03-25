@@ -1,32 +1,43 @@
 import { Routes } from '@angular/router';
-import { Pix } from './pages/pix/pix';
-import { Historico } from './pages/historico/historico';
-import { Perfil } from './pages/perfil/perfil';
 import { perfilGuard } from './guards/perfil-guard';
-import { PixDetails } from './pages/pix-details/pix-details';
 
 export const routes: Routes = [
   {
     path: '',
-    component: Pix,
-    title: 'PIX',
+    redirectTo: 'cobranca',
+    pathMatch: 'full',
+  },
+  {
+    path: 'cobranca',
+    loadComponent: () => import('./pages/pix/pix').then((m) => m.Pix),
+    title: 'Nova Cobrança',
+    canActivate: [perfilGuard],
+  },
+  {
+    path: 'cobranca/:id',
+    loadComponent: () => import('./pages/pix-details/pix-details').then((m) => m.PixDetails),
+    title: 'Detalhes da Cobrança',
     canActivate: [perfilGuard],
   },
   {
     path: 'historico',
-    component: Historico,
+    loadComponent: () => import('./pages/historico/historico').then((m) => m.Historico),
     title: 'Histórico',
     canActivate: [perfilGuard],
   },
   {
+    path: 'chaves',
+    loadComponent: () => import('./pages/chaves/chaves').then((m) => m.Chaves),
+    title: 'Chaves Pix',
+    canActivate: [perfilGuard],
+  },
+  {
     path: 'perfil',
-    component: Perfil,
+    loadComponent: () => import('./pages/perfil/perfil').then((m) => m.Perfil),
     title: 'Perfil',
   },
   {
     path: 'pix/:txid',
-    component: PixDetails,
-    title: 'Detalhes do PIX',
-    canActivate: [perfilGuard],
-  }
+    redirectTo: 'historico',
+  },
 ];

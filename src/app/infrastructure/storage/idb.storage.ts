@@ -11,11 +11,15 @@ const DB_VERSION = 1;
 
 @Injectable({ providedIn: 'root' })
 export class IdbStorage extends StoragePort {
-  private dbPromise: Promise<IDBPDatabase>;
+  private dbInstance: IDBPDatabase | null = null;
 
   constructor() {
     super();
-    this.dbPromise = openDB(DB_NAME, DB_VERSION, {
+  }
+
+  private openDb(): Promise<IDBPDatabase> {
+    const self = this;
+    return openDB(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('perfil')) {
           db.createObjectStore('perfil', { keyPath: 'id' });
@@ -39,105 +43,125 @@ export class IdbStorage extends StoragePort {
           eventosStore.createIndex('idempotencyKey', 'idempotencyKey', { unique: true });
         }
       },
+      terminated() {
+        self.dbInstance = null;
+      },
+      blocking() {
+        self.dbInstance?.close();
+        self.dbInstance = null;
+      },
     });
   }
 
   private async db(): Promise<IDBPDatabase> {
-    return this.dbPromise;
+    if (!this.dbInstance) {
+      this.dbInstance = await this.openDb();
+    }
+    return this.dbInstance;
+  }
+
+  private isClosingError(e: unknown): boolean {
+    return (
+      e instanceof DOMException &&
+      (e.name === 'InvalidStateError' ||
+        (e.message?.toLowerCase().includes('clos')))
+    );
+  }
+
+  private async exec<T>(fn: (db: IDBPDatabase) => Promise<T>): Promise<T> {
+    try {
+      return await fn(await this.db());
+    } catch (e) {
+      if (this.isClosingError(e)) {
+        this.dbInstance = null;
+        return fn(await this.db());
+      }
+      throw e;
+    }
   }
 
   async getPerfil(): Promise<Perfil | undefined> {
-    const db = await this.db();
-    const all = await db.getAll('perfil');
-    return all[0];
+    return this.exec(async (db) => {
+      const all = await db.getAll('perfil');
+      return all[0];
+    });
   }
 
   async savePerfil(perfil: Perfil): Promise<void> {
-    const db = await this.db();
-    await db.put('perfil', perfil);
+    return this.exec((db) => db.put('perfil', perfil) as Promise<any>);
   }
 
   async deletePerfil(): Promise<void> {
-    const db = await this.db();
-    const all = await db.getAll('perfil');
-    if (all.length > 0) {
-      await db.delete('perfil', all[0].id);
-    }
+    return this.exec(async (db) => {
+      const all = await db.getAll('perfil');
+      if (all.length > 0) await db.delete('perfil', all[0].id);
+    });
   }
 
   async getChaves(perfilId: string): Promise<ChavePix[]> {
-    const db = await this.db();
-    return db.getAllFromIndex('chaves_pix', 'perfilId', perfilId);
+    return this.exec((db) => db.getAllFromIndex('chaves_pix', 'perfilId', perfilId));
   }
 
   async getChave(id: string): Promise<ChavePix | undefined> {
-    const db = await this.db();
-    return db.get('chaves_pix', id);
+    return this.exec((db) => db.get('chaves_pix', id));
   }
 
   async saveChave(chave: ChavePix): Promise<void> {
-    const db = await this.db();
-    await db.put('chaves_pix', chave);
+    return this.exec((db) => db.put('chaves_pix', chave) as Promise<any>);
   }
 
   async deleteChave(id: string): Promise<void> {
-    const db = await this.db();
-    await db.delete('chaves_pix', id);
+    return this.exec((db) => db.delete('chaves_pix', id) as Promise<any>);
   }
 
   async getCobrancas(perfilId: string): Promise<Cobranca[]> {
-    const db = await this.db();
-    const all = await db.getAllFromIndex('cobrancas', 'perfilId', perfilId);
-    return all.sort((a, b) => b.criadaEm - a.criadaEm);
+    return this.exec(async (db) => {
+      const all = await db.getAllFromIndex('cobrancas', 'perfilId', perfilId);
+      return all.sort((a, b) => b.criadaEm - a.criadaEm);
+    });
   }
 
   async getCobranca(id: string): Promise<Cobranca | undefined> {
-    const db = await this.db();
-    return db.get('cobrancas', id);
+    return this.exec((db) => db.get('cobrancas', id));
   }
 
   async saveCobranca(cobranca: Cobranca): Promise<void> {
-    const db = await this.db();
-    await db.put('cobrancas', cobranca);
+    return this.exec((db) => db.put('cobrancas', cobranca) as Promise<any>);
   }
 
   async getEventos(cobrancaId: string): Promise<EventoConciliacao[]> {
-    const db = await this.db();
-    const all = await db.getAllFromIndex('eventos_conciliacao', 'cobrancaId', cobrancaId);
-    return all.sort((a, b) => a.timestamp - b.timestamp);
+    return this.exec(async (db) => {
+      const all = await db.getAllFromIndex('eventos_conciliacao', 'cobrancaId', cobrancaId);
+      return all.sort((a, b) => a.timestamp - b.timestamp);
+    });
   }
 
   async getEventoPorIdempotencyKey(key: string): Promise<EventoConciliacao | undefined> {
-    const db = await this.db();
-    return db.getFromIndex('eventos_conciliacao', 'idempotencyKey', key);
+    return this.exec((db) => db.getFromIndex('eventos_conciliacao', 'idempotencyKey', key));
   }
 
   async saveEvento(evento: EventoConciliacao): Promise<void> {
-    const db = await this.db();
-    await db.put('eventos_conciliacao', evento);
+    return this.exec((db) => db.put('eventos_conciliacao', evento) as Promise<any>);
   }
 
   async chaveUsadaEmCobranca(chaveId: string): Promise<boolean> {
-    const db = await this.db();
-    const all = await db.getAllFromIndex('cobrancas', 'chavePixId', chaveId);
-    return all.length > 0;
+    return this.exec(async (db) => {
+      const all = await db.getAllFromIndex('cobrancas', 'chavePixId', chaveId);
+      return all.length > 0;
+    });
   }
 
   async clearProfileData(perfilId: string): Promise<void> {
-    const db = await this.db();
+    return this.exec(async (db) => {
+      const chaves = await db.getAllFromIndex('chaves_pix', 'perfilId', perfilId);
+      for (const c of chaves) await db.delete('chaves_pix', c.id);
 
-    const chaves = await db.getAllFromIndex('chaves_pix', 'perfilId', perfilId);
-    for (const c of chaves) {
-      await db.delete('chaves_pix', c.id);
-    }
-
-    const cobrancas = await db.getAllFromIndex('cobrancas', 'perfilId', perfilId);
-    for (const c of cobrancas) {
-      const eventos = await db.getAllFromIndex('eventos_conciliacao', 'cobrancaId', c.id);
-      for (const ev of eventos) {
-        await db.delete('eventos_conciliacao', ev.id);
+      const cobrancas = await db.getAllFromIndex('cobrancas', 'perfilId', perfilId);
+      for (const c of cobrancas) {
+        const eventos = await db.getAllFromIndex('eventos_conciliacao', 'cobrancaId', c.id);
+        for (const ev of eventos) await db.delete('eventos_conciliacao', ev.id);
+        await db.delete('cobrancas', c.id);
       }
-      await db.delete('cobrancas', c.id);
-    }
+    });
   }
 }

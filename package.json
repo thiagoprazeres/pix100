@@ -30,9 +30,9 @@
     "@angular/platform-browser": "^21.2.5",
     "@angular/router": "^21.2.5",
     "@angular/service-worker": "^21.2.5",
-    "@maskito/angular": "^5.1.2",
-    "@maskito/core": "^5.1.2",
-    "@maskito/kit": "^5.1.2",
+    "@maskito/angular": "^5.2.0",
+    "@maskito/core": "^5.2.0",
+    "@maskito/kit": "^5.2.0",
     "buffer": "^6.0.3",
     "pix-utils": "^2.8.2",
     "rxjs": "~7.8.2",
@@ -48,7 +48,7 @@
     "jsdom": "^29.0.1",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
-    "typescript": "~5.9.3",
-    "vitest": "^4.1.0"
+    "typescript": "~6.0.2",
+    "vitest": "^4.1.1"
   }
 }

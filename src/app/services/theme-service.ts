@@ -28,6 +28,6 @@ export class ThemeService {
   }
 
   private applyTheme(theme: string) {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }
 }

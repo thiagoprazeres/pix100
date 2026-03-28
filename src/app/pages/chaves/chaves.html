@@ -4,9 +4,9 @@
   </div>
   <div class="flex-none pr-2">
     @if (!adicionando()) {
-      <button type="button" tuiButton appearance="primary" size="s" (click)="abrirFormulario()">
+      <ion-button type="button" fill="solid" color="primary" size="small" (click)="abrirFormulario()">
         + Adicionar
-      </button>
+      </ion-button>
     }
   </div>
 </header>
@@ -14,17 +14,17 @@
 <main class="px-4 py-2">
 
   @if (!chavePixService.chaveAtiva()) {
-    <tui-notification appearance="warning" class="mb-4">
+    <div class="notification notification-warning mb-4">
       Nenhuma chave ativa. Cadastre ou ative uma chave para gerar cobranças.
-    </tui-notification>
+    </div>
   }
 
   @if (adicionando()) {
-    <div class="rounded-xl p-4 mb-6 shadow-sm" style="background: var(--tui-background-base-alt); border: 1px solid var(--tui-border-normal)">
+    <div class="rounded-xl p-4 mb-6 shadow-sm bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
       <h2 class="text-base font-bold mb-3">Nova Chave Pix</h2>
 
       @if (erro()) {
-        <tui-notification appearance="negative" class="mb-3">{{ erro() }}</tui-notification>
+        <div class="notification notification-negative mb-3">{{ erro() }}</div>
       }
 
       <form [formGroup]="chaveForm" (ngSubmit)="salvar()">
@@ -36,7 +36,7 @@
               {v:'email',l:'E-mail'},{v:'aleatoria',l:'Aleatória'},{v:'desconhecida',l:'Outra'}
             ]; track opt.v) {
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" tuiRadio [value]="opt.v" formControlName="tipo" />
+                <input type="radio" class="accent-blue-600 w-4 h-4" [value]="opt.v" formControlName="tipo" />
                 <span class="text-sm">{{ opt.l }}</span>
               </label>
             }
@@ -48,11 +48,11 @@
             <p class="text-sm font-bold mb-2">Pessoa</p>
             <div class="flex gap-6">
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" tuiRadio value="PF" formControlName="tipoPessoa" />
+                <input type="radio" class="accent-blue-600 w-4 h-4" value="PF" formControlName="tipoPessoa" />
                 <span class="text-sm">Pessoa Física</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" tuiRadio value="PJ" formControlName="tipoPessoa" />
+                <input type="radio" class="accent-blue-600 w-4 h-4" value="PJ" formControlName="tipoPessoa" />
                 <span class="text-sm">Pessoa Jurídica</span>
               </label>
             </div>
@@ -65,29 +65,26 @@
 
         <div class="mb-4">
           <p class="text-sm font-bold mb-1">Chave</p>
-          <tui-textfield>
-            <input
-              tuiTextfield
-              [type]="inputType"
-              [attr.inputmode]="inputMode"
-              placeholder="Informe a chave"
-              [maskito]="maskitoOptions"
-              formControlName="valor"
-            />
-          </tui-textfield>
+          <input
+            [type]="inputType"
+            [attr.inputmode]="inputMode"
+            placeholder="Informe a chave"
+            [maskito]="maskitoOptions"
+            formControlName="valor"
+          />
           @if (chaveForm.get('valor')?.invalid && chaveForm.get('valor')?.touched) {
-            <p class="text-xs mt-1" style="color: var(--tui-text-negative)">Chave obrigatória</p>
+            <p class="text-xs mt-1 text-red-600 dark:text-red-400">Chave obrigatória</p>
           }
         </div>
 
         <div class="flex gap-2">
-          <button type="submit" tuiButton appearance="primary" class="flex-1" [disabled]="salvando()">
+          <ion-button type="submit" fill="solid" color="primary" class="flex-1" [disabled]="salvando()">
             @if (salvando()) {
               <ion-spinner name="crescent" style="width:16px;height:16px"></ion-spinner>
             }
             Cadastrar
-          </button>
-          <button type="button" tuiButton appearance="ghost" class="flex-1" (click)="cancelar()">Cancelar</button>
+          </ion-button>
+          <ion-button type="button" fill="clear" class="flex-1" (click)="cancelar()">Cancelar</ion-button>
         </div>
       </form>
     </div>
@@ -97,46 +94,45 @@
     <div class="text-center py-16 opacity-60">
       <svg class="mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
       <p class="text-sm">Nenhuma chave cadastrada.</p>
-      <button tuiButton appearance="primary" size="s" class="mt-4" (click)="abrirFormulario()">Cadastrar primeira chave</button>
+      <ion-button fill="solid" color="primary" size="small" class="mt-4" (click)="abrirFormulario()">Cadastrar primeira chave</ion-button>
     </div>
   }
 
   <div class="flex flex-col gap-3">
     @for (chave of chavePixService.chaves(); track chave.id) {
-      <div class="rounded-xl p-4 shadow-sm"
-           [style.border]="chave.status === 'ativa' ? '1.5px solid var(--tui-text-action)' : '1px solid var(--tui-border-normal)'"
-           [style.background]="'var(--tui-background-base)'"
-           [style.opacity]="chave.status === 'arquivada' ? '0.5' : '1'">
+      <div [class]="'rounded-xl p-4 shadow-sm border bg-white dark:bg-neutral-900 ' +
+                    (chave.status === 'ativa' ? 'border-2 border-blue-500' : 'border-neutral-200 dark:border-neutral-700') +
+                    (chave.status === 'arquivada' ? ' opacity-50' : '')"
+      >
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1 min-w-0">
             <div class="flex items-center flex-wrap gap-1.5 mb-1">
-              <span tuiBadge size="s"
-                    [appearance]="chave.status === 'ativa' ? 'primary' : chave.status === 'arquivada' ? 'negative' : 'neutral'">
+              <span [class]="'badge ' + (chave.status === 'ativa' ? 'badge-primary' : chave.status === 'arquivada' ? 'badge-negative' : 'badge-neutral')">
                 {{ statusLabels[chave.status] }}
               </span>
-              <span tuiBadge size="s" appearance="outline">{{ tipoLabels[chave.tipo] }}</span>
-              <span tuiBadge size="s" appearance="neutral">{{ chave.tipoPessoa }}</span>
+              <span class="badge badge-outline">{{ tipoLabels[chave.tipo] }}</span>
+              <span class="badge badge-neutral">{{ chave.tipoPessoa }}</span>
               @if (chave.verificacaoStatus === 'confirmada_por_recebimento') {
-                <span tuiBadge size="s" appearance="positive">✓ Confirmada</span>
+                <span class="badge badge-success">✓ Confirmada</span>
               }
             </div>
             <p class="font-mono text-sm truncate">{{ chave.valor }}</p>
           </div>
           <div class="flex gap-1 shrink-0">
             @if (chave.status === 'inativa') {
-              <button tuiButton appearance="primary" size="xs" [disabled]="acaoEmAndamento() === chave.id" (click)="ativar(chave)">
+              <ion-button fill="solid" color="primary" size="small" [disabled]="acaoEmAndamento() === chave.id" (click)="ativar(chave)">
                 Ativar
-              </button>
+              </ion-button>
             }
             @if (chave.status !== 'arquivada') {
-              <button tuiButton appearance="ghost" size="xs" [disabled]="acaoEmAndamento() === chave.id" (click)="arquivar(chave)" title="Arquivar">
+              <ion-button fill="clear" size="small" [disabled]="acaoEmAndamento() === chave.id" (click)="arquivar(chave)" title="Arquivar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
-              </button>
+              </ion-button>
             }
             @if (chave.status === 'inativa') {
-              <button tuiButton appearance="flat-destructive" size="xs" [disabled]="acaoEmAndamento() === chave.id" (click)="remover(chave)" title="Remover">
+              <ion-button fill="clear" color="danger" size="small" [disabled]="acaoEmAndamento() === chave.id" (click)="remover(chave)" title="Remover">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-              </button>
+              </ion-button>
             }
           </div>
         </div>

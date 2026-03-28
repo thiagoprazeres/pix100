@@ -5,13 +5,11 @@ import { Cobranca, STATUS_COBRANCA_LABELS } from '../../domain/cobranca/cobranca
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
-import { TuiButton } from '@taiga-ui/core';
-import { TuiBadge } from '@taiga-ui/kit';
-import { ToastController } from '@ionic/angular/standalone';
+import { IonButton, ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-historico',
-  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe, TuiButton, TuiBadge],
+  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe, IonButton],
   templateUrl: './historico.html',
 })
 export class Historico implements OnInit {

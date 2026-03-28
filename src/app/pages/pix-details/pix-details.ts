@@ -8,13 +8,11 @@ import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
-import { TuiButton, TuiTextfield } from '@taiga-ui/core';
-import { TuiBadge } from '@taiga-ui/kit';
-import { IonSpinner, ToastController } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner, ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-pix-details',
-  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe, TuiButton, TuiTextfield, TuiBadge, IonSpinner],
+  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe, IonButton, IonSpinner],
   templateUrl: './pix-details.html',
 })
 export class PixDetails implements OnInit {

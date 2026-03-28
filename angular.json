@@ -26,7 +26,6 @@
               }
             ],
             "styles": [
-              "node_modules/@taiga-ui/core/styles/taiga-ui-local.scss",
               "node_modules/@ionic/core/css/core.css",
               "src/styles.css"
             ],

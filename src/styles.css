@@ -7,23 +7,39 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html, body {
-    background-color: var(--tui-background-base-alt);
-    color: var(--tui-text-primary);
+    @apply bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100;
     font-family: 'Geist', sans-serif;
+  }
+
+  input[type='text'],
+  input[type='number'],
+  input[type='email'],
+  input[type='tel'],
+  input[type='date'],
+  select,
+  textarea {
+    @apply w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900
+           placeholder-neutral-400 outline-none transition
+           focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+           dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100
+           dark:placeholder-neutral-500 dark:focus:border-blue-400;
+  }
+
+  select {
+    @apply appearance-none cursor-pointer;
   }
 }
 
 @layer utilities {
   header.navbar {
-    @apply sticky top-0 z-40 backdrop-blur;
-    background-color: color-mix(in srgb, var(--tui-background-base-alt) 80%, transparent);
-    border-bottom: 1px solid var(--tui-border-normal);
-    display: flex;
-    align-items: center;
-    min-height: 3.5rem;
-    padding: 0 0.5rem;
+    @apply sticky top-0 z-40 backdrop-blur
+           bg-white/80 dark:bg-neutral-950/80
+           border-b border-neutral-200 dark:border-neutral-800
+           flex items-center min-h-14 px-2;
     h1 {
       @apply text-xl font-bold;
     }
@@ -33,47 +49,92 @@
     font-family: 'Caveat', cursive;
   }
 
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+  .badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300;
+  }
+  .badge-warning {
+    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300;
+  }
+  .badge-negative {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300;
+  }
+  .badge-neutral {
+    @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300;
+  }
+  .badge-outline {
+    @apply border border-neutral-300 text-neutral-600 dark:border-neutral-600 dark:text-neutral-400;
+  }
+  .badge-primary {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300;
+  }
+
+  /* Notifications */
+  .notification {
+    @apply flex items-start gap-2 rounded-lg px-4 py-3 text-sm;
+  }
+  .notification-negative {
+    @apply bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+  }
+  .notification-positive {
+    @apply bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+  }
+  .notification-warning {
+    @apply bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300;
+  }
+  .notification-neutral {
+    @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300;
+  }
+
+  /* Ionic theming */
   ion-tab-bar {
-    --background: var(--tui-background-base);
-    border-top: 1px solid var(--tui-border-normal);
+    --background: theme(colors.white);
+    --border: 1px solid theme(colors.neutral.200);
+  }
+  .dark ion-tab-bar {
+    --background: theme(colors.neutral.950);
+    --border: 1px solid theme(colors.neutral.800);
   }
 
   ion-tab-button {
-    --color: var(--tui-text-tertiary);
-    --color-selected: var(--tui-text-action);
+    --color: theme(colors.neutral.500);
+    --color-selected: theme(colors.blue.600);
+  }
+  .dark ion-tab-button {
+    --color: theme(colors.neutral.400);
+    --color-selected: theme(colors.blue.400);
   }
 
   ion-tab-button.tab-active {
-    --color: var(--tui-text-action);
     font-weight: 600;
-    svg {
-      stroke-width: 2;
-    }
+    svg { stroke-width: 2; }
   }
 
-  .tui-notification-row {
-    @apply flex items-start gap-2 text-sm;
+  ion-button {
+    --border-radius: 0.5rem;
   }
 
+  /* Timeline */
   .pix-timeline {
     @apply relative pl-6;
   }
-
   .pix-timeline::before {
     content: '';
-    @apply absolute left-2 top-0 bottom-0 w-px bg-[--tui-border-normal];
+    @apply absolute left-2 top-0 bottom-0 w-px bg-neutral-200 dark:bg-neutral-700;
   }
-
   .pix-timeline-item {
     @apply relative pb-4;
   }
-
   .pix-timeline-item::before {
     content: '';
-    @apply absolute -left-4 top-1.5 w-2.5 h-2.5 rounded-full bg-[--tui-text-action] border-2 border-[--tui-background-base];
+    @apply absolute -left-4 top-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 border-2
+           border-white dark:border-neutral-950;
   }
 
   .historico-item:hover {
-    background-color: var(--tui-background-base-alt);
+    @apply bg-neutral-50 dark:bg-neutral-900;
   }
 }

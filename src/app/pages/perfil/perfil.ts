@@ -3,12 +3,11 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { PerfilService } from '../../application/perfil.service';
 import { ThemeService } from '../../services/theme-service';
 import { Router } from '@angular/router';
-import { TuiButton, TuiNotification, TuiTextfield } from '@taiga-ui/core';
-import { IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule, TuiButton, TuiNotification, TuiTextfield, IonSpinner],
+  imports: [ReactiveFormsModule, IonButton, IonSpinner],
   templateUrl: './perfil.html',
 })
 export class Perfil implements OnInit {
@@ -40,7 +39,6 @@ export class Perfil implements OnInit {
       this.erro.set('Verifique os campos obrigatórios.');
       return;
     }
-    const isNovoPerfil = !this.perfilService.perfil();
     this.salvando.set(true);
     this.erro.set(null);
     try {
@@ -49,8 +47,7 @@ export class Perfil implements OnInit {
         merchantCity: this.perfilForm.value.merchantCity!,
       });
       this.sucesso.set(true);
-      const destino = isNovoPerfil ? '/chaves' : '/cobranca';
-      setTimeout(() => this.router.navigate([destino]), 800);
+      setTimeout(() => this.router.navigate(['/chaves']), 800);
     } catch (e: any) {
       this.erro.set(e?.message ?? 'Erro ao salvar perfil.');
     } finally {

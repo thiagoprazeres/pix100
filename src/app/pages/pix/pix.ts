@@ -6,13 +6,11 @@ import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
 import { Router, RouterLink } from '@angular/router';
-import { TuiButton, TuiNotification, TuiTextfield } from '@taiga-ui/core';
-import { TuiSwitch } from '@taiga-ui/kit';
-import { IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonToggle, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-pix',
-  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink, TuiButton, TuiNotification, TuiTextfield, TuiSwitch, IonSpinner],
+  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink, IonButton, IonToggle, IonSpinner],
   templateUrl: './pix.html',
 })
 export class Pix {

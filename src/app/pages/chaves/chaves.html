@@ -30,32 +30,27 @@
       <form [formGroup]="chaveForm" (ngSubmit)="salvar()">
         <div class="mb-3">
           <p class="text-sm font-bold mb-2">Tipo de chave</p>
-          <div class="flex flex-wrap gap-x-4 gap-y-1">
-            @for (opt of [
-              {v:'cpf',l:'CPF'},{v:'cnpj',l:'CNPJ'},{v:'telefone',l:'Telefone'},
-              {v:'email',l:'E-mail'},{v:'aleatoria',l:'Aleatória'},{v:'desconhecida',l:'Outra'}
-            ]; track opt.v) {
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" class="accent-neutral-900 dark:accent-neutral-100 w-4 h-4" [value]="opt.v" formControlName="tipo" />
-                <span class="text-sm">{{ opt.l }}</span>
-              </label>
-            }
-          </div>
+          <ion-radio-group [value]="chaveForm.controls.tipo.value" (ionChange)="chaveForm.controls.tipo.setValue($event.detail.value)">
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+              @for (opt of [
+                {v:'cpf',l:'CPF'},{v:'cnpj',l:'CNPJ'},{v:'telefone',l:'Telefone'},
+                {v:'email',l:'E-mail'},{v:'aleatoria',l:'Aleatória'},{v:'desconhecida',l:'Outra'}
+              ]; track opt.v) {
+                <ion-radio [value]="opt.v" class="text-sm">{{ opt.l }}</ion-radio>
+              }
+            </div>
+          </ion-radio-group>
         </div>
 
         @if (exigeTipoPessoa) {
           <div class="mb-3">
             <p class="text-sm font-bold mb-2">Pessoa</p>
-            <div class="flex gap-6">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" class="accent-neutral-900 dark:accent-neutral-100 w-4 h-4" value="PF" formControlName="tipoPessoa" />
-                <span class="text-sm">Pessoa Física</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" class="accent-neutral-900 dark:accent-neutral-100 w-4 h-4" value="PJ" formControlName="tipoPessoa" />
-                <span class="text-sm">Pessoa Jurídica</span>
-              </label>
-            </div>
+            <ion-radio-group [value]="chaveForm.controls.tipoPessoa.value" (ionChange)="chaveForm.controls.tipoPessoa.setValue($event.detail.value)">
+              <div class="flex gap-6">
+                <ion-radio value="PF" class="text-sm">Pessoa Física</ion-radio>
+                <ion-radio value="PJ" class="text-sm">Pessoa Jurídica</ion-radio>
+              </div>
+            </ion-radio-group>
           </div>
         } @else {
           <p class="text-xs opacity-60 mb-3">
@@ -77,20 +72,18 @@
           }
         </div>
 
-        <div class="mb-4 grid grid-cols-2 gap-2">
-          <div>
-            <p class="text-sm font-bold mb-1">Banco (ISPB ou nome)</p>
-            <input type="text" formControlName="banco" list="bancos-chave-list" placeholder="Digite ISPB ou nome" autocomplete="off" />
-            <datalist id="bancos-chave-list">
-              @for (b of bancosFiltrados(); track b.ispb) {
-                <option [value]="b.ispb">{{ b.nomeReduzido || b.nome }}</option>
-              }
-            </datalist>
-          </div>
-          <div>
-            <p class="text-sm font-bold mb-1">Nome do banco</p>
-            <input type="text" formControlName="nomeBanco" placeholder="Preenchido automaticamente" />
-          </div>
+        <div class="mb-4">
+          <p class="text-sm font-bold mb-1">Banco <span class="text-xs font-normal opacity-50">(opcional)</span></p>
+          <input type="text" formControlName="banco" list="bancos-chave-list"
+                 placeholder="Digite o nome do banco..." autocomplete="off" />
+          <datalist id="bancos-chave-list">
+            @for (label of bancosFiltrados(); track label) {
+              <option [value]="label"></option>
+            }
+          </datalist>
+          @if (bancoinvalido()) {
+            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Selecione um banco da lista de sugestões.</p>
+          }
         </div>
 
         <div class="flex gap-2">

@@ -6,12 +6,12 @@ import { ChavePixService } from '../../application/chave-pix.service';
 import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
 import { Subject, takeUntil } from 'rxjs';
-import { IonButton, IonSpinner } from '@ionic/angular/standalone';
-import { BancoService, BancoEntry } from '../../shared/services/banco.service';
+import { IonButton, IonSpinner, IonRadio, IonRadioGroup } from '@ionic/angular/standalone';
+import { BancoService } from '../../shared/services/banco.service';
 
 @Component({
   selector: 'app-chaves',
-  imports: [ReactiveFormsModule, MaskitoDirective, IonButton, IonSpinner],
+  imports: [ReactiveFormsModule, MaskitoDirective, IonButton, IonSpinner, IonRadio, IonRadioGroup],
   templateUrl: './chaves.html',
 })
 export class Chaves implements OnInit, OnDestroy {
@@ -29,14 +29,15 @@ export class Chaves implements OnInit, OnDestroy {
   statusLabels = STATUS_CHAVE_LABELS;
 
   private readonly bancoService = inject(BancoService);
-  bancosFiltrados = signal<BancoEntry[]>([]);
+  bancosFiltrados = signal<string[]>([]);
+
+  bancoinvalido = signal(false);
 
   chaveForm = new FormGroup({
     tipo: new FormControl<TipoChave>('cpf', [Validators.required]),
     valor: new FormControl('', [Validators.required]),
     tipoPessoa: new FormControl<TipoPessoa>('PF'),
     banco: new FormControl(''),
-    nomeBanco: new FormControl(''),
   });
 
   readonly maskCpf: MaskitoOptions = {
@@ -98,13 +99,9 @@ export class Chaves implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(v => {
         const termo = v ?? '';
-        const exato = this.bancoService.resolverPorISPB(termo);
-        if (exato) {
-          this.chaveForm.patchValue({ nomeBanco: exato.nomeReduzido || exato.nome }, { emitEvent: false });
-          this.bancosFiltrados.set([]);
-        } else {
-          this.bancosFiltrados.set(this.bancoService.buscar(termo));
-        }
+        this.bancoinvalido.set(false);
+        const resultados = this.bancoService.buscar(termo);
+        this.bancosFiltrados.set(resultados.map(b => this.bancoService.formatarLabel(b)));
       });
   }
 
@@ -139,14 +136,25 @@ export class Chaves implements OnInit, OnDestroy {
     this.salvando.set(true);
     this.erro.set(null);
     try {
-      const banco = this.chaveForm.value.banco?.trim();
-      const nomeBanco = this.chaveForm.value.nomeBanco?.trim();
+      const bancoLabel = this.chaveForm.value.banco?.trim() ?? '';
+      let bancoISPB: string | undefined;
+      let nomeBanco: string | undefined;
+      if (bancoLabel) {
+        const bancoEntry = this.bancoService.parsearLabel(bancoLabel);
+        if (!bancoEntry) {
+          this.bancoinvalido.set(true);
+          this.salvando.set(false);
+          return;
+        }
+        bancoISPB = bancoEntry.ispb;
+        nomeBanco = bancoEntry.nomeReduzido || bancoEntry.nome;
+      }
       await this.chavePixService.cadastrar({
         perfilId: perfil.id,
         tipo,
         valor: this.chaveForm.value.valor!,
         tipoPessoa,
-        ...(banco && { banco }),
+        ...(bancoISPB && { banco: bancoISPB }),
         ...(nomeBanco && { nomeBanco }),
       });
       this.adicionando.set(false);

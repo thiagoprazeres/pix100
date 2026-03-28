@@ -25,6 +25,16 @@ export class BancoService {
     return this.bancos.find(b => b.ispb === padded) ?? null;
   }
 
+  formatarLabel(b: BancoEntry): string {
+    return `${b.nomeReduzido || b.nome} (${b.ispb})`;
+  }
+
+  parsearLabel(label: string): BancoEntry | null {
+    const match = label.trim().match(/^(.+) \((\d{8})\)$/);
+    if (!match) return null;
+    return this.resolverPorISPB(match[2]);
+  }
+
   buscar(termo: string): BancoEntry[] {
     if (!termo || termo.length < 2) return [];
     const t = termo.toLowerCase();

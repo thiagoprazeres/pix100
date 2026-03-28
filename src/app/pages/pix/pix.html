@@ -42,13 +42,6 @@
         @if (pixForm.get('transactionAmount')?.invalid && pixForm.get('transactionAmount')?.touched) {
           <p class="text-xs mt-1 text-red-600 dark:text-red-400">Valor é obrigatório</p>
         }
-        <div class="flex gap-2 mt-3 overflow-x-auto pb-2 text-nowrap">
-          <ion-button type="button" fill="outline" color="primary" size="small" class="rounded-full shrink-0" (click)="adicionarValor(2)">+ R$ 2</ion-button>
-          <ion-button type="button" fill="outline" color="primary" size="small" class="rounded-full shrink-0" (click)="adicionarValor(5)">+ R$ 5</ion-button>
-          <ion-button type="button" fill="outline" color="primary" size="small" class="rounded-full shrink-0" (click)="adicionarValor(10)">+ R$ 10</ion-button>
-          <ion-button type="button" fill="outline" color="primary" size="small" class="rounded-full shrink-0" (click)="adicionarValor(50)">+ R$ 50</ion-button>
-          <ion-button type="button" fill="clear" size="small" class="rounded-full shrink-0" (click)="limparValor()">Limpar</ion-button>
-        </div>
       </div>
 
       <div class="mb-3">
@@ -61,10 +54,10 @@
       </div>
 
       <div class="mb-4">
-        <label class="flex items-center gap-3 cursor-pointer">
-          <ion-toggle [checked]="mostrarVencimento()" (ionChange)="toggleVencimento()"></ion-toggle>
+        <div class="flex items-center gap-3 cursor-pointer" (click)="toggleVencimento()">
+          <ion-toggle [checked]="mostrarVencimento()" (click)="$event.stopPropagation()" (ionChange)="toggleVencimento()"></ion-toggle>
           <span class="text-sm">Definir vencimento</span>
-        </label>
+        </div>
         @if (mostrarVencimento()) {
           <input type="date" formControlName="vencimento" class="mt-2" />
           <p class="text-xs opacity-60 mt-1">O Pix estático é válido tecnicamente mesmo após o vencimento. Esta data é uma política do produto.</p>

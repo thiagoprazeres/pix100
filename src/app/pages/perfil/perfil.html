@@ -60,10 +60,16 @@
         <input
           id="merchantCity"
           type="text"
-          autocomplete="address-level2"
-          placeholder="São Paulo"
+          autocomplete="off"
+          list="cidades-list"
+          placeholder="São Paulo - SP"
           formControlName="merchantCity"
         />
+        <datalist id="cidades-list">
+          @for (c of cidadesFiltradas(); track c) {
+            <option [value]="c"></option>
+          }
+        </datalist>
         @if (perfilForm.get('merchantCity')?.invalid && perfilForm.get('merchantCity')?.touched) {
           <p class="text-xs mt-1 text-red-600 dark:text-red-400">Cidade é obrigatória.</p>
         }

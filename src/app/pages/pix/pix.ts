@@ -79,16 +79,6 @@ export class Pix {
     }
   }
 
-  adicionarValor(adicional: number): void {
-    const currentStr = this.pixForm.value.transactionAmount;
-    const currentVal = currentStr ? maskitoParseNumber(currentStr, { decimalSeparator: ',' }) : 0;
-    const newVal = currentVal + adicional;
-    this.pixForm.controls.transactionAmount.setValue(newVal.toFixed(2).replace('.', ','));
-  }
-
-  limparValor(): void {
-    this.pixForm.controls.transactionAmount.setValue('');
-  }
 
   toggleVencimento(): void {
     this.mostrarVencimento.update((v) => !v);

@@ -36,7 +36,7 @@
               {v:'email',l:'E-mail'},{v:'aleatoria',l:'Aleatória'},{v:'desconhecida',l:'Outra'}
             ]; track opt.v) {
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" class="accent-blue-600 w-4 h-4" [value]="opt.v" formControlName="tipo" />
+                <input type="radio" class="accent-neutral-900 dark:accent-neutral-100 w-4 h-4" [value]="opt.v" formControlName="tipo" />
                 <span class="text-sm">{{ opt.l }}</span>
               </label>
             }
@@ -48,11 +48,11 @@
             <p class="text-sm font-bold mb-2">Pessoa</p>
             <div class="flex gap-6">
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" class="accent-blue-600 w-4 h-4" value="PF" formControlName="tipoPessoa" />
+                <input type="radio" class="accent-neutral-900 dark:accent-neutral-100 w-4 h-4" value="PF" formControlName="tipoPessoa" />
                 <span class="text-sm">Pessoa Física</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" class="accent-blue-600 w-4 h-4" value="PJ" formControlName="tipoPessoa" />
+                <input type="radio" class="accent-neutral-900 dark:accent-neutral-100 w-4 h-4" value="PJ" formControlName="tipoPessoa" />
                 <span class="text-sm">Pessoa Jurídica</span>
               </label>
             </div>
@@ -75,6 +75,22 @@
           @if (chaveForm.get('valor')?.invalid && chaveForm.get('valor')?.touched) {
             <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Chave obrigatória</p>
           }
+        </div>
+
+        <div class="mb-4 grid grid-cols-2 gap-2">
+          <div>
+            <p class="text-sm font-bold mb-1">Banco (ISPB ou nome)</p>
+            <input type="text" formControlName="banco" list="bancos-chave-list" placeholder="Digite ISPB ou nome" autocomplete="off" />
+            <datalist id="bancos-chave-list">
+              @for (b of bancosFiltrados(); track b.ispb) {
+                <option [value]="b.ispb">{{ b.nomeReduzido || b.nome }}</option>
+              }
+            </datalist>
+          </div>
+          <div>
+            <p class="text-sm font-bold mb-1">Nome do banco</p>
+            <input type="text" formControlName="nomeBanco" placeholder="Preenchido automaticamente" />
+          </div>
         </div>
 
         <div class="flex gap-2">
@@ -101,7 +117,7 @@
   <div class="flex flex-col gap-3">
     @for (chave of chavePixService.chaves(); track chave.id) {
       <div [class]="'rounded-xl p-4 shadow-sm border bg-white dark:bg-neutral-900 ' +
-                    (chave.status === 'ativa' ? 'border-2 border-blue-500' : 'border-neutral-200 dark:border-neutral-700') +
+                    (chave.status === 'ativa' ? 'border-2 border-neutral-900 dark:border-neutral-100' : 'border-neutral-200 dark:border-neutral-700') +
                     (chave.status === 'arquivada' ? ' opacity-50' : '')"
       >
         <div class="flex items-start justify-between gap-2">
@@ -117,6 +133,9 @@
               }
             </div>
             <p class="font-mono text-sm truncate">{{ chave.valor }}</p>
+            @if (chave.nomeBanco || chave.banco) {
+              <p class="text-xs opacity-50 mt-0.5">{{ chave.nomeBanco || chave.banco }}</p>
+            }
           </div>
           <div class="flex gap-1 shrink-0">
             @if (chave.status === 'inativa') {

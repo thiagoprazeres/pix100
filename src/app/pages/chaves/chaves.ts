@@ -7,6 +7,7 @@ import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
 import { Subject, takeUntil } from 'rxjs';
 import { IonButton, IonSpinner } from '@ionic/angular/standalone';
+import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 
 @Component({
   selector: 'app-chaves',
@@ -27,10 +28,15 @@ export class Chaves implements OnInit, OnDestroy {
   tipoLabels = TIPO_CHAVE_LABELS;
   statusLabels = STATUS_CHAVE_LABELS;
 
+  private readonly bancoService = inject(BancoService);
+  bancosFiltrados = signal<BancoEntry[]>([]);
+
   chaveForm = new FormGroup({
     tipo: new FormControl<TipoChave>('cpf', [Validators.required]),
     valor: new FormControl('', [Validators.required]),
     tipoPessoa: new FormControl<TipoPessoa>('PF'),
+    banco: new FormControl(''),
+    nomeBanco: new FormControl(''),
   });
 
   readonly maskCpf: MaskitoOptions = {
@@ -79,11 +85,26 @@ export class Chaves implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.bancoService.carregar();
+
     this.chaveForm.controls.tipo.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.chaveForm.controls.valor.setValue('');
         this.erro.set(null);
+      });
+
+    this.chaveForm.controls.banco.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(v => {
+        const termo = v ?? '';
+        const exato = this.bancoService.resolverPorISPB(termo);
+        if (exato) {
+          this.chaveForm.patchValue({ nomeBanco: exato.nomeReduzido || exato.nome }, { emitEvent: false });
+          this.bancosFiltrados.set([]);
+        } else {
+          this.bancosFiltrados.set(this.bancoService.buscar(termo));
+        }
       });
   }
 
@@ -118,11 +139,15 @@ export class Chaves implements OnInit, OnDestroy {
     this.salvando.set(true);
     this.erro.set(null);
     try {
+      const banco = this.chaveForm.value.banco?.trim();
+      const nomeBanco = this.chaveForm.value.nomeBanco?.trim();
       await this.chavePixService.cadastrar({
         perfilId: perfil.id,
         tipo,
         valor: this.chaveForm.value.valor!,
         tipoPessoa,
+        ...(banco && { banco }),
+        ...(nomeBanco && { nomeBanco }),
       });
       this.adicionando.set(false);
       this.chaveForm.reset({ tipo: 'cpf', tipoPessoa: 'PF' });

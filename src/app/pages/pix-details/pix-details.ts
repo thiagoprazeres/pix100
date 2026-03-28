@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { CobrancaService } from '../../application/cobranca.service';
@@ -9,18 +10,23 @@ import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 import { IonButton, IonSpinner, ToastController } from '@ionic/angular/standalone';
+import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 
 @Component({
   selector: 'app-pix-details',
   imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe, IonButton, IonSpinner],
   templateUrl: './pix-details.html',
 })
-export class PixDetails implements OnInit {
+export class PixDetails implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly cobrancaService = inject(CobrancaService);
   private readonly conciliacaoService = inject(ConciliacaoService);
 
   private readonly toastController = inject(ToastController);
+  private readonly bancoService = inject(BancoService);
+  private readonly destroy$ = new Subject<void>();
+
+  bancosFiltrados = signal<BancoEntry[]>([]);
 
   cobranca = signal<Cobranca | null>(null);
   eventos = signal<EventoConciliacao[]>([]);
@@ -54,6 +60,40 @@ export class PixDetails implements OnInit {
       const eventos = await this.conciliacaoService.getEventos(cobranca.id);
       this.eventos.set(eventos);
     }
+    await this.bancoService.carregar();
+    this.configurarWatchersBanco();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private configurarWatchersBanco(): void {
+    this.pagadorForm.get('endToEndId')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(v => {
+        const ispb = this.bancoService.extrairISPBDoE2EId(v ?? '');
+        if (!ispb) return;
+        const banco = this.bancoService.resolverPorISPB(ispb);
+        if (banco) {
+          this.pagadorForm.patchValue({ banco: banco.ispb, nomeBanco: banco.nomeReduzido || banco.nome }, { emitEvent: false });
+          this.bancosFiltrados.set([]);
+        }
+      });
+
+    this.pagadorForm.get('banco')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(v => {
+        const termo = v ?? '';
+        const exato = this.bancoService.resolverPorISPB(termo);
+        if (exato) {
+          this.pagadorForm.patchValue({ nomeBanco: exato.nomeReduzido || exato.nome }, { emitEvent: false });
+          this.bancosFiltrados.set([]);
+        } else {
+          this.bancosFiltrados.set(this.bancoService.buscar(termo));
+        }
+      });
   }
 
   get podeConfirmar(): boolean {

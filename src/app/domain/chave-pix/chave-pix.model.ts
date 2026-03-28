@@ -13,6 +13,8 @@ export interface ChavePix {
   verificacaoStatus: VerificacaoChave;
   criadaEm: number;
   arquivadaEm?: number;
+  banco?: string;
+  nomeBanco?: string;
 }
 
 export const TIPO_CHAVE_LABELS: Record<TipoChave, string> = {

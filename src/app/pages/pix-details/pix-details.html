@@ -138,12 +138,17 @@
               <input formControlName="documento" type="text" placeholder="000.000.000-00" class="font-mono" />
             </div>
             <div>
-              <label class="block text-xs font-bold mb-1">Banco (ISPB) *</label>
-              <input formControlName="banco" type="text" placeholder="ex: 341" class="font-mono" />
+              <label class="block text-xs font-bold mb-1">Banco (ISPB ou nome) *</label>
+              <input formControlName="banco" type="text" list="bancos-list" placeholder="Digite ISPB ou nome do banco" class="font-mono" autocomplete="off" />
+              <datalist id="bancos-list">
+                @for (b of bancosFiltrados(); track b.ispb) {
+                  <option [value]="b.ispb">{{ b.nomeReduzido || b.nome }}</option>
+                }
+              </datalist>
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">Nome do banco</label>
-              <input formControlName="nomeBanco" type="text" placeholder="ex: Itaú" />
+              <input formControlName="nomeBanco" type="text" placeholder="Preenchido automaticamente" />
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">Agência</label>
@@ -169,6 +174,7 @@
             <div class="col-span-2">
               <label class="block text-xs font-bold mb-1">End-to-End ID (E2EId)</label>
               <input formControlName="endToEndId" type="text" placeholder="E..." class="font-mono text-xs" />
+              <p class="text-xs opacity-50 mt-1">Preencher o E2EId identifica o banco de origem automaticamente.</p>
             </div>
             <div class="col-span-2">
               <label class="block text-xs font-bold mb-1">Data/hora do pagamento *</label>

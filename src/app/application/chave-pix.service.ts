@@ -23,6 +23,8 @@ export class ChavePixService {
     tipo: TipoChave;
     valor: string;
     tipoPessoa?: TipoPessoa;
+    banco?: string;
+    nomeBanco?: string;
   }): Promise<ChavePix> {
     const valor = normalizarChave(params.valor, params.tipo);
 
@@ -47,6 +49,8 @@ export class ChavePixService {
       status: jaTemAtiva ? 'inativa' : 'ativa',
       verificacaoStatus: 'nao_verificada',
       criadaEm: now,
+      ...(params.banco && { banco: params.banco }),
+      ...(params.nomeBanco && { nomeBanco: params.nomeBanco }),
     };
 
     await this.storage.saveChave(chave);

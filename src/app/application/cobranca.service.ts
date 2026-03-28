@@ -144,4 +144,36 @@ export class CobrancaService {
       this._cobrancas().map((c) => (c.id === cobranca.id ? cobranca : c))
     );
   }
+
+  async anexarComprovante(cobrancaId: string, comprovanteBase64: string): Promise<Cobranca> {
+    const cobranca = await this.storage.getCobranca(cobrancaId);
+    if (!cobranca) {
+      throw new Error('Cobrança não encontrada.');
+    }
+
+    const now = Date.now();
+    const atualizada: Cobranca = {
+      ...cobranca,
+      comprovanteBase64,
+      atualizadaEm: now,
+    };
+
+    await this.storage.saveCobranca(atualizada);
+
+    const eventoKey = gerarIdempotencyKey(cobrancaId, 'comprovante_anexado', now);
+    const evento: EventoConciliacao = {
+      id: crypto.randomUUID(),
+      cobrancaId,
+      tipo: 'comprovante_anexado',
+      origem: 'manual',
+      timestamp: now,
+      statusAnterior: cobranca.statusAtual,
+      statusNovo: cobranca.statusAtual,
+      idempotencyKey: eventoKey,
+    };
+    await this.storage.saveEvento(evento);
+
+    await this.atualizarLocal(atualizada);
+    return atualizada;
+  }
 }

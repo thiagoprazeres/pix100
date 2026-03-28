@@ -21,6 +21,7 @@ export class PixDetails implements OnInit {
   eventos = signal<EventoConciliacao[]>([]);
   showToast = signal(false);
   conciliando = signal(false);
+  uploadando = signal(false);
 
   statusLabels = STATUS_COBRANCA_LABELS;
   eventoLabels = TIPO_EVENTO_LABELS;
@@ -220,5 +221,43 @@ export class PixDetails implements OnInit {
       case 'cancelada': return 'badge-error';
       default: return 'badge-ghost';
     }
+  }
+
+  async handleFileUpload(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.cobranca()) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione apenas arquivos de imagem.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 5MB.');
+      return;
+    }
+
+    this.uploadando.set(true);
+    try {
+      const base64 = await this.fileToBase64(file);
+      const atualizada = await this.cobrancaService.anexarComprovante(this.cobranca()!.id, base64);
+      this.cobranca.set(atualizada);
+      await this.recarregarEventos(atualizada.id);
+      input.value = '';
+    } catch (e: any) {
+      alert(e?.message ?? 'Erro ao anexar comprovante.');
+    } finally {
+      this.uploadando.set(false);
+    }
+  }
+
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 }

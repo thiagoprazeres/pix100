@@ -6,7 +6,8 @@ export type TipoEvento =
   | 'confirmada_manualmente'
   | 'desconfirmada'
   | 'expirada_automaticamente'
-  | 'cancelada';
+  | 'cancelada'
+  | 'comprovante_anexado';
 
 export const TIPO_EVENTO_LABELS: Record<TipoEvento, string> = {
   criada: 'Cobrança criada',
@@ -14,6 +15,7 @@ export const TIPO_EVENTO_LABELS: Record<TipoEvento, string> = {
   desconfirmada: 'Confirmação desfeita',
   expirada_automaticamente: 'Expirada automaticamente',
   cancelada: 'Cancelada',
+  comprovante_anexado: 'Comprovante anexado',
 };
 
 export interface EventoConciliacao {

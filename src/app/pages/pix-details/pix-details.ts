@@ -8,10 +8,13 @@ import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
+import { TuiButton, TuiTextfield } from '@taiga-ui/core';
+import { TuiBadge } from '@taiga-ui/kit';
+import { IonSpinner, ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-pix-details',
-  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe],
+  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe, TuiButton, TuiTextfield, TuiBadge, IonSpinner],
   templateUrl: './pix-details.html',
 })
 export class PixDetails implements OnInit {
@@ -19,9 +22,10 @@ export class PixDetails implements OnInit {
   private readonly cobrancaService = inject(CobrancaService);
   private readonly conciliacaoService = inject(ConciliacaoService);
 
+  private readonly toastController = inject(ToastController);
+
   cobranca = signal<Cobranca | null>(null);
   eventos = signal<EventoConciliacao[]>([]);
-  showToast = signal(false);
   conciliando = signal(false);
   registrandoPagador = signal(false);
   salvandoPagador = signal(false);
@@ -132,9 +136,14 @@ export class PixDetails implements OnInit {
   copyToClipboard(): void {
     const brcode = this.cobranca()?.brcode;
     if (brcode) {
-      navigator.clipboard.writeText(brcode).then(() => {
-        this.showToast.set(true);
-        setTimeout(() => this.showToast.set(false), 3000);
+      navigator.clipboard.writeText(brcode).then(async () => {
+        const toast = await this.toastController.create({
+          message: 'BR Code copiado!',
+          duration: 2000,
+          position: 'bottom',
+          color: 'success',
+        });
+        await toast.present();
       });
     }
   }

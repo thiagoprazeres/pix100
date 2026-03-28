@@ -5,10 +5,10 @@ import { StatusCobranca } from '../../domain/cobranca/cobranca.model';
 export class StatusClassPipe implements PipeTransform {
   transform(status: StatusCobranca): string {
     switch (status) {
-      case 'paga': return 'badge-success';
-      case 'expirada': return 'badge-warning';
-      case 'cancelada': return 'badge-error';
-      default: return 'badge-ghost';
+      case 'paga': return 'positive';
+      case 'expirada': return 'warning';
+      case 'cancelada': return 'negative';
+      default: return 'neutral';
     }
   }
 }

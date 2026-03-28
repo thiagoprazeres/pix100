@@ -3,10 +3,12 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { PerfilService } from '../../application/perfil.service';
 import { ThemeService } from '../../services/theme-service';
 import { Router } from '@angular/router';
+import { TuiButton, TuiNotification, TuiTextfield } from '@taiga-ui/core';
+import { IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TuiButton, TuiNotification, TuiTextfield, IonSpinner],
   templateUrl: './perfil.html',
 })
 export class Perfil implements OnInit {

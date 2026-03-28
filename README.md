@@ -56,7 +56,7 @@ O modelo de dados foi projetado para ser **compatível com a API Celcoin de PIX*
 - Angular Service Worker com cache prefetch de todos os assets de aplicação.
 - Funciona 100% offline após a primeira carga — nenhuma chamada de rede em tempo de execução.
 - Instalável como app nativo (Add to Home Screen) em iOS e Android.
-- Dark Mode nativo via DaisyUI Theme Controller, com preferência persistida.
+- Dark Mode nativo via `ThemeService` + atributo `data-mode` do Taiga UI, com preferência persistida no `localStorage`.
 
 ---
 
@@ -181,7 +181,8 @@ type TipoEvento =
 |---|---|---|
 | [Angular](https://angular.dev/) | 21 | Framework — Standalone Components + Signals |
 | [Tailwind CSS](https://tailwindcss.com/) | 4 | Estilização utilitária |
-| [DaisyUI](https://daisyui.com/) | 5 | Componentes UI e tema |
+| [Taiga UI](https://taiga-ui.dev/) | 4 | Componentes UI (botões, badges, inputs, notificações, switches, radios) |
+| [Ionic](https://ionicframework.com/) | 8 | Componentes mobile (tab bar, spinner, toast) |
 | [idb](https://github.com/jakearchibald/idb) | 8 | IndexedDB com suporte a TypeScript |
 | [pix-utils](https://github.com/vagnercardosoweb/pix-utils) | 2 | Geração de BR Code e QR Code offline |
 | [Maskito](https://maskito.dev/) | 5 | Máscaras de input (CPF, CNPJ, Telefone) |

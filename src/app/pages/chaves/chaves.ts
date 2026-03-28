@@ -6,10 +6,13 @@ import { ChavePixService } from '../../application/chave-pix.service';
 import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
 import { Subject, takeUntil } from 'rxjs';
+import { TuiButton, TuiNotification, TuiTextfield } from '@taiga-ui/core';
+import { TuiBadge, TuiRadio } from '@taiga-ui/kit';
+import { IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-chaves',
-  imports: [ReactiveFormsModule, MaskitoDirective],
+  imports: [ReactiveFormsModule, MaskitoDirective, TuiButton, TuiNotification, TuiTextfield, TuiBadge, TuiRadio, IonSpinner],
   templateUrl: './chaves.html',
 })
 export class Chaves implements OnInit, OnDestroy {

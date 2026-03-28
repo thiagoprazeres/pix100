@@ -1,21 +1,24 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { CobrancaService } from '../../application/cobranca.service';
 import { PerfilService } from '../../application/perfil.service';
 import { Cobranca, STATUS_COBRANCA_LABELS } from '../../domain/cobranca/cobranca.model';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
+import { TuiButton } from '@taiga-ui/core';
+import { TuiBadge } from '@taiga-ui/kit';
+import { ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-historico',
-  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe],
+  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe, TuiButton, TuiBadge],
   templateUrl: './historico.html',
 })
 export class Historico implements OnInit {
   private readonly cobrancaService = inject(CobrancaService);
   private readonly perfilService = inject(PerfilService);
 
-  showToast = signal(false);
+  private readonly toastController = inject(ToastController);
   statusLabels = STATUS_COBRANCA_LABELS;
 
   readonly cobrancas = this.cobrancaService.cobrancas;
@@ -33,9 +36,14 @@ export class Historico implements OnInit {
   copiarPixRapido(cobranca: Cobranca, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    navigator.clipboard.writeText(cobranca.brcode).then(() => {
-      this.showToast.set(true);
-      setTimeout(() => this.showToast.set(false), 3000);
+    navigator.clipboard.writeText(cobranca.brcode).then(async () => {
+      const toast = await this.toastController.create({
+        message: 'BR Code copiado!',
+        duration: 2000,
+        position: 'bottom',
+        color: 'success',
+      });
+      await toast.present();
     });
   }
 

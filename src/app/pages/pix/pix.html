@@ -10,8 +10,8 @@
     </div>
   } @else {
     <div class="flex flex-col items-center justify-center gap-4 px-8 py-16 text-center">
-      <div class="rounded-full p-5 bg-amber-100 dark:bg-amber-900/30">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 dark:text-amber-400"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      <div class="rounded-full p-5 bg-neutral-100 dark:bg-neutral-800">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-600 dark:text-neutral-400"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
       </div>
       <div>
         <p class="font-bold text-base mb-1">Nenhuma chave Pix cadastrada</p>
@@ -40,7 +40,7 @@
           formControlName="transactionAmount"
         />
         @if (pixForm.get('transactionAmount')?.invalid && pixForm.get('transactionAmount')?.touched) {
-          <p class="text-xs mt-1 text-red-600 dark:text-red-400">Valor é obrigatório</p>
+          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Valor é obrigatório</p>
         }
       </div>
 

@@ -24,9 +24,9 @@
   textarea {
     @apply w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900
            placeholder-neutral-400 outline-none transition
-           focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+           focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10
            dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100
-           dark:placeholder-neutral-500 dark:focus:border-blue-400;
+           dark:placeholder-neutral-500 dark:focus:border-neutral-100 dark:focus:ring-neutral-100/10;
   }
 
   select {
@@ -49,44 +49,48 @@
     font-family: 'Caveat', cursive;
   }
 
-  /* Badges */
+  /* Badges — paleta preto e branco */
   .badge {
     @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
   }
   .badge-success {
-    @apply bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300;
+    @apply bg-neutral-900 text-white dark:bg-white dark:text-neutral-900;
   }
   .badge-warning {
-    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300;
+    @apply border border-neutral-400 text-neutral-700 dark:border-neutral-500 dark:text-neutral-300;
   }
   .badge-negative {
-    @apply bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300;
+    @apply bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400;
   }
   .badge-neutral {
-    @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300;
+    @apply bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400;
   }
   .badge-outline {
     @apply border border-neutral-300 text-neutral-600 dark:border-neutral-600 dark:text-neutral-400;
   }
   .badge-primary {
-    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300;
+    @apply bg-neutral-900 text-white dark:bg-white dark:text-neutral-900;
   }
 
-  /* Notifications */
+  /* Notifications — paleta preto e branco */
   .notification {
-    @apply flex items-start gap-2 rounded-lg px-4 py-3 text-sm;
+    @apply flex items-start gap-2 rounded-lg border-l-4 px-4 py-3 text-sm;
   }
   .notification-negative {
-    @apply bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+    @apply border-neutral-900 bg-neutral-50 text-neutral-800
+           dark:border-neutral-100 dark:bg-neutral-900 dark:text-neutral-200;
   }
   .notification-positive {
-    @apply bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+    @apply border-neutral-400 bg-neutral-50 text-neutral-700
+           dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300;
   }
   .notification-warning {
-    @apply bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300;
+    @apply border-neutral-500 bg-neutral-50 text-neutral-700
+           dark:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-300;
   }
   .notification-neutral {
-    @apply bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300;
+    @apply border-neutral-200 bg-neutral-50 text-neutral-600
+           dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400;
   }
 
   /* Ionic theming */
@@ -101,16 +105,63 @@
 
   ion-tab-button {
     --color: theme(colors.neutral.500);
-    --color-selected: theme(colors.blue.600);
+    --color-selected: theme(colors.neutral.900);
   }
   .dark ion-tab-button {
     --color: theme(colors.neutral.400);
-    --color-selected: theme(colors.blue.400);
+    --color-selected: theme(colors.neutral.100);
   }
 
   ion-tab-button.tab-active {
     font-weight: 600;
     svg { stroke-width: 2; }
+  }
+
+  /* Ionic color overrides — paleta preto e branco */
+  :root {
+    --ion-color-primary:              #000000;
+    --ion-color-primary-rgb:          0, 0, 0;
+    --ion-color-primary-contrast:     #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade:        #1a1a1a;
+    --ion-color-primary-tint:         #333333;
+
+    --ion-color-success:              #1a1a1a;
+    --ion-color-success-rgb:          26, 26, 26;
+    --ion-color-success-contrast:     #ffffff;
+    --ion-color-success-contrast-rgb: 255, 255, 255;
+    --ion-color-success-shade:        #000000;
+    --ion-color-success-tint:         #404040;
+
+    --ion-color-danger:               #404040;
+    --ion-color-danger-rgb:           64, 64, 64;
+    --ion-color-danger-contrast:      #ffffff;
+    --ion-color-danger-contrast-rgb:  255, 255, 255;
+    --ion-color-danger-shade:         #1a1a1a;
+    --ion-color-danger-tint:          #595959;
+  }
+
+  .dark {
+    --ion-color-primary:              #ffffff;
+    --ion-color-primary-rgb:          255, 255, 255;
+    --ion-color-primary-contrast:     #000000;
+    --ion-color-primary-contrast-rgb: 0, 0, 0;
+    --ion-color-primary-shade:        #e0e0e0;
+    --ion-color-primary-tint:         #f5f5f5;
+
+    --ion-color-success:              #e5e5e5;
+    --ion-color-success-rgb:          229, 229, 229;
+    --ion-color-success-contrast:     #000000;
+    --ion-color-success-contrast-rgb: 0, 0, 0;
+    --ion-color-success-shade:        #cccccc;
+    --ion-color-success-tint:         #f0f0f0;
+
+    --ion-color-danger:               #a3a3a3;
+    --ion-color-danger-rgb:           163, 163, 163;
+    --ion-color-danger-contrast:      #000000;
+    --ion-color-danger-contrast-rgb:  0, 0, 0;
+    --ion-color-danger-shade:         #8a8a8a;
+    --ion-color-danger-tint:          #b5b5b5;
   }
 
   ion-button {
@@ -130,8 +181,8 @@
   }
   .pix-timeline-item::before {
     content: '';
-    @apply absolute -left-4 top-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 border-2
-           border-white dark:border-neutral-950;
+    @apply absolute -left-4 top-1.5 w-2.5 h-2.5 rounded-full bg-neutral-900 border-2
+           border-white dark:bg-neutral-100 dark:border-neutral-950;
   }
 
   .historico-item:hover {

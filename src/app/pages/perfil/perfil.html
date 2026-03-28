@@ -48,7 +48,7 @@
           formControlName="merchantName"
         />
         @if (perfilForm.get('merchantName')?.invalid && perfilForm.get('merchantName')?.touched) {
-          <p class="text-xs mt-1 text-red-600 dark:text-red-400">Mínimo 3 caracteres.</p>
+          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Mínimo 3 caracteres.</p>
         }
       </div>
 
@@ -71,7 +71,7 @@
           }
         </datalist>
         @if (perfilForm.get('merchantCity')?.invalid && perfilForm.get('merchantCity')?.touched) {
-          <p class="text-xs mt-1 text-red-600 dark:text-red-400">Cidade é obrigatória.</p>
+          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Cidade é obrigatória.</p>
         }
       </div>
 

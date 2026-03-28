@@ -72,29 +72,122 @@
     <div class="divider my-1"></div>
 
     <section>
-      <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Comprovante de Pagamento</h2>
-      @if (cobranca()!.comprovanteBase64) {
-        <div class="mb-3">
-          <img [src]="cobranca()!.comprovanteBase64" alt="Comprovante de pagamento" class="max-w-full rounded-lg shadow border" />
-        </div>
-        <p class="text-xs opacity-60">Comprovante anexado com sucesso.</p>
-      } @else {
-        <div class="flex flex-col gap-2">
-          <p class="text-sm opacity-70 mb-2">Anexe uma foto ou print do comprovante de pagamento.</p>
-          <input
-            type="file"
-            accept="image/*"
-            class="file-input file-input-bordered file-input-sm w-full"
-            (change)="handleFileUpload($event)"
-            [disabled]="uploadando()"
-          />
-          @if (uploadando()) {
-            <div class="flex items-center gap-2 text-sm opacity-70">
-              <span class="loading loading-spinner loading-sm"></span>
-              <span>Enviando comprovante...</span>
+      <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Dados do Pagador</h2>
+
+      @if (cobranca()!.pagador; as pag) {
+        <div class="bg-base-200 rounded-lg p-3 text-sm space-y-1">
+          <div class="flex justify-between">
+            <span class="opacity-60">Nome</span>
+            <span class="font-medium">{{ pag.nome }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="opacity-60">Documento</span>
+            <span class="font-mono">{{ pag.documento }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="opacity-60">Banco</span>
+            <span>{{ pag.nomeBanco || pag.banco }}</span>
+          </div>
+          @if (pag.agencia || pag.conta) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Ag / Conta</span>
+              <span class="font-mono">{{ pag.agencia }}{{ pag.agencia && pag.conta ? ' / ' : '' }}{{ pag.conta }}</span>
             </div>
           }
+          @if (pag.tipoConta) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Tipo de conta</span>
+              <span>{{ tipoContaLabels[pag.tipoConta] }}</span>
+            </div>
+          }
+          @if (pag.chavePix) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Chave Pix</span>
+              <span class="font-mono text-xs break-all">{{ pag.chavePix }}</span>
+            </div>
+          }
+          @if (pag.endToEndId) {
+            <div class="flex justify-between">
+              <span class="opacity-60">End-to-End ID</span>
+              <span class="font-mono text-xs break-all">{{ pag.endToEndId }}</span>
+            </div>
+          }
+          <div class="flex justify-between">
+            <span class="opacity-60">Pago em</span>
+            <span>{{ pag.paidAt | date:'short' }}</span>
+          </div>
         </div>
+        <button class="btn btn-ghost btn-xs mt-2" (click)="abrirFormPagador()">Editar dados do pagador</button>
+      } @else if (!registrandoPagador()) {
+        <p class="text-sm opacity-60 mb-2">Nenhum pagador registrado.</p>
+        <button class="btn btn-outline btn-sm" (click)="abrirFormPagador()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+          Registrar pagador
+        </button>
+      }
+
+      @if (registrandoPagador()) {
+        <form [formGroup]="pagadorForm" class="mt-2 space-y-2" (ngSubmit)="salvarPagador()">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="col-span-2">
+              <label class="label label-text text-xs">Nome *</label>
+              <input formControlName="nome" type="text" placeholder="Nome do pagador" class="input input-sm input-bordered w-full" />
+            </div>
+            <div class="col-span-2">
+              <label class="label label-text text-xs">CPF / CNPJ *</label>
+              <input formControlName="documento" type="text" placeholder="000.000.000-00" class="input input-sm input-bordered w-full font-mono" />
+            </div>
+            <div>
+              <label class="label label-text text-xs">Banco (ISPB) *</label>
+              <input formControlName="banco" type="text" placeholder="ex: 341" class="input input-sm input-bordered w-full font-mono" />
+            </div>
+            <div>
+              <label class="label label-text text-xs">Nome do banco</label>
+              <input formControlName="nomeBanco" type="text" placeholder="ex: Itaú" class="input input-sm input-bordered w-full" />
+            </div>
+            <div>
+              <label class="label label-text text-xs">Agência</label>
+              <input formControlName="agencia" type="text" placeholder="0001" class="input input-sm input-bordered w-full font-mono" />
+            </div>
+            <div>
+              <label class="label label-text text-xs">Conta</label>
+              <input formControlName="conta" type="text" placeholder="12345-6" class="input input-sm input-bordered w-full font-mono" />
+            </div>
+            <div class="col-span-2">
+              <label class="label label-text text-xs">Tipo de conta</label>
+              <select formControlName="tipoConta" class="select select-sm select-bordered w-full">
+                <option value="">— Não informado —</option>
+                @for (tipo of tiposContaOpcoes; track tipo) {
+                  <option [value]="tipo">{{ tipoContaLabels[tipo] }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-span-2">
+              <label class="label label-text text-xs">Chave Pix do pagador</label>
+              <input formControlName="chavePix" type="text" placeholder="CPF, e-mail, telefone ou chave aleatória" class="input input-sm input-bordered w-full font-mono" />
+            </div>
+            <div class="col-span-2">
+              <label class="label label-text text-xs">End-to-End ID (E2EId)</label>
+              <input formControlName="endToEndId" type="text" placeholder="E..." class="input input-sm input-bordered w-full font-mono text-xs" />
+            </div>
+            <div class="col-span-2">
+              <label class="label label-text text-xs">Data/hora do pagamento *</label>
+              <input formControlName="paidAt" type="datetime-local" class="input input-sm input-bordered w-full" />
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-1">
+            <button
+              type="submit"
+              class="btn btn-primary btn-sm flex-1"
+              [disabled]="pagadorForm.invalid || salvandoPagador()"
+            >
+              @if (salvandoPagador()) { <span class="loading loading-spinner loading-xs"></span> }
+              Salvar
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="cancelarFormPagador()">Cancelar</button>
+          </div>
+        </form>
       }
     </section>
 

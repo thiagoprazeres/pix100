@@ -25,7 +25,7 @@ export function tipoEventoParaStatus(
       return 'expirada';
     case 'cancelada':
       return 'cancelada';
-    case 'comprovante_anexado':
+    case 'pagador_registrado':
       return statusAtual;
   }
 }

@@ -1,15 +1,16 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { CobrancaService } from '../../application/cobranca.service';
 import { ConciliacaoService } from '../../application/conciliacao.service';
-import { Cobranca, STATUS_COBRANCA_LABELS } from '../../domain/cobranca/cobranca.model';
+import { Cobranca, Pagador, STATUS_COBRANCA_LABELS, TIPO_CONTA_LABELS, TipoConta } from '../../domain/cobranca/cobranca.model';
 import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/evento-conciliacao.model';
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-pix-details',
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule],
   templateUrl: './pix-details.html',
 })
 export class PixDetails implements OnInit {
@@ -21,10 +22,26 @@ export class PixDetails implements OnInit {
   eventos = signal<EventoConciliacao[]>([]);
   showToast = signal(false);
   conciliando = signal(false);
-  uploadando = signal(false);
+  registrandoPagador = signal(false);
+  salvandoPagador = signal(false);
 
   statusLabels = STATUS_COBRANCA_LABELS;
   eventoLabels = TIPO_EVENTO_LABELS;
+  tipoContaLabels = TIPO_CONTA_LABELS;
+  tiposContaOpcoes = Object.keys(TIPO_CONTA_LABELS) as TipoConta[];
+
+  readonly pagadorForm = new FormGroup({
+    nome: new FormControl('', [Validators.required]),
+    documento: new FormControl('', [Validators.required]),
+    banco: new FormControl('', [Validators.required]),
+    nomeBanco: new FormControl(''),
+    agencia: new FormControl(''),
+    conta: new FormControl(''),
+    tipoConta: new FormControl<TipoConta | ''>(''),
+    chavePix: new FormControl(''),
+    endToEndId: new FormControl(''),
+    paidAt: new FormControl(this.toDatetimeLocal(Date.now()), [Validators.required]),
+  });
 
   async ngOnInit(): Promise<void> {
     const id = this.activatedRoute.snapshot.params['id'];
@@ -223,41 +240,61 @@ export class PixDetails implements OnInit {
     }
   }
 
-  async handleFileUpload(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file || !this.cobranca()) return;
+  abrirFormPagador(): void {
+    const paidAtValue = this.toDatetimeLocal(Date.now());
+    this.pagadorForm.reset({
+      nome: '',
+      documento: '',
+      banco: '',
+      nomeBanco: '',
+      agencia: '',
+      conta: '',
+      tipoConta: '',
+      chavePix: '',
+      endToEndId: '',
+      paidAt: paidAtValue,
+    });
+    this.registrandoPagador.set(true);
+  }
 
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor, selecione apenas arquivos de imagem.');
-      return;
-    }
+  cancelarFormPagador(): void {
+    this.registrandoPagador.set(false);
+  }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 5MB.');
-      return;
-    }
+  async salvarPagador(): Promise<void> {
+    if (this.pagadorForm.invalid || !this.cobranca()) return;
+    const v = this.pagadorForm.value;
+    const paidAt = v.paidAt ? new Date(v.paidAt).getTime() : Date.now();
 
-    this.uploadando.set(true);
+    const pagador: Pagador = {
+      nome: v.nome!.trim(),
+      documento: v.documento!.trim(),
+      banco: v.banco!.trim(),
+      ...(v.nomeBanco?.trim() && { nomeBanco: v.nomeBanco.trim() }),
+      ...(v.agencia?.trim() && { agencia: v.agencia.trim() }),
+      ...(v.conta?.trim() && { conta: v.conta.trim() }),
+      ...(v.tipoConta && { tipoConta: v.tipoConta as TipoConta }),
+      ...(v.chavePix?.trim() && { chavePix: v.chavePix.trim() }),
+      ...(v.endToEndId?.trim() && { endToEndId: v.endToEndId.trim() }),
+      paidAt,
+    };
+
+    this.salvandoPagador.set(true);
     try {
-      const base64 = await this.fileToBase64(file);
-      const atualizada = await this.cobrancaService.anexarComprovante(this.cobranca()!.id, base64);
+      const atualizada = await this.cobrancaService.registrarPagador(this.cobranca()!.id, pagador);
       this.cobranca.set(atualizada);
       await this.recarregarEventos(atualizada.id);
-      input.value = '';
+      this.registrandoPagador.set(false);
     } catch (e: any) {
-      alert(e?.message ?? 'Erro ao anexar comprovante.');
+      alert(e?.message ?? 'Erro ao registrar pagador.');
     } finally {
-      this.uploadando.set(false);
+      this.salvandoPagador.set(false);
     }
   }
 
-  private fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  private toDatetimeLocal(ts: number): string {
+    const d = new Date(ts);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 }

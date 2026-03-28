@@ -2,6 +2,28 @@ import { TipoChave } from '../chave-pix/chave-pix.model';
 
 export type StatusCobranca = 'pendente' | 'paga' | 'expirada' | 'cancelada';
 
+export type TipoConta = 'CACC' | 'SVGS' | 'TRAN' | 'SLRY';
+
+export const TIPO_CONTA_LABELS: Record<TipoConta, string> = {
+  CACC: 'Conta Corrente',
+  SVGS: 'Conta Poupança',
+  TRAN: 'Conta de Pagamento',
+  SLRY: 'Conta Salário',
+};
+
+export interface Pagador {
+  nome: string;
+  documento: string;
+  banco: string;
+  nomeBanco?: string;
+  agencia?: string;
+  conta?: string;
+  tipoConta?: TipoConta;
+  chavePix?: string;
+  endToEndId?: string;
+  paidAt: number;
+}
+
 export const STATUS_COBRANCA_LABELS: Record<StatusCobranca, string> = {
   pendente: 'Pendente',
   paga: 'Paga',
@@ -29,7 +51,7 @@ export interface Cobranca {
   statusAtual: StatusCobranca;
   brcode: string;
   qrBase64?: string;
-  comprovanteBase64?: string;
+  pagador?: Pagador;
   criadaEm: number;
   atualizadaEm: number;
   providerRef?: string;

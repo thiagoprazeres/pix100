@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { IdbStorage } from '../infrastructure/storage/idb.storage';
 import { PixUtilsAdapter } from '../infrastructure/brcode/pix-utils.adapter';
-import { Cobranca } from '../domain/cobranca/cobranca.model';
+import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';
 import { Perfil } from '../domain/perfil/perfil.model';
 import { ChavePix } from '../domain/chave-pix/chave-pix.model';
 import { sanitizeMerchantName, sanitizeMerchantCity, gerarBrCodeRef } from '../domain/cobranca/brcode.projection';
@@ -145,7 +145,7 @@ export class CobrancaService {
     );
   }
 
-  async anexarComprovante(cobrancaId: string, comprovanteBase64: string): Promise<Cobranca> {
+  async registrarPagador(cobrancaId: string, pagador: Pagador): Promise<Cobranca> {
     const cobranca = await this.storage.getCobranca(cobrancaId);
     if (!cobranca) {
       throw new Error('Cobrança não encontrada.');
@@ -154,17 +154,17 @@ export class CobrancaService {
     const now = Date.now();
     const atualizada: Cobranca = {
       ...cobranca,
-      comprovanteBase64,
+      pagador,
       atualizadaEm: now,
     };
 
     await this.storage.saveCobranca(atualizada);
 
-    const eventoKey = gerarIdempotencyKey(cobrancaId, 'comprovante_anexado', now);
+    const eventoKey = gerarIdempotencyKey(cobrancaId, 'pagador_registrado', now);
     const evento: EventoConciliacao = {
       id: crypto.randomUUID(),
       cobrancaId,
-      tipo: 'comprovante_anexado',
+      tipo: 'pagador_registrado',
       origem: 'manual',
       timestamp: now,
       statusAnterior: cobranca.statusAtual,

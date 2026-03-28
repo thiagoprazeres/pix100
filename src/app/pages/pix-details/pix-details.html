@@ -19,7 +19,7 @@
   } @else {
     <div class="flex items-center gap-3">
       <span class="text-2xl font-black">{{ cobranca()!.valor | currency }}</span>
-      <span class="badge" [class]="statusClass(cobranca()!)">
+      <span class="badge" [class]="cobranca()!.statusAtual | statusClass">
         {{ statusLabels[cobranca()!.statusAtual] }}
       </span>
     </div>

@@ -4,10 +4,11 @@ import { PerfilService } from '../../application/perfil.service';
 import { Cobranca, STATUS_COBRANCA_LABELS } from '../../domain/cobranca/cobranca.model';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 
 @Component({
   selector: 'app-historico',
-  imports: [DatePipe, CurrencyPipe, RouterLink],
+  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe],
   templateUrl: './historico.html',
 })
 export class Historico implements OnInit {
@@ -70,12 +71,4 @@ export class Historico implements OnInit {
     URL.revokeObjectURL(url);
   }
 
-  statusClass(cobranca: Cobranca): string {
-    switch (cobranca.statusAtual) {
-      case 'paga': return 'badge-success';
-      case 'expirada': return 'badge-warning';
-      case 'cancelada': return 'badge-error';
-      default: return 'badge-ghost';
-    }
-  }
 }

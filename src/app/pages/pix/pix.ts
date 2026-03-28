@@ -5,11 +5,11 @@ import { maskitoNumberOptionsGenerator, maskitoParseNumber } from '@maskito/kit'
 import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-pix',
-  imports: [ReactiveFormsModule, MaskitoDirective],
+  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink],
   templateUrl: './pix.html',
 })
 export class Pix {

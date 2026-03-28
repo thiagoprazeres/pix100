@@ -7,10 +7,11 @@ import { Cobranca, Pagador, STATUS_COBRANCA_LABELS, TIPO_CONTA_LABELS, TipoConta
 import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/evento-conciliacao.model';
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 
 @Component({
   selector: 'app-pix-details',
-  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule],
+  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe],
   templateUrl: './pix-details.html',
 })
 export class PixDetails implements OnInit {
@@ -229,15 +230,6 @@ export class PixDetails implements OnInit {
     const u8 = new Uint8Array(n);
     while (n--) u8[n] = bstr.charCodeAt(n);
     return new File([u8], filename, { type: 'image/png' });
-  }
-
-  statusClass(c: Cobranca): string {
-    switch (c.statusAtual) {
-      case 'paga': return 'badge-success';
-      case 'expirada': return 'badge-warning';
-      case 'cancelada': return 'badge-error';
-      default: return 'badge-ghost';
-    }
   }
 
   abrirFormPagador(): void {

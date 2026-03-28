@@ -38,6 +38,7 @@ export class Perfil implements OnInit {
       this.erro.set('Verifique os campos obrigatórios.');
       return;
     }
+    const isNovoPerfil = !this.perfilService.perfil();
     this.salvando.set(true);
     this.erro.set(null);
     try {
@@ -46,7 +47,8 @@ export class Perfil implements OnInit {
         merchantCity: this.perfilForm.value.merchantCity!,
       });
       this.sucesso.set(true);
-      setTimeout(() => this.router.navigate(['/cobranca']), 800);
+      const destino = isNovoPerfil ? '/chaves' : '/cobranca';
+      setTimeout(() => this.router.navigate([destino]), 800);
     } catch (e: any) {
       this.erro.set(e?.message ?? 'Erro ao salvar perfil.');
     } finally {

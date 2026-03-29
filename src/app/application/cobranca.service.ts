@@ -4,7 +4,7 @@ import { PixUtilsAdapter } from '../infrastructure/brcode/pix-utils.adapter';
 import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';
 import { Perfil } from '../domain/perfil/perfil.model';
 import { ChavePix } from '../domain/chave-pix/chave-pix.model';
-import { sanitizeMerchantName, sanitizeMerchantCity, gerarBrCodeRef } from '../domain/cobranca/brcode.projection';
+import { sanitizeMerchantName, sanitizeMerchantCity, sanitizeInfoAdicional, gerarBrCodeRef } from '../domain/cobranca/brcode.projection';
 import { EventoConciliacao } from '../domain/conciliacao/evento-conciliacao.model';
 import { gerarIdempotencyKey } from '../domain/conciliacao/conciliacao.rules';
 
@@ -50,8 +50,7 @@ export class CobrancaService {
       merchantName,
       merchantCity,
       transactionAmount: valor,
-      infoAdicional: descricao,
-      txid: brCodeRef,
+      infoAdicional: descricao ? sanitizeInfoAdicional(descricao) : undefined,
     });
 
     const cobranca: Cobranca = {

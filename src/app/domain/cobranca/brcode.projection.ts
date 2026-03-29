@@ -3,6 +3,7 @@ export function sanitizeMerchantName(raw: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-zA-Z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 25);
 }
@@ -12,9 +13,19 @@ export function sanitizeMerchantCity(raw: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-zA-Z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
     .toUpperCase()
     .trim()
     .slice(0, 15);
+}
+
+export function sanitizeInfoAdicional(raw: string): string {
+  return raw
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\x20-\x7E]/g, '')
+    .trim()
+    .slice(0, 72);
 }
 
 export function gerarBrCodeRef(): string {

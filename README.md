@@ -23,12 +23,14 @@ O modelo de dados foi projetado para ser **compatível com a API Celcoin de PIX*
 - Máscaras de input via `Maskito` (CPF, CNPJ, Telefone).
 - Regras de negócio: apenas uma chave ativa por vez; chaves usadas em cobranças são **arquivadas** (não excluídas); `verificacaoStatus` rastreia confirmação por recebimento.
 - Normalização automática de valores (remove formatação antes de gravar).
+- Campo opcional de **banco** (ISPB) associado à chave, com autocomplete por nome via `BancoService`.
 
 ### Geração de Cobranças (PIX Estático)
 - Gera **BR Code** (PIX Copia e Cola) e **QR Code** em Base64 instantaneamente, via `pix-utils`, 100% offline.
 - Campos: valor, descrição, vencimento opcional.
-- Cada cobrança recebe um `brCodeRef` único (TXID) e um `snapshot` imutável dos dados do recebedor no momento da criação.
+- Cada cobrança recebe um `brCodeRef` único (TXID interno) e um `snapshot` imutável dos dados do recebedor no momento da criação.
 - Status: `pendente → paga | expirada | cancelada`.
+- O campo 62.05 do EMV (Reference Label) é gerado como `***` (`isTransactionUnique: false`) para máxima compatibilidade com bancos recebedores — alguns bancos (ex: Banco Inter) rejeitam cobranças estáticas com txid específico por tentarem validá-lo contra o próprio sistema de cobranças registradas. A reconciliação é feita via **E2EId** informado manualmente, não via txid do QR.
 
 ### Conciliação Manual
 - Confirmação, desconfirmação e cancelamento de cobranças com trilha de auditoria completa.
@@ -41,6 +43,8 @@ O modelo de dados foi projetado para ser **compatível com a API Celcoin de PIX*
   - `agencia`, `conta`, `tipoConta` (`CACC | SVGS | TRAN | SLRY` — ISO 20022)
   - `chavePix` do pagador, `endToEndId` (E2EId), `paidAt` (timestamp)
 - Preparado para receber dados diretamente de um webhook Celcoin sem mapeamento adicional.
+- O campo `banco` (ISPB) é **preenchido automaticamente** ao informar o E2EId — o ISPB é extraído dos primeiros 8 dígitos do E2EId e resolvido via `BancoService`.
+- Autocomplete de banco com lista completa de instituições financeiras brasileiras (BACEN via Brasil API), armazenada estaticamente em `public/bancos.json`.
 
 ### Histórico e Exportação
 - Lista de todas as cobranças com filtro visual por status.
@@ -93,7 +97,7 @@ src/app/
 │   │   ├── idb.storage.ts      # Implementação IndexedDB (idb) com reconnect para iOS Safari
 │   │   └── migration.service.ts# Migração de localStorage v1/v2 → IndexedDB
 │   └── brcode/
-│       └── pix-utils.adapter.ts# Adapter para a biblioteca pix-utils
+│       └── pix-utils.adapter.ts# Adapter para a biblioteca pix-utils (isTransactionUnique: false)
 │
 ├── pages/
 │   ├── perfil/                 # Cadastro do recebedor
@@ -101,6 +105,10 @@ src/app/
 │   ├── pix/                    # Formulário de nova cobrança
 │   ├── pix-details/            # Detalhes, conciliação e dados do pagador
 │   └── historico/              # Histórico e exportação CSV
+│
+├── shared/
+│   └── services/
+│       └── banco.service.ts    # Carrega bancos.json, busca por nome/ISPB, formata labels
 │
 └── guards/
     └── perfil-guard.ts         # Redireciona para /perfil se não há cadastro
@@ -125,11 +133,20 @@ A conexão com o IndexedDB usa um mecanismo de **reconnect automático** para li
 
 ## 📐 Modelo de dados principal
 
+### `ChavePix` (campos relevantes)
+```typescript
+interface ChavePix {
+  // ...
+  banco?: string;       // ISPB da instituição (ex: "77054831" = Inter)
+  nomeBanco?: string;   // Nome reduzido (ex: "Banco Inter")
+}
+```
+
 ### `Cobranca`
 ```typescript
 interface Cobranca {
   id: string;               // UUID interno
-  brCodeRef: string;        // TXID do BR Code (≤ 25 chars, alphanum)
+  brCodeRef: string;        // TXID interno (NÃO embutido no QR — campo 62.05 usa ***)
   perfilId: string;
   chavePixId: string;
   snapshot: SnapshotCobranca; // Dados do recebedor no momento da criação (imutável)
@@ -214,7 +231,11 @@ npx http-server dist/pix100 -p 8080
 
 ## 🔮 Roadmap / Integração futura com Celcoin
 
-O modelo de dados foi desenhado para suportar uma integração futura com a **API Celcoin de PIX Estático** sem refatoração:
+O modelo de dados foi desenhado para suportar uma integração futura com a **API Celcoin de PIX Estático** sem refatoração.
+
+> **Nota sobre compatibilidade de QR Code:** O BR Code gerado usa `***` no campo 62.05 (Reference Label) em vez do txid, pois alguns bancos recebedores (confirmado com Banco Inter) rejeitam cobranças estáticas com txid específico. O `brCodeRef` é mantido internamente para rastreabilidade e pode ser usado como `txid` em uma futura integração com cobrança dinâmica via Celcoin.
+
+Campos preparados:
 
 - `Cobranca.providerRef` → receberá o `transactionId` da Celcoin após criação remota
 - `Pagador` → campos mapeados diretamente do webhook de confirmação de pagamento Celcoin

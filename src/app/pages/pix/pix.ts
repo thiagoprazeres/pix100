@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
+import { MaskitoOptions, MaskitoPreprocessor } from '@maskito/core';
 import { maskitoNumberOptionsGenerator, maskitoParseNumber } from '@maskito/kit';
 import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
@@ -23,14 +24,48 @@ export class Pix {
   erro = signal<string | null>(null);
   mostrarVencimento = signal(false);
 
-  readonly maskValor = maskitoNumberOptionsGenerator({
-    min: 0,
-    maximumFractionDigits: 2,
-    prefix: 'R$ ',
-    minimumFractionDigits: 2,
-    decimalSeparator: ',',
-    thousandSeparator: '.',
-  });
+  readonly maskValor: MaskitoOptions = (() => {
+    const base = maskitoNumberOptionsGenerator({
+      min: 0,
+      maximumFractionDigits: 2,
+      prefix: 'R$ ',
+      minimumFractionDigits: 2,
+      decimalSeparator: ',',
+      thousandSeparator: '.',
+    });
+
+    const cashRegister: MaskitoPreprocessor = ({ elementState, data }, actionType) => {
+      const digits = elementState.value.replace(/\D/g, '');
+      const currentCents = parseInt(digits || '0', 10);
+
+      if (actionType === 'deleteBackward') {
+        const newCents = Math.floor(currentCents / 10);
+        const r = Math.floor(newCents / 100);
+        const c = newCents % 100;
+        return {
+          elementState: { value: '', selection: [0, 0] as [number, number] },
+          data: `${r},${String(c).padStart(2, '0')}`,
+        };
+      }
+
+      if (actionType !== 'insert' || !/^\d$/.test(data)) {
+        return { elementState, data };
+      }
+
+      const newCents = Math.min(currentCents * 10 + parseInt(data, 10), 9999999);
+      const r = Math.floor(newCents / 100);
+      const c = newCents % 100;
+      return {
+        elementState: { value: '', selection: [0, 0] as [number, number] },
+        data: `${r},${String(c).padStart(2, '0')}`,
+      };
+    };
+
+    return {
+      ...base,
+      preprocessors: [cashRegister, ...(base.preprocessors ?? [])],
+    };
+  })();
 
   pixForm = new FormGroup({
     transactionAmount: new FormControl<string | null>(null, [Validators.required]),

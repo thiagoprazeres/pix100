@@ -7,7 +7,6 @@ export interface BrCodeInput {
   merchantCity: string;
   transactionAmount: number;
   infoAdicional?: string;
-  txid: string;
 }
 
 export interface BrCodeOutput {
@@ -24,8 +23,7 @@ export class PixUtilsAdapter {
       pixKey: input.pixKey,
       infoAdicional: input.infoAdicional,
       transactionAmount: input.transactionAmount,
-      txid: input.txid,
-      isTransactionUnique: true,
+      isTransactionUnique: false,
     }).throwIfError();
 
     const qrBase64 = await payload.toImage();

@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CobrancaService } from '../../application/cobranca.service';
 import { PerfilService } from '../../application/perfil.service';
-import { Cobranca, STATUS_COBRANCA_LABELS } from '../../domain/cobranca/cobranca.model';
+import { Cobranca, STATUS_COBRANCA_LABELS, StatusCobranca } from '../../domain/cobranca/cobranca.model';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
@@ -19,10 +19,38 @@ export class Historico implements OnInit {
   private readonly toastController = inject(ToastController);
   statusLabels = STATUS_COBRANCA_LABELS;
 
-  readonly cobrancas = this.cobrancaService.cobrancas;
-  readonly total = computed(() =>
-    this.cobrancas().reduce((s, c) => s + c.valor, 0)
+  filtroStatus = signal<StatusCobranca | 'todas'>('todas');
+
+  readonly todasCobrancas = this.cobrancaService.cobrancas;
+
+  readonly cobrancas = computed(() => {
+    const filtro = this.filtroStatus();
+    const lista = this.todasCobrancas();
+    return filtro === 'todas' ? lista : lista.filter(c => c.statusAtual === filtro);
+  });
+
+  readonly totalPago = computed(() =>
+    this.todasCobrancas()
+      .filter(c => c.statusAtual === 'paga')
+      .reduce((s, c) => s + c.valor, 0)
   );
+
+  readonly totalPendente = computed(() =>
+    this.todasCobrancas()
+      .filter(c => c.statusAtual === 'pendente')
+      .reduce((s, c) => s + c.valor, 0)
+  );
+
+  readonly contadores = computed((): Record<string, number> => {
+    const lista = this.todasCobrancas();
+    return {
+      todas: lista.length,
+      pendente: lista.filter(c => c.statusAtual === 'pendente').length,
+      paga: lista.filter(c => c.statusAtual === 'paga').length,
+      expirada: lista.filter(c => c.statusAtual === 'expirada').length,
+      cancelada: lista.filter(c => c.statusAtual === 'cancelada').length,
+    };
+  });
 
   async ngOnInit(): Promise<void> {
     const perfil = this.perfilService.perfil();
@@ -45,14 +73,23 @@ export class Historico implements OnInit {
     });
   }
 
+  setFiltro(status: string): void {
+    this.filtroStatus.set(status as StatusCobranca | 'todas');
+  }
+
   exportarCsv(): void {
-    const lista = this.cobrancas();
+    const lista = this.todasCobrancas();
     if (!lista.length) {
-      alert('Não há registros para exportar.');
+      this.toastController.create({ message: 'Não há registros para exportar.', duration: 2500, position: 'bottom', color: 'warning' }).then(t => t.present());
       return;
     }
 
-    const cabecalho = ['ID Interno', 'BRCodeRef', 'Valor', 'Status', 'Descrição', 'Vencimento', 'BR Code', 'Criado em'];
+    const cabecalho = [
+      'ID Interno', 'BRCodeRef', 'Valor', 'Status', 'Descrição', 'Vencimento', 'BR Code', 'Criado em',
+      'Pagador Nome', 'Pagador Documento', 'Pagador Banco', 'Pagador Nome Banco',
+      'Pagador Agência', 'Pagador Conta', 'Pagador Tipo Conta', 'Pagador Chave Pix',
+      'E2EId', 'Pago em',
+    ];
     const linhas = lista.map((c) => [
       c.id,
       c.brCodeRef,
@@ -62,6 +99,16 @@ export class Historico implements OnInit {
       c.vencimento ? new Date(c.vencimento).toISOString() : '',
       c.brcode,
       new Date(c.criadaEm).toISOString(),
+      c.pagador?.nome ?? '',
+      c.pagador?.documento ?? '',
+      c.pagador?.banco ?? '',
+      c.pagador?.nomeBanco ?? '',
+      c.pagador?.agencia ?? '',
+      c.pagador?.conta ?? '',
+      c.pagador?.tipoConta ?? '',
+      c.pagador?.chavePix ?? '',
+      c.pagador?.endToEndId ?? '',
+      c.pagador?.paidAt ? new Date(c.pagador.paidAt).toISOString() : '',
     ]);
 
     const csv = [cabecalho, ...linhas]

@@ -10,11 +10,34 @@
 </header>
 
 <main>
-  @if (cobrancas().length === 0) {
+  @if (todasCobrancas().length === 0) {
     <p class="text-center text-sm opacity-60 mt-16">Nenhuma cobrança gerada ainda.</p>
   } @else {
-    <div class="flex justify-between items-center px-4 py-2 text-sm opacity-70">
-      <span>{{ cobrancas().length }} cobranças · {{ total() | currency }}</span>
+    <div class="px-4 pt-3 pb-1 space-y-2">
+      <div class="flex gap-2 flex-wrap text-xs">
+        @for (op of [
+          {v: 'todas', l: 'Todas'},
+          {v: 'pendente', l: 'Pendentes'},
+          {v: 'paga', l: 'Pagas'},
+          {v: 'expirada', l: 'Expiradas'},
+          {v: 'cancelada', l: 'Canceladas'}
+        ]; track op.v) {
+          <button
+            (click)="setFiltro(op.v)"
+            [class]="'px-3 py-1 rounded-full border font-medium transition ' +
+              (filtroStatus() === op.v
+                ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 dark:border-neutral-100'
+                : 'border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400')"
+          >
+            {{ op.l }}
+            <span class="opacity-60 ml-1">{{ contadores()[op.v] }}</span>
+          </button>
+        }
+      </div>
+      <div class="flex gap-4 text-sm">
+        <span class="text-green-700 dark:text-green-400 font-medium">✓ Recebido: {{ totalPago() | currency }}</span>
+        <span class="opacity-50">· Pendente: {{ totalPendente() | currency }}</span>
+      </div>
     </div>
     <div class="divide-y divide-neutral-200 dark:divide-neutral-700">
       @for (c of cobrancas(); track c.id) {

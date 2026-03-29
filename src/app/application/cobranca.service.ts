@@ -45,7 +45,7 @@ export class CobrancaService {
     const brCodeRef = gerarBrCodeRef();
     const now = Date.now();
 
-    const { brcode, qrBase64 } = await this.pixUtils.generate({
+    const { brcode, qrSvg } = await this.pixUtils.generate({
       pixKey: chaveAtiva.valor,
       merchantName,
       merchantCity,
@@ -70,7 +70,7 @@ export class CobrancaService {
       vencimento,
       statusAtual: 'pendente',
       brcode,
-      qrBase64,
+      qrSvg,
       criadaEm: now,
       atualizadaEm: now,
     };

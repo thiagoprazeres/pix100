@@ -9,8 +9,9 @@ import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
-import { IonButton, IonSpinner, ToastController } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner, ToastController, AlertController } from '@ionic/angular/standalone';
 import { BancoService, BancoEntry } from '../../shared/services/banco.service';
+import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
 
 @Component({
   selector: 'app-pix-details',
@@ -23,6 +24,7 @@ export class PixDetails implements OnInit, OnDestroy {
   private readonly conciliacaoService = inject(ConciliacaoService);
 
   private readonly toastController = inject(ToastController);
+  private readonly alertController = inject(AlertController);
   private readonly bancoService = inject(BancoService);
   private readonly destroy$ = new Subject<void>();
 
@@ -147,7 +149,21 @@ export class PixDetails implements OnInit, OnDestroy {
 
   async cancelar(): Promise<void> {
     const c = this.cobranca();
-    if (!c || !confirm('Cancelar esta cobrança?')) return;
+    if (!c) return;
+    const alert = await this.alertController.create({
+      header: 'Cancelar cobrança',
+      message: 'Esta ação não pode ser desfeita.',
+      buttons: [
+        { text: 'Voltar', role: 'cancel' },
+        { text: 'Cancelar cobrança', role: 'destructive', handler: () => this.executarCancelamento() },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async executarCancelamento(): Promise<void> {
+    const c = this.cobranca();
+    if (!c) return;
     this.conciliando.set(true);
     try {
       const atualizada = await this.conciliacaoService.aplicar({
@@ -187,34 +203,49 @@ export class PixDetails implements OnInit, OnDestroy {
   }
 
   async shareBrcodeAndQrBase64(): Promise<void> {
+    const c = this.cobranca();
+    if (!c?.qrSvg && !c?.qrBase64) return;
     if (!navigator.canShare) {
-      alert('O seu dispositivo não suporta Web Share API.');
+      this.copyToClipboard();
       return;
     }
-    this.copyToClipboard();
-    const c = this.cobranca();
-    if (!c?.qrBase64) return;
     try {
-      const ticketBase64 = await this.gerarTicketBase64(c);
-      const file = this.base64ToFile(ticketBase64, 'pix-ticket.png');
+      const ticketBase64 = await gerarTicketBase64(c);
+      const file = base64ToFile(ticketBase64, 'pix-ticket.png');
+      this.copyToClipboard();
       navigator.share({ title: 'PIX Copia e Cola', text: c.brcode, files: [file] }).catch(console.error);
     } catch (err) {
-      alert('Falha ao gerar o ticket de cobrança.');
+      this.showToast('Falha ao gerar o ticket de cobrança.', 'danger');
     }
   }
 
   async salvarImagem(): Promise<void> {
     const c = this.cobranca();
-    if (!c?.qrBase64) return;
+    if (!c?.qrSvg && !c?.qrBase64) return;
     try {
-      const ticketBase64 = await this.gerarTicketBase64(c);
+      const ticketBase64 = await gerarTicketBase64(c);
       const link = document.createElement('a');
       link.href = ticketBase64;
       link.download = `pix-recibo-${c.brCodeRef}.png`;
       link.click();
     } catch (err) {
-      alert('Falha ao salvar a imagem.');
+      this.showToast('Falha ao salvar a imagem.', 'danger');
     }
+  }
+
+  async baixarPdf(): Promise<void> {
+    const c = this.cobranca();
+    if (!c) return;
+    try {
+      await gerarPdf(c);
+    } catch (err) {
+      this.showToast('Falha ao gerar o PDF.', 'danger');
+    }
+  }
+
+  private async showToast(message: string, color: string = 'primary'): Promise<void> {
+    const toast = await this.toastController.create({ message, duration: 3000, position: 'bottom', color });
+    await toast.present();
   }
 
   enviarWhatsApp(): void {
@@ -225,73 +256,19 @@ export class PixDetails implements OnInit, OnDestroy {
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
   }
 
-  private gerarTicketBase64(c: Cobranca): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 600;
-      canvas.height = 800;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return reject('Sem contexto 2D');
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(0, 0, canvas.width, 140);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 38px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('PAGAMENTO PIX', canvas.width / 2, 85);
-      ctx.fillStyle = '#334155';
-      ctx.font = 'bold 30px sans-serif';
-      ctx.fillText(c.snapshot.merchantName.toUpperCase(), canvas.width / 2, 200);
-      ctx.fillStyle = '#64748b';
-      ctx.font = '22px sans-serif';
-      ctx.fillText(c.snapshot.merchantCity, canvas.width / 2, 235);
-      const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-      ctx.fillStyle = '#16a34a';
-      ctx.font = '900 68px sans-serif';
-      ctx.fillText(fmt.format(c.valor), canvas.width / 2, 310);
-      if (c.descricao) {
-        ctx.fillStyle = '#64748b';
-        ctx.font = 'italic 24px sans-serif';
-        ctx.fillText(`"${c.descricao}"`, canvas.width / 2, 355);
-      }
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 130, 380, 340, 340);
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '16px sans-serif';
-        ctx.fillText('Gerado com Origem100', canvas.width / 2, canvas.height - 40);
-        ctx.fillText(`Ref: ${c.brCodeRef}`, canvas.width / 2, canvas.height - 20);
-        resolve(canvas.toDataURL('image/png'));
-      };
-      img.onerror = reject;
-      img.src = c.qrBase64!;
-    });
-  }
-
-  private base64ToFile(base64: string, filename: string): File {
-    const arr = base64.split(',');
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8 = new Uint8Array(n);
-    while (n--) u8[n] = bstr.charCodeAt(n);
-    return new File([u8], filename, { type: 'image/png' });
-  }
-
   abrirFormPagador(): void {
-    const paidAtValue = this.toDatetimeLocal(Date.now());
+    const pag = this.cobranca()?.pagador;
     this.pagadorForm.reset({
-      nome: '',
-      documento: '',
-      banco: '',
-      nomeBanco: '',
-      agencia: '',
-      conta: '',
-      tipoConta: '',
-      chavePix: '',
-      endToEndId: '',
-      paidAt: paidAtValue,
+      nome: pag?.nome ?? '',
+      documento: pag?.documento ?? '',
+      banco: pag?.banco ?? '',
+      nomeBanco: pag?.nomeBanco ?? '',
+      agencia: pag?.agencia ?? '',
+      conta: pag?.conta ?? '',
+      tipoConta: pag?.tipoConta ?? '',
+      chavePix: pag?.chavePix ?? '',
+      endToEndId: pag?.endToEndId ?? '',
+      paidAt: pag?.paidAt ? this.toDatetimeLocal(pag.paidAt) : this.toDatetimeLocal(Date.now()),
     });
     this.registrandoPagador.set(true);
   }
@@ -325,7 +302,7 @@ export class PixDetails implements OnInit, OnDestroy {
       await this.recarregarEventos(atualizada.id);
       this.registrandoPagador.set(false);
     } catch (e: any) {
-      alert(e?.message ?? 'Erro ao registrar pagador.');
+      this.showToast(e?.message ?? 'Erro ao registrar pagador.', 'danger');
     } finally {
       this.salvandoPagador.set(false);
     }

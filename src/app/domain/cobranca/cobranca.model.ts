@@ -51,6 +51,7 @@ export interface Cobranca {
   statusAtual: StatusCobranca;
   brcode: string;
   qrBase64?: string;
+  qrSvg?: string;
   pagador?: Pagador;
   criadaEm: number;
   atualizadaEm: number;

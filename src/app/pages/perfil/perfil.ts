@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { PerfilService } from '../../application/perfil.service';
 import { ThemeService } from '../../services/theme-service';
 import { Router } from '@angular/router';
-import { IonButton, IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner, AlertController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-perfil',
@@ -15,6 +15,8 @@ export class Perfil implements OnInit, OnDestroy {
   perfilService = inject(PerfilService);
   themeService = inject(ThemeService);
   router = inject(Router);
+
+  private readonly alertController = inject(AlertController);
 
   salvando = signal(false);
   sucesso = signal(false);
@@ -89,9 +91,22 @@ export class Perfil implements OnInit, OnDestroy {
   }
 
   async removerPerfil() {
-    if (!confirm('Excluir perfil e todos os dados? Esta ação não pode ser desfeita.')) return;
-    await this.perfilService.remover();
-    this.perfilForm.reset();
-    this.router.navigate(['/perfil']);
+    const alert = await this.alertController.create({
+      header: 'Excluir perfil',
+      message: 'Todos os dados serão apagados permanentemente. Esta ação não pode ser desfeita.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Excluir tudo',
+          role: 'destructive',
+          handler: async () => {
+            await this.perfilService.remover();
+            this.perfilForm.reset();
+            this.router.navigate(['/perfil']);
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 }

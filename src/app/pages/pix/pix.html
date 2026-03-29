@@ -48,9 +48,12 @@
         <label class="block text-sm font-bold mb-1">Descrição (opcional)</label>
         <input
           type="text"
-          placeholder="Ex: Produto X, Serviço Y..."
+          placeholder="Ex: Produto X, Servico Y..."
           formControlName="infoAdicional"
         />
+        @if (descricaoSanitizada()) {
+          <p class="text-xs opacity-60 mt-1">No QR: "{{ descricaoSanitizada() }}"</p>
+        }
       </div>
 
       <div class="mb-4">

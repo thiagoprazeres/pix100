@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStaticPix } from 'pix-utils';
+import QRCode from 'qrcode';
 
 export interface BrCodeInput {
   pixKey: string;
@@ -11,7 +12,7 @@ export interface BrCodeInput {
 
 export interface BrCodeOutput {
   brcode: string;
-  qrBase64: string;
+  qrSvg: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,11 +27,14 @@ export class PixUtilsAdapter {
       isTransactionUnique: false,
     }).throwIfError();
 
-    const qrBase64 = await payload.toImage();
+    const brcode = payload.toBRCode();
+    const svgString = await QRCode.toString(brcode, {
+      type: 'svg',
+      errorCorrectionLevel: 'L',
+      margin: 1,
+    });
+    const qrSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
 
-    return {
-      brcode: payload.toBRCode(),
-      qrBase64,
-    };
+    return { brcode, qrSvg };
   }
 }

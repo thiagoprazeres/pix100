@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
 import { MaskitoOptions, MaskitoPreprocessor } from '@maskito/core';
@@ -7,6 +8,7 @@ import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
 import { Router, RouterLink } from '@angular/router';
+import { sanitizeInfoAdicional } from '../../domain/cobranca/brcode.projection';
 import { IonButton, IonToggle, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
@@ -23,6 +25,24 @@ export class Pix {
   gerando = signal(false);
   erro = signal<string | null>(null);
   mostrarVencimento = signal(false);
+
+  pixForm = new FormGroup({
+    transactionAmount: new FormControl<string | null>(null, [Validators.required]),
+    infoAdicional: new FormControl<string>(''),
+    vencimento: new FormControl<string>(''),
+  });
+
+  private readonly _infoAdicional = toSignal(
+    this.pixForm.controls.infoAdicional.valueChanges,
+    { initialValue: '' }
+  );
+
+  readonly descricaoSanitizada = computed(() => {
+    const raw = this._infoAdicional() ?? '';
+    if (!raw) return '';
+    const sanitized = sanitizeInfoAdicional(raw);
+    return sanitized !== raw ? sanitized : '';
+  });
 
   readonly maskValor: MaskitoOptions = (() => {
     const base = maskitoNumberOptionsGenerator({
@@ -66,12 +86,6 @@ export class Pix {
       preprocessors: [cashRegister, ...(base.preprocessors ?? [])],
     };
   })();
-
-  pixForm = new FormGroup({
-    transactionAmount: new FormControl<string | null>(null, [Validators.required]),
-    infoAdicional: new FormControl<string>(''),
-    vencimento: new FormControl<string>(''),
-  });
 
   async gerarCobranca(): Promise<void> {
     const perfil = this.perfilService.perfil();

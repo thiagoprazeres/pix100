@@ -153,15 +153,29 @@ export class IdbStorage extends StoragePort {
 
   async clearProfileData(perfilId: string): Promise<void> {
     return this.exec(async (db) => {
-      const chaves = await db.getAllFromIndex('chaves_pix', 'perfilId', perfilId);
-      for (const c of chaves) await db.delete('chaves_pix', c.id);
+      const tx = db.transaction(
+        ['chaves_pix', 'cobrancas', 'eventos_conciliacao', 'perfil'],
+        'readwrite',
+      );
+      const chavesStore = tx.objectStore('chaves_pix');
+      const cobrancasStore = tx.objectStore('cobrancas');
+      const eventosStore = tx.objectStore('eventos_conciliacao');
+      const perfilStore = tx.objectStore('perfil');
 
-      const cobrancas = await db.getAllFromIndex('cobrancas', 'perfilId', perfilId);
+      const chaves = await chavesStore.index('perfilId').getAll(perfilId);
+      for (const c of chaves) await chavesStore.delete(c.id);
+
+      const cobrancas = await cobrancasStore.index('perfilId').getAll(perfilId);
       for (const c of cobrancas) {
-        const eventos = await db.getAllFromIndex('eventos_conciliacao', 'cobrancaId', c.id);
-        for (const ev of eventos) await db.delete('eventos_conciliacao', ev.id);
-        await db.delete('cobrancas', c.id);
+        const eventos = await eventosStore.index('cobrancaId').getAll(c.id);
+        for (const ev of eventos) await eventosStore.delete(ev.id);
+        await cobrancasStore.delete(c.id);
       }
+
+      const perfis = await perfilStore.getAll();
+      for (const p of perfis) await perfilStore.delete(p.id);
+
+      await tx.done;
     });
   }
 }

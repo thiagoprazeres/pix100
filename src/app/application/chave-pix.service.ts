@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { IdbStorage } from '../infrastructure/storage/idb.storage';
+import { StoragePort } from '../infrastructure/storage/storage.port';
 import { ChavePix, TipoChave, TipoPessoa, StatusChave } from '../domain/chave-pix/chave-pix.model';
 import { normalizarChave, derivarTipoPessoa } from '../domain/chave-pix/chave-pix.normalizer';
 import { validarValorPorTipo, verificarUnicidade, podeArquivar, podeRemoverFisicamente } from '../domain/chave-pix/chave-pix.rules';
@@ -11,7 +11,7 @@ export class ChavePixService {
   readonly chaves = this._chaves.asReadonly();
   readonly chaveAtiva = computed(() => this._chaves().find((c) => c.status === 'ativa') ?? null);
 
-  constructor(private storage: IdbStorage) {}
+  constructor(private storage: StoragePort) {}
 
   async init(perfilId: string): Promise<void> {
     const chaves = await this.storage.getChaves(perfilId);

@@ -40,4 +40,8 @@ export const routes: Routes = [
     path: 'pix/:txid',
     redirectTo: 'historico',
   },
+  {
+    path: '**',
+    redirectTo: 'cobranca',
+  },
 ];

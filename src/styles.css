@@ -18,6 +18,7 @@
   input[type='email'],
   input[type='tel'],
   input[type='date'],
+  input[type='datetime-local'],
   select,
   textarea {
     @apply w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900

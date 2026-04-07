@@ -87,7 +87,9 @@ export class MigrationService {
       }
 
       localStorage.removeItem('pix100.perfis.v2');
-    } catch {}
+    } catch (e) {
+      console.error('Falha na migração v2', e);
+    }
   }
 
   private async migrateFromV1(): Promise<void> {
@@ -139,6 +141,8 @@ export class MigrationService {
       }
 
       localStorage.removeItem('pix100.historico.v1');
-    } catch {}
+    } catch (e) {
+      console.error('Falha na migração v1', e);
+    }
   }
 }

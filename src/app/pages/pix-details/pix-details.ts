@@ -192,18 +192,14 @@ export class PixDetails implements OnInit, OnDestroy {
     window.history.back();
   }
 
-  copyToClipboard(): void {
+  async copyToClipboard(): Promise<void> {
     const brcode = this.cobranca()?.brcode;
-    if (brcode) {
-      navigator.clipboard.writeText(brcode).then(async () => {
-        const toast = await this.toastController.create({
-          message: 'BR Code copiado!',
-          duration: 2000,
-          position: 'bottom',
-          color: 'success',
-        });
-        await toast.present();
-      });
+    if (!brcode) return;
+    try {
+      await navigator.clipboard.writeText(brcode);
+      this.showToast('BR Code copiado!', 'success');
+    } catch {
+      this.showToast('Não foi possível copiar. Selecione o código manualmente.', 'warning');
     }
   }
 

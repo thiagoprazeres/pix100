@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IdbStorage } from '../infrastructure/storage/idb.storage';
+import { StoragePort } from '../infrastructure/storage/storage.port';
 import { CobrancaService } from './cobranca.service';
 import { ChavePixService } from './chave-pix.service';
 import { EventoConciliacao, TipoEvento } from '../domain/conciliacao/evento-conciliacao.model';
@@ -10,7 +10,7 @@ import { gerarIdempotencyKey, tipoEventoParaStatus } from '../domain/conciliacao
 @Injectable({ providedIn: 'root' })
 export class ConciliacaoService {
   constructor(
-    private storage: IdbStorage,
+    private storage: StoragePort,
     private cobrancaService: CobrancaService,
     private chavePixService: ChavePixService
   ) {}

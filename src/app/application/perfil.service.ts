@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { IdbStorage } from '../infrastructure/storage/idb.storage';
+import { StoragePort } from '../infrastructure/storage/storage.port';
 import { Perfil } from '../domain/perfil/perfil.model';
 
 @Injectable({ providedIn: 'root' })
@@ -7,7 +7,7 @@ export class PerfilService {
   private readonly _perfil = signal<Perfil | null>(null);
   readonly perfil = this._perfil.asReadonly();
 
-  private storage = inject(IdbStorage);
+  private storage = inject(StoragePort);
   private _chavePixService: { reset: () => void } | null = null;
   private _cobrancaService: { reset: () => void } | null = null;
 
@@ -44,7 +44,6 @@ export class PerfilService {
     if (perfil) {
       await this.storage.clearProfileData(perfil.id);
     }
-    await this.storage.deletePerfil();
     this._chavePixService?.reset();
     this._cobrancaService?.reset();
     this._perfil.set(null);

@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { IdbStorage } from '../infrastructure/storage/idb.storage';
+import { StoragePort } from '../infrastructure/storage/storage.port';
 import { PixUtilsAdapter } from '../infrastructure/brcode/pix-utils.adapter';
 import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';
 import { Perfil } from '../domain/perfil/perfil.model';
@@ -14,7 +14,7 @@ export class CobrancaService {
   readonly cobrancas = this._cobrancas.asReadonly();
 
   constructor(
-    private storage: IdbStorage,
+    private storage: StoragePort,
     private pixUtils: PixUtilsAdapter
   ) {}
 

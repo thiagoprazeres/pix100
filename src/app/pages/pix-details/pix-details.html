@@ -90,7 +90,7 @@
           </div>
           @if (pag.endToEndId) {
             <div class="flex justify-between">
-              <span class="opacity-60">End-to-End ID</span>
+              <span class="opacity-60">ID da transação</span>
               <span class="font-mono text-xs break-all">{{ pag.endToEndId }}</span>
             </div>
           }
@@ -156,9 +156,9 @@
             </div>
 
             <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">End-to-End ID</label>
+              <label class="block text-xs font-bold mb-1">ID da transação (E2EId)</label>
               <input formControlName="endToEndId" type="text" placeholder="E..." class="font-mono text-xs" />
-              <p class="text-xs opacity-50 mt-1">ID da transação no extrato/comprovante do pagador. Preenchido automaticamente no futuro.</p>
+              <p class="text-xs opacity-50 mt-1">Chamado de "ID da transação" no Nubank e outros bancos. Aparece no comprovante do pagador. Preenchido automaticamente no futuro.</p>
             </div>
 
             <div class="col-span-2">

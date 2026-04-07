@@ -25,6 +25,7 @@ export class Pix {
   gerando = signal(false);
   erro = signal<string | null>(null);
   mostrarVencimento = signal(false);
+  readonly hoje = new Date().toISOString().slice(0, 10);
 
   pixForm = new FormGroup({
     transactionAmount: new FormControl<string | null>(null, [Validators.required]),
@@ -120,6 +121,8 @@ export class Pix {
         descricao: this.pixForm.value.infoAdicional || undefined,
         vencimento,
       });
+      this.pixForm.reset();
+      this.mostrarVencimento.set(false);
       this.router.navigate(['/cobranca', cobranca.id]);
     } catch (e: any) {
       this.erro.set(e?.message ?? 'Erro ao gerar cobrança.');

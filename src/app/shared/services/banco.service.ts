@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 export interface BancoEntry {
   ispb: string;
@@ -10,6 +10,7 @@ export interface BancoEntry {
 export class BancoService {
   private bancos: BancoEntry[] = [];
   private carregado = false;
+  readonly carregamentoFalhou = signal(false);
 
   async carregar(): Promise<void> {
     if (this.carregado) return;
@@ -17,7 +18,11 @@ export class BancoService {
       const res = await fetch('/bancos.json');
       this.bancos = await res.json();
       this.carregado = true;
-    } catch {}
+      this.carregamentoFalhou.set(false);
+    } catch (e) {
+      console.error('Falha ao carregar bancos.json', e);
+      this.carregamentoFalhou.set(true);
+    }
   }
 
   resolverPorISPB(ispb: string): BancoEntry | null {

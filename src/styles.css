@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Geist:wght@100..900&display=swap');
-
 @theme {
   --default-font-family: 'Geist', var(--font-sans);
   --font-display: 'Caveat', sans-serif;

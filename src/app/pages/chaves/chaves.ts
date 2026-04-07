@@ -6,7 +6,7 @@ import { ChavePixService } from '../../application/chave-pix.service';
 import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
 import { Subject, takeUntil } from 'rxjs';
-import { IonButton, IonSpinner, IonRadio, IonRadioGroup } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner, IonRadio, IonRadioGroup, AlertController, ToastController } from '@ionic/angular/standalone';
 import { BancoService } from '../../shared/services/banco.service';
 
 @Component({
@@ -29,6 +29,8 @@ export class Chaves implements OnInit, OnDestroy {
   statusLabels = STATUS_CHAVE_LABELS;
 
   private readonly bancoService = inject(BancoService);
+  private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
   bancosFiltrados = signal<string[]>([]);
 
   bancoinvalido = signal(false);
@@ -171,33 +173,60 @@ export class Chaves implements OnInit, OnDestroy {
     try {
       await this.chavePixService.ativar(chave.id);
     } catch (e: any) {
-      alert(e?.message ?? 'Erro ao ativar chave.');
+      this.showToast(e?.message ?? 'Erro ao ativar chave.', 'danger');
     } finally {
       this.acaoEmAndamento.set(null);
     }
   }
 
   async arquivar(chave: ChavePix): Promise<void> {
-    if (!confirm(`Arquivar a chave "${chave.valor}"? Ela não poderá ser reativada e não poderá ser excluída.`)) return;
+    const alert = await this.alertController.create({
+      header: 'Arquivar chave',
+      message: `Arquivar a chave "${chave.valor}"? Ela não poderá ser reativada e não poderá ser excluída.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Arquivar', role: 'destructive', handler: () => this.executarArquivar(chave) },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async executarArquivar(chave: ChavePix): Promise<void> {
     this.acaoEmAndamento.set(chave.id);
     try {
       await this.chavePixService.arquivar(chave.id);
     } catch (e: any) {
-      alert(e?.message ?? 'Erro ao arquivar chave.');
+      this.showToast(e?.message ?? 'Erro ao arquivar chave.', 'danger');
     } finally {
       this.acaoEmAndamento.set(null);
     }
   }
 
   async remover(chave: ChavePix): Promise<void> {
-    if (!confirm(`Remover a chave "${chave.valor}" definitivamente?`)) return;
+    const alert = await this.alertController.create({
+      header: 'Remover chave',
+      message: `Remover a chave "${chave.valor}" definitivamente?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Remover', role: 'destructive', handler: () => this.executarRemover(chave) },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async executarRemover(chave: ChavePix): Promise<void> {
     this.acaoEmAndamento.set(chave.id);
     try {
       await this.chavePixService.remover(chave.id);
     } catch (e: any) {
-      alert(e?.message ?? 'Erro ao remover chave.');
+      this.showToast(e?.message ?? 'Erro ao remover chave.', 'danger');
     } finally {
       this.acaoEmAndamento.set(null);
     }
+  }
+
+  private async showToast(message: string, color: string = 'primary'): Promise<void> {
+    const toast = await this.toastController.create({ message, duration: 3000, position: 'bottom', color });
+    await toast.present();
   }
 }

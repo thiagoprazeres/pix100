@@ -30,6 +30,7 @@ export class PixDetails implements OnInit, OnDestroy {
 
   bancosFiltrados = signal<BancoEntry[]>([]);
 
+  carregando = signal(true);
   cobranca = signal<Cobranca | null>(null);
   eventos = signal<EventoConciliacao[]>([]);
   conciliando = signal(false);
@@ -56,14 +57,18 @@ export class PixDetails implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     const id = this.activatedRoute.snapshot.params['id'];
-    const cobranca = await this.cobrancaService.buscarPorId(id);
-    this.cobranca.set(cobranca ?? null);
-    if (cobranca) {
-      const eventos = await this.conciliacaoService.getEventos(cobranca.id);
-      this.eventos.set(eventos);
+    try {
+      const cobranca = await this.cobrancaService.buscarPorId(id);
+      this.cobranca.set(cobranca ?? null);
+      if (cobranca) {
+        const eventos = await this.conciliacaoService.getEventos(cobranca.id);
+        this.eventos.set(eventos);
+      }
+      await this.bancoService.carregar();
+      this.configurarWatchersBanco();
+    } finally {
+      this.carregando.set(false);
     }
-    await this.bancoService.carregar();
-    this.configurarWatchersBanco();
   }
 
   ngOnDestroy(): void {
@@ -212,8 +217,9 @@ export class PixDetails implements OnInit, OnDestroy {
     try {
       const ticketBase64 = await gerarTicketBase64(c);
       const file = base64ToFile(ticketBase64, 'pix-ticket.png');
-      this.copyToClipboard();
-      navigator.share({ title: 'PIX Copia e Cola', text: c.brcode, files: [file] }).catch(console.error);
+      await navigator.share({ title: 'PIX Copia e Cola', text: c.brcode, files: [file] }).catch(() => {
+        this.copyToClipboard();
+      });
     } catch (err) {
       this.showToast('Falha ao gerar o ticket de cobrança.', 'danger');
     }

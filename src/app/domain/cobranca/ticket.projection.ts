@@ -1,8 +1,10 @@
-import { jsPDF } from 'jspdf';
 import { Cobranca } from './cobranca.model';
 
 export function gerarTicketBase64(c: Cobranca): Promise<string> {
   return new Promise((resolve, reject) => {
+    const qrSrc = c.qrSvg ?? c.qrBase64;
+    if (!qrSrc) return reject(new Error('Cobrança sem imagem QR.'));
+
     const canvas = document.createElement('canvas');
     canvas.width = 600;
     canvas.height = 800;
@@ -42,12 +44,13 @@ export function gerarTicketBase64(c: Cobranca): Promise<string> {
       resolve(canvas.toDataURL('image/png'));
     };
     img.onerror = reject;
-    img.src = (c.qrSvg ?? c.qrBase64)!;
+    img.src = qrSrc;
   });
 }
 
 export async function gerarPdf(c: Cobranca): Promise<void> {
   const ticketBase64 = await gerarTicketBase64(c);
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
   const imgW = 100;

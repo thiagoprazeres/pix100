@@ -62,7 +62,7 @@
           <span class="text-sm">Definir vencimento</span>
         </div>
         @if (mostrarVencimento()) {
-          <input type="date" formControlName="vencimento" class="mt-2" />
+          <input type="date" formControlName="vencimento" [min]="hoje" class="mt-2" />
           <p class="text-xs opacity-60 mt-1">O Pix estático é válido tecnicamente mesmo após o vencimento. Esta data é uma política do produto.</p>
         }
       </div>

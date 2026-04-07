@@ -55,7 +55,9 @@ export class Perfil implements OnInit, OnDestroy {
       const res = await fetch('/cidades.json');
       this.todasCidades = await res.json();
       this.filtrarCidades(this.perfilForm.value.merchantCity ?? '');
-    } catch {}
+    } catch (e) {
+      console.error('Falha ao carregar cidades.json', e);
+    }
   }
 
   private filtrarCidades(termo: string) {

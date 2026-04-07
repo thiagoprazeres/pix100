@@ -12,6 +12,8 @@ import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
+import { StoragePort } from './infrastructure/storage/storage.port';
+import { IdbStorage } from './infrastructure/storage/idb.storage';
 import { MigrationService } from './infrastructure/storage/migration.service';
 import { PerfilService } from './application/perfil.service';
 import { ChavePixService } from './application/chave-pix.service';
@@ -51,6 +53,7 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
+    { provide: StoragePort, useExisting: IdbStorage },
     { provide: APP_INITIALIZER, useFactory: initializeApp, multi: true },
   ],
 };

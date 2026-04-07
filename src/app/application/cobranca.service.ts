@@ -108,19 +108,18 @@ export class CobrancaService {
         const eventoKey = gerarIdempotencyKey(c.id, 'expirada_automaticamente', agora);
         const jaExiste = await this.storage.getEventoPorIdempotencyKey(eventoKey);
         if (!jaExiste) {
-          const now = Date.now();
           const evento: EventoConciliacao = {
             id: crypto.randomUUID(),
             cobrancaId: c.id,
             tipo: 'expirada_automaticamente',
             origem: 'sistema',
-            timestamp: now,
+            timestamp: agora,
             statusAnterior: 'pendente',
             statusNovo: 'expirada',
             idempotencyKey: eventoKey,
           };
           await this.storage.saveEvento(evento);
-          const atualizada: Cobranca = { ...c, statusAtual: 'expirada', atualizadaEm: now };
+          const atualizada: Cobranca = { ...c, statusAtual: 'expirada', atualizadaEm: agora };
           await this.storage.saveCobranca(atualizada);
           atualizadas.push(atualizada);
         } else {

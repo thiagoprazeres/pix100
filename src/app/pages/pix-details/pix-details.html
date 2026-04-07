@@ -14,7 +14,11 @@
 </header>
 
 <main class="p-4 space-y-4 pb-8">
-  @if (!cobranca()) {
+  @if (carregando()) {
+    <div class="flex justify-center mt-16">
+      <ion-spinner name="crescent" style="width:28px;height:28px"></ion-spinner>
+    </div>
+  } @else if (!cobranca()) {
     <p class="text-center text-sm opacity-60 mt-16">Cobrança não encontrada.</p>
   } @else {
     <div class="flex items-center gap-3">

@@ -85,17 +85,37 @@
       @if (cobranca()!.pagador; as pag) {
         <div class="rounded-lg p-3 text-sm space-y-1 bg-neutral-50 dark:bg-neutral-900">
           <div class="flex justify-between">
-            <span class="opacity-60">Nome</span>
-            <span class="font-medium">{{ pag.nome }}</span>
+            <span class="opacity-60">TXID</span>
+            <span class="font-mono text-xs break-all">{{ cobranca()?.brCodeRef }}</span>
           </div>
+          @if (pag.endToEndId) {
+            <div class="flex justify-between">
+              <span class="opacity-60">End-to-End ID</span>
+              <span class="font-mono text-xs break-all">{{ pag.endToEndId }}</span>
+            </div>
+          }
           <div class="flex justify-between">
-            <span class="opacity-60">Documento</span>
-            <span class="font-mono">{{ pag.documento }}</span>
+            <span class="opacity-60">Pago em</span>
+            <span>{{ pag.paidAt | date:'short' }}</span>
           </div>
-          <div class="flex justify-between">
-            <span class="opacity-60">Banco</span>
-            <span>{{ pag.nomeBanco || pag.banco }}</span>
-          </div>
+          @if (pag.nome) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Nome</span>
+              <span class="font-medium">{{ pag.nome }}</span>
+            </div>
+          }
+          @if (pag.documento) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Documento</span>
+              <span class="font-mono">{{ pag.documento }}</span>
+            </div>
+          }
+          @if (pag.nomeBanco || pag.banco) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Banco</span>
+              <span>{{ pag.nomeBanco || pag.banco }}</span>
+            </div>
+          }
           @if (pag.agencia || pag.conta) {
             <div class="flex justify-between">
               <span class="opacity-60">Ag / Conta</span>
@@ -114,16 +134,6 @@
               <span class="font-mono text-xs break-all">{{ pag.chavePix }}</span>
             </div>
           }
-          @if (pag.endToEndId) {
-            <div class="flex justify-between">
-              <span class="opacity-60">End-to-End ID</span>
-              <span class="font-mono text-xs break-all">{{ pag.endToEndId }}</span>
-            </div>
-          }
-          <div class="flex justify-between">
-            <span class="opacity-60">Pago em</span>
-            <span>{{ pag.paidAt | date:'short' }}</span>
-          </div>
         </div>
         <ion-button fill="clear" size="small" class="mt-2" (click)="abrirFormPagador()">Editar dados do pagador</ion-button>
       } @else if (!registrandoPagador()) {
@@ -137,17 +147,41 @@
       @if (registrandoPagador()) {
         <form [formGroup]="pagadorForm" class="mt-3 space-y-2" (ngSubmit)="salvarPagador()">
           <div class="grid grid-cols-2 gap-2">
+
             <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Nome *</label>
+              <label class="block text-xs font-bold mb-1">Ref. cobrança (TXID)</label>
+              <p class="font-mono text-xs px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 opacity-70 break-all select-all">
+                {{ cobranca()?.brCodeRef }}
+              </p>
+            </div>
+
+            <div class="col-span-2">
+              <label class="block text-xs font-bold mb-1">End-to-End ID</label>
+              <input formControlName="endToEndId" type="text" placeholder="E..." class="font-mono text-xs" />
+              <p class="text-xs opacity-50 mt-1">ID da transação no extrato/comprovante do pagador. Preenchido automaticamente no futuro.</p>
+            </div>
+
+            <div class="col-span-2">
+              <label class="block text-xs font-bold mb-1">Pago em *</label>
+              <input formControlName="paidAt" type="datetime-local" />
+              <p class="text-xs opacity-50 mt-1">Pré-preenchido com agora. Ajuste se necessário.</p>
+            </div>
+
+            <div class="col-span-2 pt-2 border-t border-neutral-200 dark:border-neutral-700">
+              <p class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wide">Dados do pagador <span class="font-normal normal-case">(opcionais)</span></p>
+            </div>
+
+            <div class="col-span-2">
+              <label class="block text-xs font-bold mb-1">Nome</label>
               <input formControlName="nome" type="text" placeholder="Nome do pagador" />
             </div>
             <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">CPF / CNPJ *</label>
+              <label class="block text-xs font-bold mb-1">CPF / CNPJ</label>
               <input formControlName="documento" type="text" placeholder="000.000.000-00" class="font-mono" />
             </div>
             <div>
-              <label class="block text-xs font-bold mb-1">Banco (ISPB ou nome) *</label>
-              <input formControlName="banco" type="text" list="bancos-list" placeholder="Digite ISPB ou nome do banco" class="font-mono" autocomplete="off" />
+              <label class="block text-xs font-bold mb-1">Banco (ISPB)</label>
+              <input formControlName="banco" type="text" list="bancos-list" placeholder="ISPB ou nome" class="font-mono" autocomplete="off" />
               <datalist id="bancos-list">
                 @for (b of bancosFiltrados(); track b.ispb) {
                   <option [value]="b.ispb">{{ b.nomeReduzido || b.nome }}</option>
@@ -156,7 +190,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">Nome do banco</label>
-              <input formControlName="nomeBanco" type="text" placeholder="Preenchido automaticamente" />
+              <input formControlName="nomeBanco" type="text" placeholder="Auto" />
             </div>
             <div>
               <label class="block text-xs font-bold mb-1">Agência</label>
@@ -178,15 +212,6 @@
             <div class="col-span-2">
               <label class="block text-xs font-bold mb-1">Chave Pix do pagador</label>
               <input formControlName="chavePix" type="text" placeholder="CPF, e-mail, telefone ou chave aleatória" class="font-mono" />
-            </div>
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">End-to-End ID (E2EId)</label>
-              <input formControlName="endToEndId" type="text" placeholder="E..." class="font-mono text-xs" />
-              <p class="text-xs opacity-50 mt-1">Preencher o E2EId identifica o banco de origem automaticamente.</p>
-            </div>
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Data/hora do pagamento *</label>
-              <input formControlName="paidAt" type="datetime-local" />
             </div>
           </div>
 

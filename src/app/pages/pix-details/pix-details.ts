@@ -43,9 +43,9 @@ export class PixDetails implements OnInit, OnDestroy {
   tiposContaOpcoes = Object.keys(TIPO_CONTA_LABELS) as TipoConta[];
 
   readonly pagadorForm = new FormGroup({
-    nome: new FormControl('', [Validators.required]),
-    documento: new FormControl('', [Validators.required]),
-    banco: new FormControl('', [Validators.required]),
+    nome: new FormControl(''),
+    documento: new FormControl(''),
+    banco: new FormControl(''),
     nomeBanco: new FormControl(''),
     agencia: new FormControl(''),
     conta: new FormControl(''),

@@ -84,7 +84,7 @@ export class Perfil implements OnInit, OnDestroy {
         merchantCity: this.perfilForm.value.merchantCity!,
       });
       this.sucesso.set(true);
-      setTimeout(() => this.router.navigate(['/chaves']), 800);
+      this.router.navigate(['/chaves']);
     } catch (e: any) {
       this.erro.set(e?.message ?? 'Erro ao salvar perfil.');
     } finally {

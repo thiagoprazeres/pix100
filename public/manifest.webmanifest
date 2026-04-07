@@ -2,6 +2,8 @@
   "name": "Origem100",
   "short_name": "Origem100",
   "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
   "scope": "./",
   "start_url": "./",
   "icons": [

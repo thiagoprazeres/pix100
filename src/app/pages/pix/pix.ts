@@ -109,7 +109,7 @@ export class Pix {
     }
 
     const vencimentoStr = this.pixForm.value.vencimento;
-    const vencimento = vencimentoStr ? new Date(vencimentoStr).getTime() : undefined;
+    const vencimento = vencimentoStr ? new Date(vencimentoStr + 'T23:59:59').getTime() : undefined;
 
     this.gerando.set(true);
     this.erro.set(null);

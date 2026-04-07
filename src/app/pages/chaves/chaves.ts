@@ -88,7 +88,7 @@ export class Chaves implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.bancoService.carregar();
+    void this.bancoService.carregar();
 
     this.chaveForm.controls.tipo.valueChanges
       .pipe(takeUntil(this.destroy$))

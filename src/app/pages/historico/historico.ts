@@ -43,13 +43,9 @@ export class Historico implements OnInit {
 
   readonly contadores = computed((): Record<string, number> => {
     const lista = this.todasCobrancas();
-    return {
-      todas: lista.length,
-      pendente: lista.filter(c => c.statusAtual === 'pendente').length,
-      paga: lista.filter(c => c.statusAtual === 'paga').length,
-      expirada: lista.filter(c => c.statusAtual === 'expirada').length,
-      cancelada: lista.filter(c => c.statusAtual === 'cancelada').length,
-    };
+    const counts: Record<string, number> = { todas: lista.length, pendente: 0, paga: 0, expirada: 0, cancelada: 0 };
+    for (const c of lista) counts[c.statusAtual] = (counts[c.statusAtual] ?? 0) + 1;
+    return counts;
   });
 
   async ngOnInit(): Promise<void> {
@@ -59,18 +55,20 @@ export class Historico implements OnInit {
     }
   }
 
-  copiarPixRapido(cobranca: Cobranca, event: Event): void {
+  async copiarPixRapido(cobranca: Cobranca, event: Event): Promise<void> {
     event.preventDefault();
     event.stopPropagation();
-    navigator.clipboard.writeText(cobranca.brcode).then(async () => {
-      const toast = await this.toastController.create({
-        message: 'BR Code copiado!',
-        duration: 2000,
-        position: 'bottom',
-        color: 'success',
-      });
-      await toast.present();
-    });
+    try {
+      await navigator.clipboard.writeText(cobranca.brcode);
+      this.showToast('BR Code copiado!', 'success');
+    } catch {
+      this.showToast('Não foi possível copiar.', 'warning');
+    }
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const toast = await this.toastController.create({ message, duration: 2000, position: 'bottom', color });
+    await toast.present();
   }
 
   setFiltro(status: string): void {
@@ -115,7 +113,7 @@ export class Historico implements OnInit {
       .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(';'))
       .join('\n');
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

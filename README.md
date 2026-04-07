@@ -43,13 +43,14 @@ O modelo de dados foi projetado para ser **compatível com a API Celcoin de PIX*
   - `agencia`, `conta`, `tipoConta` (`CACC | SVGS | TRAN | SLRY` — ISO 20022)
   - `chavePix` do pagador, `endToEndId` (E2EId), `paidAt` (timestamp)
 - Preparado para receber dados diretamente de um webhook Celcoin sem mapeamento adicional.
+- **Formulário orientado à integração futura:** o `brCodeRef` (TXID) é exibido como somente leitura no topo; o `endToEndId` é o primeiro campo editável; apenas `paidAt` é obrigatório — os demais campos serão preenchidos automaticamente pelo webhook.
 - O campo `banco` (ISPB) é **preenchido automaticamente** ao informar o E2EId — o ISPB é extraído dos primeiros 8 dígitos do E2EId e resolvido via `BancoService`.
 - Autocomplete de banco com lista completa de instituições financeiras brasileiras (BACEN via Brasil API), armazenada estaticamente em `public/bancos.json`.
 
 ### Histórico e Exportação
 - Lista de todas as cobranças com filtro visual por status.
-- Exportação para **CSV** com todos os campos relevantes.
-- Cópia rápida do BR Code diretamente na listagem.
+- Exportação para **CSV** com BOM UTF-8 (compatível com Excel) e todos os campos relevantes.
+- Cópia rápida do BR Code diretamente na listagem, com fallback toast se a Clipboard API não estiver disponível.
 
 ### Compartilhamento
 - **Web Share API** com fallback para clipboard.
@@ -166,16 +167,16 @@ interface Cobranca {
 ### `Pagador` (alinhado ao payload Celcoin)
 ```typescript
 interface Pagador {
-  nome: string;
-  documento: string;        // CPF ou CNPJ
-  banco: string;            // ISPB (ex: "341" = Itaú)
+  nome?: string;            // opcional — será preenchido pelo webhook no futuro
+  documento?: string;       // CPF ou CNPJ — opcional
+  banco?: string;           // ISPB (ex: "341" = Itaú) — opcional, auto-preenchido via E2EId
   nomeBanco?: string;
   agencia?: string;
   conta?: string;
   tipoConta?: 'CACC' | 'SVGS' | 'TRAN' | 'SLRY'; // ISO 20022
   chavePix?: string;
-  endToEndId?: string;      // E2EId da transação Pix
-  paidAt: number;           // timestamp ms do pagamento
+  endToEndId?: string;      // E2EId da transação Pix — identificador principal para conciliação
+  paidAt: number;           // timestamp ms do pagamento — único campo obrigatório na confirmação manual
 }
 ```
 
@@ -238,6 +239,8 @@ O modelo de dados foi desenhado para suportar uma integração futura com a **AP
 Campos preparados:
 
 - `Cobranca.providerRef` → receberá o `transactionId` da Celcoin após criação remota
-- `Pagador` → campos mapeados diretamente do webhook de confirmação de pagamento Celcoin
+- `Pagador` → todos os campos opcionais exceto `paidAt`; mapeados diretamente do webhook de confirmação de pagamento Celcoin sem mapeamento adicional
 - `EventoConciliacao` com `origem: 'sistema'` → reservado para eventos vindos do webhook
 - `idempotencyKey` → compatível com o padrão de idempotência da Celcoin
+- `StoragePort` → abstração de persistência injetada via DI; basta trocar a implementação para migrar de IndexedDB para outro backend
+- `clearProfileData` → deleção de todos os dados do perfil em **transação IDB atômica** única

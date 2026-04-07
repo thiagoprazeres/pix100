@@ -1,6 +1,6 @@
 {
-  "name": "PIX100",
-  "short_name": "PIX100",
+  "name": "Origem100",
+  "short_name": "Origem100",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

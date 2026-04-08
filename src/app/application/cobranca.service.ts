@@ -1,7 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { createChargeIntent } from '@thiagoprazeres/pix-charge-core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
-import { PixUtilsAdapter } from '../infrastructure/brcode/pix-utils.adapter';
+import { BrCodeAdapter } from '../infrastructure/brcode/brcode.adapter';
 import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';
 import { Perfil } from '../domain/perfil/perfil.model';
 import { ChavePix } from '../domain/chave-pix/chave-pix.model';
@@ -13,11 +13,9 @@ import { gerarIdempotencyKey } from '../domain/conciliacao/conciliacao.rules';
 export class CobrancaService {
   private readonly _cobrancas = signal<Cobranca[]>([]);
   readonly cobrancas = this._cobrancas.asReadonly();
+  private readonly pixUtils = inject(BrCodeAdapter);
 
-  constructor(
-    private storage: StoragePort,
-    private pixUtils: PixUtilsAdapter
-  ) {}
+  constructor(private storage: StoragePort) {}
 
   async init(perfilId: string): Promise<void> {
     const cobrancas = await this.storage.getCobrancas(perfilId);

@@ -17,7 +17,7 @@ export interface BrCodeOutput {
 }
 
 @Injectable({ providedIn: 'root' })
-export class PixUtilsAdapter {
+export class BrCodeAdapter {
   async generate(input: BrCodeInput): Promise<BrCodeOutput> {
     const brcode = generateStaticBrCode({
       pixKey: input.pixKey,

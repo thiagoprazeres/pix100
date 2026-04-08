@@ -7,7 +7,7 @@ import { StoragePort } from '../infrastructure/storage/storage.port';
 import { CobrancaService } from './cobranca.service';
 import { ChavePixService } from './chave-pix.service';
 import { EventoConciliacao, TipoEvento } from '../domain/conciliacao/evento-conciliacao.model';
-import { Cobranca, StatusCobranca } from '../domain/cobranca/cobranca.model';
+import { Cobranca } from '../domain/cobranca/cobranca.model';
 import { transicaoValida } from '../domain/cobranca/cobranca.rules';
 import { gerarIdempotencyKey, tipoEventoParaStatus } from '../domain/conciliacao/conciliacao.rules';
 

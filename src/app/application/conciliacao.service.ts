@@ -28,7 +28,7 @@ export class ConciliacaoService {
     const { cobranca, tipo, origem, ator } = params;
     const statusNovo = tipoEventoParaStatus(cobranca.statusAtual, tipo);
 
-    if (!transicaoValida(cobranca.statusAtual, statusNovo)) {
+    if (statusNovo !== cobranca.statusAtual && !transicaoValida(cobranca.statusAtual, statusNovo)) {
       throw new Error(
         `Transição inválida: ${cobranca.statusAtual} → ${statusNovo}`
       );

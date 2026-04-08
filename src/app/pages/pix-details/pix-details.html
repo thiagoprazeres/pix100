@@ -74,7 +74,22 @@
             Cancelar
           </ion-button>
         }
+        @if (podeSolicitarMed) {
+          <ion-button fill="outline" color="warning" size="small" [disabled]="conciliando()" (click)="solicitarMed()">
+            Solicitar devolução (MED)
+          </ion-button>
+        }
+        @if (podeConfirmarMed) {
+          <ion-button fill="solid" color="warning" size="small" [disabled]="conciliando()" (click)="confirmarMed()">
+            Confirmar devolução (MED)
+          </ion-button>
+        }
       </div>
+      @if (semPagadorHa24h()) {
+        <div class="notification notification-warning mt-3">
+          <span>Cobrança confirmada há mais de 24h sem dados do pagador. Registre o E2EId para fins de rastreabilidade.</span>
+        </div>
+      }
     </section>
 
     <hr class="border-neutral-200 dark:border-neutral-700" />
@@ -159,6 +174,15 @@
               <label class="block text-xs font-bold mb-1">ID da transação (E2EId)</label>
               <input formControlName="endToEndId" type="text" placeholder="E..." class="font-mono text-xs" />
               <p class="text-xs opacity-50 mt-1">Chamado de "ID da transação" no Nubank e outros bancos. Aparece no comprovante do pagador. Preenchido automaticamente no futuro.</p>
+              @if (avisosE2EId().length > 0) {
+                <div class="mt-2 space-y-1">
+                  @for (aviso of avisosE2EId(); track aviso.codigo) {
+                    <div [class]="'notification ' + (aviso.nivel === 'atencao' ? 'notification-warning' : 'notification-neutral')">
+                      <span class="text-xs">{{ aviso.nivel === 'atencao' ? '⚠ ' : 'ℹ ' }}{{ aviso.mensagem }}</span>
+                    </div>
+                  }
+                </div>
+              }
             </div>
 
             <div class="col-span-2">

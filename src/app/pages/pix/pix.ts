@@ -9,6 +9,8 @@ import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
 import { Router, RouterLink } from '@angular/router';
 import { sanitizeInfoAdicional } from '../../domain/cobranca/brcode.projection';
+import { avaliarRiscoChave } from '../../domain/risco/risco.rules';
+import { AvisoRisco } from '../../domain/risco/risco.model';
 import { IonButton, IonToggle, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
@@ -37,6 +39,11 @@ export class Pix {
     this.pixForm.controls.infoAdicional.valueChanges,
     { initialValue: '' }
   );
+
+  readonly avisos = computed((): AvisoRisco[] => {
+    const chave = this.chavePixService.chaveAtiva();
+    return chave ? avaliarRiscoChave(chave) : [];
+  });
 
   readonly descricaoSanitizada = computed(() => {
     const raw = this._infoAdicional() ?? '';

@@ -1,6 +1,6 @@
 import { TipoChave } from '../chave-pix/chave-pix.model';
 
-export type StatusCobranca = 'pendente' | 'paga' | 'expirada' | 'cancelada';
+export type StatusCobranca = 'pendente' | 'paga' | 'expirada' | 'cancelada' | 'devolvida';
 
 export type TipoConta = 'CACC' | 'SVGS' | 'TRAN' | 'SLRY';
 
@@ -12,9 +12,9 @@ export const TIPO_CONTA_LABELS: Record<TipoConta, string> = {
 };
 
 export interface Pagador {
-  nome: string;
-  documento: string;
-  banco: string;
+  nome?: string;
+  documento?: string;
+  banco?: string;
   nomeBanco?: string;
   agencia?: string;
   conta?: string;
@@ -29,6 +29,7 @@ export const STATUS_COBRANCA_LABELS: Record<StatusCobranca, string> = {
   paga: 'Paga',
   expirada: 'Expirada',
   cancelada: 'Cancelada',
+  devolvida: 'Devolvida (MED)',
 };
 
 export interface SnapshotCobranca {

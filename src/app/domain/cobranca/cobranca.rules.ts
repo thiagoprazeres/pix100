@@ -5,7 +5,8 @@ export type TransicaoCobranca =
   | { de: 'paga'; para: 'pendente' }
   | { de: 'pendente'; para: 'expirada' }
   | { de: 'pendente'; para: 'cancelada' }
-  | { de: 'paga'; para: 'cancelada' };
+  | { de: 'paga'; para: 'cancelada' }
+  | { de: 'paga'; para: 'devolvida' };
 
 const TRANSICOES_VALIDAS: Array<[StatusCobranca, StatusCobranca]> = [
   ['pendente', 'paga'],
@@ -13,6 +14,7 @@ const TRANSICOES_VALIDAS: Array<[StatusCobranca, StatusCobranca]> = [
   ['pendente', 'expirada'],
   ['pendente', 'cancelada'],
   ['paga', 'cancelada'],
+  ['paga', 'devolvida'],
 ];
 
 export function transicaoValida(de: StatusCobranca, para: StatusCobranca): boolean {

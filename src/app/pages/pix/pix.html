@@ -67,6 +67,16 @@
         }
       </div>
 
+      @if (avisos().length > 0) {
+        <div class="mt-4 space-y-2">
+          @for (aviso of avisos(); track aviso.codigo) {
+            <div [class]="'notification ' + (aviso.nivel === 'atencao' ? 'notification-warning' : 'notification-neutral')">
+              <span class="font-medium">{{ aviso.nivel === 'atencao' ? '⚠ ' : 'ℹ ' }}{{ aviso.mensagem }}</span>
+            </div>
+          }
+        </div>
+      }
+
       <div class="mt-6">
         <ion-button type="submit" fill="solid" color="primary" expand="block" [disabled]="gerando() || !chavePixService.chaveAtiva()">
           @if (gerando()) {

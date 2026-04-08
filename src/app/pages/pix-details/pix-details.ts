@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
@@ -12,6 +12,8 @@ import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 import { IonButton, IonSpinner, ToastController, AlertController } from '@ionic/angular/standalone';
 import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
+import { AvisoRisco } from '../../domain/risco/risco.model';
+import { avaliarRiscoE2EId, validarFormatoE2EId } from '../../domain/risco/e2eid.rules';
 
 @Component({
   selector: 'app-pix-details',
@@ -36,6 +38,25 @@ export class PixDetails implements OnInit, OnDestroy {
   conciliando = signal(false);
   registrandoPagador = signal(false);
   salvandoPagador = signal(false);
+  avisosE2EId = signal<AvisoRisco[]>([]);
+
+  readonly semPagadorHa24h = computed(() => {
+    const c = this.cobranca();
+    if (!c) return false;
+    return c.statusAtual === 'paga' && !c.pagador && (Date.now() - c.atualizadaEm) > 24 * 60 * 60 * 1000;
+  });
+
+  get podeSolicitarMed(): boolean {
+    const c = this.cobranca();
+    if (!c || c.statusAtual !== 'paga') return false;
+    const evts = this.eventos();
+    return evts.length === 0 || evts[evts.length - 1].tipo !== 'devolucao_solicitada_med';
+  }
+
+  get podeConfirmarMed(): boolean {
+    const evts = this.eventos();
+    return evts.length > 0 && evts[evts.length - 1].tipo === 'devolucao_solicitada_med';
+  }
 
   statusLabels = STATUS_COBRANCA_LABELS;
   eventoLabels = TIPO_EVENTO_LABELS;
@@ -81,12 +102,32 @@ export class PixDetails implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(v => {
         const ispb = this.bancoService.extrairISPBDoE2EId(v ?? '');
-        if (!ispb) return;
-        const banco = this.bancoService.resolverPorISPB(ispb);
-        if (banco) {
-          this.pagadorForm.patchValue({ banco: banco.ispb, nomeBanco: banco.nomeReduzido || banco.nome }, { emitEvent: false });
-          this.bancosFiltrados.set([]);
+        if (ispb) {
+          const banco = this.bancoService.resolverPorISPB(ispb);
+          if (banco) {
+            this.pagadorForm.patchValue({ banco: banco.ispb, nomeBanco: banco.nomeReduzido || banco.nome }, { emitEvent: false });
+            this.bancosFiltrados.set([]);
+          }
         }
+
+        const paidAtStr = this.pagadorForm.get('paidAt')!.value;
+        const paidAtMs = paidAtStr ? new Date(paidAtStr).getTime() : Date.now();
+        const avisos = avaliarRiscoE2EId(v ?? '', paidAtMs);
+
+        const trimmed = (v ?? '').trim();
+        if (trimmed && validarFormatoE2EId(trimmed)) {
+          const isDuplicado = this.cobrancaService.cobrancas()
+            .some(c => c.id !== this.cobranca()?.id && c.pagador?.endToEndId === trimmed);
+          if (isDuplicado) {
+            avisos.push({
+              nivel: 'atencao',
+              codigo: 'E2EID_DUPLICADO',
+              mensagem: 'Este ID de transação já está registrado em outra cobrança. Risco de comprovante reutilizado.',
+            });
+          }
+        }
+
+        this.avisosE2EId.set(avisos);
       });
 
     this.pagadorForm.get('banco')!.valueChanges
@@ -285,9 +326,9 @@ export class PixDetails implements OnInit, OnDestroy {
     const paidAt = v.paidAt ? new Date(v.paidAt).getTime() : Date.now();
 
     const pagador: Pagador = {
-      nome: v.nome!.trim(),
-      documento: v.documento!.trim(),
-      banco: v.banco!.trim(),
+      ...(v.nome?.trim() && { nome: v.nome.trim() }),
+      ...(v.documento?.trim() && { documento: v.documento.trim() }),
+      ...(v.banco?.trim() && { banco: v.banco.trim() }),
       ...(v.nomeBanco?.trim() && { nomeBanco: v.nomeBanco.trim() }),
       ...(v.agencia?.trim() && { agencia: v.agencia.trim() }),
       ...(v.conta?.trim() && { conta: v.conta.trim() }),
@@ -307,6 +348,55 @@ export class PixDetails implements OnInit, OnDestroy {
       this.showToast(e?.message ?? 'Erro ao registrar pagador.', 'danger');
     } finally {
       this.salvandoPagador.set(false);
+    }
+  }
+
+  async solicitarMed(): Promise<void> {
+    const c = this.cobranca();
+    if (!c) return;
+    this.conciliando.set(true);
+    try {
+      const atualizada = await this.conciliacaoService.aplicar({
+        cobranca: c,
+        tipo: 'devolucao_solicitada_med',
+        origem: 'manual',
+      });
+      this.cobranca.set(atualizada);
+      await this.recarregarEventos(atualizada.id);
+      this.showToast('Solicitação MED registrada.', 'warning');
+    } finally {
+      this.conciliando.set(false);
+    }
+  }
+
+  async confirmarMed(): Promise<void> {
+    const c = this.cobranca();
+    if (!c) return;
+    const alert = await this.alertController.create({
+      header: 'Confirmar devolução (MED)',
+      message: 'Registra que o valor foi devolvido via MED. Esta ação altera o status para Devolvida.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { text: 'Confirmar devolução', role: 'destructive', handler: () => this.executarConfirmacaoMed() },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async executarConfirmacaoMed(): Promise<void> {
+    const c = this.cobranca();
+    if (!c) return;
+    this.conciliando.set(true);
+    try {
+      const atualizada = await this.conciliacaoService.aplicar({
+        cobranca: c,
+        tipo: 'devolucao_confirmada_med',
+        origem: 'manual',
+      });
+      this.cobranca.set(atualizada);
+      await this.recarregarEventos(atualizada.id);
+    } finally {
+      this.conciliando.set(false);
     }
   }
 

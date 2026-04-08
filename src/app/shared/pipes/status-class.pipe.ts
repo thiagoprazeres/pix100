@@ -8,6 +8,7 @@ export class StatusClassPipe implements PipeTransform {
       case 'paga': return 'badge-success';
       case 'expirada': return 'badge-warning';
       case 'cancelada': return 'badge-negative';
+      case 'devolvida': return 'badge-negative';
       default: return 'badge-neutral';
     }
   }

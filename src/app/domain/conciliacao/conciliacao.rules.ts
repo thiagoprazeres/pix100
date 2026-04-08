@@ -27,5 +27,9 @@ export function tipoEventoParaStatus(
       return 'cancelada';
     case 'pagador_registrado':
       return statusAtual;
+    case 'devolucao_solicitada_med':
+      return statusAtual;
+    case 'devolucao_confirmada_med':
+      return 'devolvida';
   }
 }

@@ -43,7 +43,7 @@ export class Historico implements OnInit {
 
   readonly contadores = computed((): Record<string, number> => {
     const lista = this.todasCobrancas();
-    const counts: Record<string, number> = { todas: lista.length, pendente: 0, paga: 0, expirada: 0, cancelada: 0 };
+    const counts: Record<string, number> = { todas: lista.length, pendente: 0, paga: 0, expirada: 0, cancelada: 0, devolvida: 0 };
     for (const c of lista) counts[c.statusAtual] = (counts[c.statusAtual] ?? 0) + 1;
     return counts;
   });

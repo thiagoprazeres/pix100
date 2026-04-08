@@ -1,23 +1,6 @@
-export function sanitizeMerchantName(raw: string): string {
-  return raw
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 25);
-}
+import { projectReceiverName, projectCity, buildBrCodeRef } from '@thiagoprazeres/pix-static-brcode';
 
-export function sanitizeMerchantCity(raw: string): string {
-  return raw
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .toUpperCase()
-    .trim()
-    .slice(0, 15);
-}
+export { projectReceiverName as sanitizeMerchantName, projectCity as sanitizeMerchantCity };
 
 export function sanitizeInfoAdicional(raw: string): string {
   return raw
@@ -29,8 +12,5 @@ export function sanitizeInfoAdicional(raw: string): string {
 }
 
 export function gerarBrCodeRef(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const array = new Uint8Array(25);
-  crypto.getRandomValues(array);
-  return Array.from(array, (b) => chars[b % chars.length]).join('');
+  return buildBrCodeRef(crypto.randomUUID());
 }

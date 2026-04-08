@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { reconcilePixSettlement } from '@thiagoprazeres/pix-reconcile-core';
+import { analyzePixTransaction } from '@thiagoprazeres/pix-antifraud-core';
+import { buildTrustedReceipt } from '@thiagoprazeres/trusted-receipt-core';
+import type { PixLiquidation } from '@thiagoprazeres/pix-charge-core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
 import { CobrancaService } from './cobranca.service';
 import { ChavePixService } from './chave-pix.service';
@@ -52,18 +56,72 @@ export class ConciliacaoService {
     };
     await this.storage.saveEvento(evento);
 
-    const atualizada: Cobranca = {
+    let atualizada: Cobranca = {
       ...cobranca,
       statusAtual: statusNovo,
       atualizadaEm: now,
     };
-    await this.storage.saveCobranca(atualizada);
-    await this.cobrancaService.atualizarLocal(atualizada);
 
     if (tipo === 'confirmada_manualmente') {
+      atualizada = await this.enriquecerConfirmacao(atualizada);
       await this.chavePixService.marcarConfirmadaPorRecebimento(cobranca.chavePixId);
     }
 
+    await this.storage.saveCobranca(atualizada);
+    await this.cobrancaService.atualizarLocal(atualizada);
+
     return atualizada;
+  }
+
+  private async enriquecerConfirmacao(cobranca: Cobranca): Promise<Cobranca> {
+    const { chargeIntent, pagador } = cobranca;
+    if (!chargeIntent || !pagador?.endToEndId) return cobranca;
+
+    const liquidation: PixLiquidation = {
+      e2eid: pagador.endToEndId,
+      txid: chargeIntent.txid,
+      amount: cobranca.valor,
+      paidAt: pagador.paidAt,
+      payerISPB: pagador.banco ?? '',
+      payerName: pagador.nome,
+      payerDocument: pagador.documento,
+      source: 'manual',
+    };
+
+    const existingDecision = cobranca.antiFraudDecision;
+    const decision = existingDecision ?? analyzePixTransaction({
+      txid: chargeIntent.txid,
+      e2eid: pagador.endToEndId,
+      expectedAmount: cobranca.valor,
+      settledAmount: cobranca.valor,
+      paidAt: pagador.paidAt,
+      chargeCreatedAt: cobranca.criadaEm,
+      payerISPB: pagador.banco ?? '',
+      pixKey: cobranca.snapshot.chaveValor,
+      userId: cobranca.perfilId,
+      channel: 'manual',
+      knownE2EIds: [],
+    }).decision;
+
+    const { result: reconciliationResult } = reconcilePixSettlement({
+      intent: chargeIntent,
+      liquidations: [liquidation],
+      links: [],
+      decisions: [decision],
+    });
+
+    const { receipt: trustedReceipt } = await buildTrustedReceipt({
+      txid: chargeIntent.txid,
+      e2eid: pagador.endToEndId,
+      amount: cobranca.valor,
+      paidAt: pagador.paidAt,
+      payerISPB: pagador.banco ?? '',
+      payerInstitutionName: pagador.nomeBanco ?? '',
+      brcode: cobranca.brcode,
+      decision,
+      evidences: decision.evidences,
+    });
+
+    return { ...cobranca, antiFraudDecision: decision, reconciliationResult, trustedReceipt };
   }
 }

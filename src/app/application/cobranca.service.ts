@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { createChargeIntent } from '@thiagoprazeres/pix-charge-core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
 import { PixUtilsAdapter } from '../infrastructure/brcode/pix-utils.adapter';
 import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';
@@ -50,7 +51,18 @@ export class CobrancaService {
       merchantName,
       merchantCity,
       transactionAmount: valor,
+      referenceLabel: brCodeRef,
       infoAdicional: descricao ? sanitizeInfoAdicional(descricao) : undefined,
+    });
+
+    const { intent: chargeIntent } = createChargeIntent({
+      pixKey: chaveAtiva.valor,
+      amount: valor,
+      description: descricao,
+      merchantName,
+      merchantCity,
+      brcode,
+      expiresAt: vencimento,
     });
 
     const cobranca: Cobranca = {
@@ -73,6 +85,7 @@ export class CobrancaService {
       qrSvg,
       criadaEm: now,
       atualizadaEm: now,
+      chargeIntent,
     };
 
     await this.storage.saveCobranca(cobranca);

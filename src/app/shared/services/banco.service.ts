@@ -1,4 +1,6 @@
 import { Injectable, signal } from '@angular/core';
+import { getInstitution, searchInstitutions, type Institution } from '@thiagoprazeres/ispb-participants';
+import { parseE2EId, isValidE2EId } from '@thiagoprazeres/parse-e2eid';
 
 export interface BancoEntry {
   ispb: string;
@@ -6,28 +8,22 @@ export interface BancoEntry {
   nomeReduzido: string;
 }
 
+function toEntry(inst: Institution): BancoEntry {
+  return { ispb: inst.ispb, nome: inst.name, nomeReduzido: inst.shortName };
+}
+
 @Injectable({ providedIn: 'root' })
 export class BancoService {
-  private bancos: BancoEntry[] = [];
-  private carregado = false;
   readonly carregamentoFalhou = signal(false);
 
   async carregar(): Promise<void> {
-    if (this.carregado) return;
-    try {
-      const res = await fetch('/bancos.json');
-      this.bancos = await res.json();
-      this.carregado = true;
-      this.carregamentoFalhou.set(false);
-    } catch (e) {
-      console.error('Falha ao carregar bancos.json', e);
-      this.carregamentoFalhou.set(true);
-    }
+    // No-op: participant data is bundled via @thiagoprazeres/ispb-participants
   }
 
   resolverPorISPB(ispb: string): BancoEntry | null {
     const padded = ispb.padStart(8, '0');
-    return this.bancos.find(b => b.ispb === padded) ?? null;
+    const inst = getInstitution(padded);
+    return inst ? toEntry(inst) : null;
   }
 
   formatarLabel(b: BancoEntry): string {
@@ -42,18 +38,19 @@ export class BancoService {
 
   buscar(termo: string): BancoEntry[] {
     if (!termo || termo.length < 2) return [];
-    const t = termo.toLowerCase();
-    return this.bancos
-      .filter(b =>
-        b.ispb.includes(t) ||
-        b.nome?.toLowerCase().includes(t) ||
-        b.nomeReduzido?.toLowerCase().includes(t)
-      )
-      .slice(0, 20);
+    return searchInstitutions(termo).slice(0, 20).map(toEntry);
   }
 
   extrairISPBDoE2EId(e2eId: string): string | null {
-    const match = e2eId.trim().match(/^E(\d{8})/i);
+    const v = e2eId.trim();
+    if (isValidE2EId(v)) {
+      try {
+        return parseE2EId(v).ispb;
+      } catch {
+        // fall through
+      }
+    }
+    const match = v.match(/^E(\d{8})/i);
     return match ? match[1] : null;
   }
 }

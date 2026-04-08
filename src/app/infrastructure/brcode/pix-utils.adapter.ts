@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createStaticPix } from 'pix-utils';
+import { generateStaticBrCode } from '@thiagoprazeres/pix-static-brcode';
 import QRCode from 'qrcode';
 
 export interface BrCodeInput {
@@ -7,6 +7,7 @@ export interface BrCodeInput {
   merchantName: string;
   merchantCity: string;
   transactionAmount: number;
+  referenceLabel: string;
   infoAdicional?: string;
 }
 
@@ -18,16 +19,15 @@ export interface BrCodeOutput {
 @Injectable({ providedIn: 'root' })
 export class PixUtilsAdapter {
   async generate(input: BrCodeInput): Promise<BrCodeOutput> {
-    const payload = createStaticPix({
-      merchantName: input.merchantName,
-      merchantCity: input.merchantCity,
+    const brcode = generateStaticBrCode({
       pixKey: input.pixKey,
-      infoAdicional: input.infoAdicional,
-      transactionAmount: input.transactionAmount,
-      isTransactionUnique: false,
-    }).throwIfError();
+      receiverName: input.merchantName,
+      receiverCity: input.merchantCity,
+      referenceLabel: input.referenceLabel,
+      amount: input.transactionAmount > 0 ? input.transactionAmount : undefined,
+      description: input.infoAdicional,
+    });
 
-    const brcode = payload.toBRCode();
     const svgString = await QRCode.toString(brcode, {
       type: 'svg',
       errorCorrectionLevel: 'L',

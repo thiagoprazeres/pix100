@@ -7,14 +7,6 @@ export function validarFormatoE2EId(valor: string): boolean {
   return isValidE2EId(valor.trim());
 }
 
-export function extrairDataE2EId(valor: string): Date | null {
-  try {
-    return parseE2EId(valor.trim()).initiatedAt;
-  } catch {
-    return null;
-  }
-}
-
 export function avaliarRiscoE2EId(e2eid: string, paidAt: number): AvisoRisco[] {
   const avisos: AvisoRisco[] = [];
   const v = e2eid.trim();

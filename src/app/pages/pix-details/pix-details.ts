@@ -14,7 +14,7 @@ import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
 import { AvisoRisco } from '../../domain/risco/risco.model';
 import { avaliarRiscoE2EId, validarFormatoE2EId } from '../../domain/risco/e2eid.rules';
-import { analyzePixTransaction, type AntiFraudDecision } from '@thiagoprazeres/pix-antifraud-core';
+import { type AntiFraudDecision } from '@thiagoprazeres/pix-antifraud-core';
 
 @Component({
   selector: 'app-pix-details',
@@ -40,10 +40,9 @@ export class PixDetails implements OnInit, OnDestroy {
   registrandoPagador = signal(false);
   salvandoPagador = signal(false);
   avisosE2EId = signal<AvisoRisco[]>([]);
-  antiFraudDecision = signal<AntiFraudDecision | null>(null);
 
   readonly activeDecision = computed(() =>
-    this.antiFraudDecision() ?? this.cobranca()?.antiFraudDecision ?? null
+    this.cobranca()?.antiFraudDecision ?? null
   );
 
   verdictClass(verdict: string): string {
@@ -366,25 +365,6 @@ export class PixDetails implements OnInit, OnDestroy {
       const atualizada = await this.cobrancaService.registrarPagador(this.cobranca()!.id, pagador);
       this.cobranca.set(atualizada);
       await this.recarregarEventos(atualizada.id);
-      if (pagador.endToEndId && atualizada.chargeIntent) {
-        const knownE2EIds = this.cobrancaService.cobrancas()
-          .filter(c => c.id !== atualizada.id && c.pagador?.endToEndId)
-          .map(c => c.pagador!.endToEndId!);
-        const { decision } = analyzePixTransaction({
-          txid: atualizada.chargeIntent.txid,
-          e2eid: pagador.endToEndId,
-          expectedAmount: atualizada.valor,
-          settledAmount: atualizada.valor,
-          paidAt: pagador.paidAt,
-          chargeCreatedAt: atualizada.criadaEm,
-          payerISPB: pagador.banco ?? '',
-          pixKey: atualizada.snapshot.chaveValor,
-          userId: atualizada.perfilId,
-          channel: 'manual',
-          knownE2EIds,
-        });
-        this.antiFraudDecision.set(decision);
-      }
       this.registrandoPagador.set(false);
     } catch (e: any) {
       this.showToast(e?.message ?? 'Erro ao registrar pagador.', 'danger');

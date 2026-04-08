@@ -47,11 +47,19 @@
           class="historico-item transition py-3 px-4 flex items-center gap-3"
         >
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-0.5">
+            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
               <span class="font-semibold">{{ c.valor | currency }}</span>
               <span [class]="'badge ' + (c.statusAtual | statusClass)">
                 {{ statusLabels[c.statusAtual] }}
               </span>
+              @if (verdictClass(c)) {
+                <span [class]="'badge ' + verdictClass(c)" style="font-size:0.65rem">
+                  {{ verdictLabel(c) }}
+                </span>
+              }
+              @if (c.trustedReceipt) {
+                <span class="badge badge-outline" title="Recibo confiável emitido" style="font-size:0.65rem">🔒</span>
+              }
             </div>
             <p class="text-xs opacity-60 truncate">{{ c.descricao || 'Sem descrição' }}</p>
             <p class="text-xs opacity-40">{{ c.criadaEm | date:'short' }}</p>

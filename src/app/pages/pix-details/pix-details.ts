@@ -184,15 +184,81 @@ export class PixDetails implements OnInit, OnDestroy {
   async confirmar(): Promise<void> {
     const c = this.cobranca();
     if (!c) return;
+
+    if (c.pagador?.endToEndId) {
+      await this.executarConfirmacao(c, c.pagador.endToEndId);
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Confirmar recebimento',
+      message: 'Informe o ID da transação (E2EId) do comprovante do pagador. Chamado de "ID da transação" no Nubank e outros bancos.',
+      inputs: [
+        {
+          name: 'endToEndId',
+          type: 'text',
+          placeholder: 'E...',
+          attributes: { autocomplete: 'off', spellcheck: false },
+        },
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Confirmar',
+          handler: (data) => {
+            const e2eId = (data.endToEndId ?? '').trim();
+            this.executarConfirmacao(c, e2eId || undefined);
+            return false;
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async executarConfirmacao(c: Cobranca, endToEndId?: string): Promise<void> {
     this.conciliando.set(true);
     try {
+      let cobrancaParaConfirmar = c;
+
+      if (endToEndId && !c.pagador?.endToEndId) {
+        const ispb = this.bancoService.extrairISPBDoE2EId(endToEndId);
+        const banco = ispb ? this.bancoService.resolverPorISPB(ispb) : null;
+        const pagador = {
+          endToEndId,
+          paidAt: Date.now(),
+          ...(banco?.ispb && { banco: banco.ispb }),
+          ...(banco && { nomeBanco: banco.nomeReduzido || banco.nome }),
+        };
+        cobrancaParaConfirmar = await this.cobrancaService.registrarPagador(c.id, pagador);
+        this.cobranca.set(cobrancaParaConfirmar);
+      }
+
       const atualizada = await this.conciliacaoService.aplicar({
-        cobranca: c,
+        cobranca: cobrancaParaConfirmar,
         tipo: 'confirmada_manualmente',
         origem: 'manual',
       });
       this.cobranca.set(atualizada);
       await this.recarregarEventos(atualizada.id);
+
+      const decision = atualizada.antiFraudDecision;
+      if (decision) {
+        const verdict = decision.verdict;
+        const msg = verdict === 'approved'
+          ? '✓ Pagamento aprovado'
+          : verdict === 'review'
+            ? '⚠ Pagamento em revisão'
+            : '✗ Risco alto detectado';
+        const color = verdict === 'approved' ? 'success' : verdict === 'review' ? 'warning' : 'danger';
+        await this.showToast(msg, color, 4000);
+      }
+
+      try {
+        await gerarPdf(atualizada);
+      } catch {
+        this.showToast('Recibo não pôde ser gerado.', 'warning');
+      }
     } finally {
       this.conciliando.set(false);
     }
@@ -308,8 +374,8 @@ export class PixDetails implements OnInit, OnDestroy {
     }
   }
 
-  private async showToast(message: string, color: string = 'primary'): Promise<void> {
-    const toast = await this.toastController.create({ message, duration: 3000, position: 'bottom', color });
+  private async showToast(message: string, color: string = 'primary', duration: number = 3000): Promise<void> {
+    const toast = await this.toastController.create({ message, duration, position: 'bottom', color });
     await toast.present();
   }
 

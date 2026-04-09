@@ -29,7 +29,7 @@
               "node_modules/@ionic/core/css/core.css",
               "src/styles.css"
             ],
-            "allowedCommonJsDependencies": ["fast-text-encoding", "buffer", "qrcode", "pix-utils", "jspdf", "canvg", "html2canvas"]
+            "allowedCommonJsDependencies": ["fast-text-encoding", "qrcode", "jspdf", "canvg", "html2canvas", "raf", "rgbcolor", "core-js"]
           },
           "configurations": {
             "production": {

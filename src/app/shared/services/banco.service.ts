@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { getInstitution, searchInstitutions, type Institution } from '@thiagoprazeres/ispb-participants';
+import { getInstitutionByIspb, searchInstitutionsByName, type InstitutionEntry } from '@thiagoprazeres/ispb-participants';
 import { parseE2EId, isValidE2EId } from '@thiagoprazeres/parse-e2eid';
 
 export interface BancoEntry {
@@ -8,7 +8,7 @@ export interface BancoEntry {
   nomeReduzido: string;
 }
 
-function toEntry(inst: Institution): BancoEntry {
+function toEntry(inst: InstitutionEntry): BancoEntry {
   return { ispb: inst.ispb, nome: inst.name, nomeReduzido: inst.shortName };
 }
 
@@ -22,7 +22,7 @@ export class BancoService {
 
   resolverPorISPB(ispb: string): BancoEntry | null {
     const padded = ispb.padStart(8, '0');
-    const inst = getInstitution(padded);
+    const inst = getInstitutionByIspb(padded);
     return inst ? toEntry(inst) : null;
   }
 
@@ -38,7 +38,7 @@ export class BancoService {
 
   buscar(termo: string): BancoEntry[] {
     if (!termo || termo.length < 2) return [];
-    return searchInstitutions(termo).slice(0, 20).map(toEntry);
+    return searchInstitutionsByName(termo).slice(0, 20).map(toEntry);
   }
 
   extrairISPBDoE2EId(e2eId: string): string | null {

@@ -56,17 +56,6 @@
         }
       </div>
 
-      <div class="mb-4">
-        <div class="flex items-center gap-3 cursor-pointer" (click)="toggleVencimento()">
-          <ion-toggle [checked]="mostrarVencimento()" (click)="$event.stopPropagation()" (ionChange)="toggleVencimento()"></ion-toggle>
-          <span class="text-sm">Definir vencimento</span>
-        </div>
-        @if (mostrarVencimento()) {
-          <input type="date" formControlName="vencimento" [min]="hoje" class="mt-2" />
-          <p class="text-xs opacity-60 mt-1">O Pix estático é válido tecnicamente mesmo após o vencimento. Esta data é uma política do produto.</p>
-        }
-      </div>
-
       @if (avisos().length > 0) {
         <div class="mt-4 space-y-2">
           @for (aviso of avisos(); track aviso.codigo) {

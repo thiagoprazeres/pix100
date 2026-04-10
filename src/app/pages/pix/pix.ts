@@ -11,11 +11,11 @@ import { Router, RouterLink } from '@angular/router';
 import { sanitizeInfoAdicional } from '../../domain/cobranca/brcode.projection';
 import { avaliarRiscoChave } from '../../domain/risco/risco.rules';
 import { AvisoRisco } from '../../domain/risco/risco.model';
-import { IonButton, IonToggle, IonSpinner } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-pix',
-  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink, IonButton, IonToggle, IonSpinner],
+  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink, IonButton, IonSpinner],
   templateUrl: './pix.html',
 })
 export class Pix {
@@ -26,13 +26,10 @@ export class Pix {
 
   gerando = signal(false);
   erro = signal<string | null>(null);
-  mostrarVencimento = signal(false);
-  readonly hoje = new Date().toISOString().slice(0, 10);
 
   pixForm = new FormGroup({
     transactionAmount: new FormControl<string | null>(null, [Validators.required]),
     infoAdicional: new FormControl<string>(''),
-    vencimento: new FormControl<string>(''),
   });
 
   private readonly _infoAdicional = toSignal(
@@ -115,9 +112,6 @@ export class Pix {
       return;
     }
 
-    const vencimentoStr = this.pixForm.value.vencimento;
-    const vencimento = vencimentoStr ? new Date(vencimentoStr + 'T23:59:59').getTime() : undefined;
-
     this.gerando.set(true);
     this.erro.set(null);
     try {
@@ -126,10 +120,8 @@ export class Pix {
         chaveAtiva,
         valor: amount,
         descricao: this.pixForm.value.infoAdicional || undefined,
-        vencimento,
       });
       this.pixForm.reset();
-      this.mostrarVencimento.set(false);
       this.router.navigate(['/cobranca', cobranca.id]);
     } catch (e: any) {
       this.erro.set(e?.message ?? 'Erro ao gerar cobrança.');
@@ -139,10 +131,4 @@ export class Pix {
   }
 
 
-  toggleVencimento(): void {
-    this.mostrarVencimento.update((v) => !v);
-    if (!this.mostrarVencimento()) {
-      this.pixForm.controls.vencimento.setValue('');
-    }
-  }
 }

@@ -1,3 +1,7 @@
+// Buffer polyfill for browser compatibility
+import { Buffer } from 'buffer';
+(globalThis as any).Buffer = Buffer;
+
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';

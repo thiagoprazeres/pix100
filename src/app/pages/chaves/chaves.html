@@ -4,7 +4,13 @@
   </div>
   <div class="flex-none pr-2">
     @if (!adicionando()) {
-      <ion-button type="button" fill="solid" color="primary" size="small" (click)="abrirFormulario()">
+      <ion-button
+        type="button"
+        fill="solid"
+        color="primary"
+        size="small"
+        (click)="abrirFormulario()"
+      >
         + Adicionar
       </ion-button>
     }
@@ -12,7 +18,6 @@
 </header>
 
 <main class="px-4 py-2">
-
   @if (!chavePixService.chaveAtiva()) {
     <div class="notification notification-warning mb-4">
       Nenhuma chave ativa. Cadastre ou ative uma chave para gerar cobranças.
@@ -20,7 +25,9 @@
   }
 
   @if (adicionando()) {
-    <div class="rounded-xl p-4 mb-6 shadow-sm bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
+    <div
+      class="rounded-xl p-4 mb-6 shadow-sm bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700"
+    >
       <h2 class="text-base font-bold mb-3">Nova Chave Pix</h2>
 
       @if (erro()) {
@@ -30,13 +37,22 @@
       <form [formGroup]="chaveForm" (ngSubmit)="salvar()">
         <div class="mb-3">
           <p class="text-sm font-bold mb-2">Tipo de chave</p>
-          <ion-radio-group [value]="chaveForm.controls.tipo.value" (ionChange)="chaveForm.controls.tipo.setValue($event.detail.value)">
-            <div class="flex flex-wrap gap-x-4 gap-y-1">
-              @for (opt of [
-                {v:'cpf',l:'CPF'},{v:'cnpj',l:'CNPJ'},{v:'telefone',l:'Telefone'},
-                {v:'email',l:'E-mail'},{v:'aleatoria',l:'Aleatória'},{v:'desconhecida',l:'Outra'}
-              ]; track opt.v) {
-                <ion-radio [value]="opt.v" class="text-sm">{{ opt.l }}</ion-radio>
+          <ion-radio-group
+            [value]="chaveForm.controls.tipo.value"
+            (ionChange)="chaveForm.controls.tipo.setValue($event.detail.value)"
+          >
+            <div class="flex flex-col gap-2">
+              @for (
+                opt of [
+                  { v: 'cpf', l: 'CPF' },
+                  { v: 'cnpj', l: 'CNPJ' },
+                  { v: 'telefone', l: 'Telefone' },
+                  { v: 'email', l: 'E-mail' },
+                  { v: 'aleatoria', l: 'Aleatória' },
+                ];
+                track opt.v
+              ) {
+                <ion-radio [value]="opt.v">{{ opt.l }}</ion-radio>
               }
             </div>
           </ion-radio-group>
@@ -45,7 +61,10 @@
         @if (exigeTipoPessoa) {
           <div class="mb-3">
             <p class="text-sm font-bold mb-2">Pessoa</p>
-            <ion-radio-group [value]="chaveForm.controls.tipoPessoa.value" (ionChange)="chaveForm.controls.tipoPessoa.setValue($event.detail.value)">
+            <ion-radio-group
+              [value]="chaveForm.controls.tipoPessoa.value"
+              (ionChange)="chaveForm.controls.tipoPessoa.setValue($event.detail.value)"
+            >
               <div class="flex gap-6">
                 <ion-radio value="PF" class="text-sm">Pessoa Física</ion-radio>
                 <ion-radio value="PJ" class="text-sm">Pessoa Jurídica</ion-radio>
@@ -54,7 +73,12 @@
           </div>
         } @else {
           <p class="text-xs opacity-60 mb-3">
-            Tipo de pessoa: <strong>{{ tipoDerivadoAutomaticamente === 'PF' ? 'Pessoa Física (CPF)' : 'Pessoa Jurídica (CNPJ)' }}</strong>
+            Tipo de pessoa:
+            <strong>{{
+              tipoDerivadoAutomaticamente === 'PF'
+                ? 'Pessoa Física (CPF)'
+                : 'Pessoa Jurídica (CNPJ)'
+            }}</strong>
           </p>
         }
 
@@ -68,32 +92,51 @@
             formControlName="valor"
           />
           @if (chaveForm.get('valor')?.invalid && chaveForm.get('valor')?.touched) {
-            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Chave obrigatória</p>
+            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">
+              Chave obrigatória
+            </p>
           }
         </div>
 
         <div class="mb-4">
-          <p class="text-sm font-bold mb-1">Banco <span class="text-xs font-normal opacity-50">(opcional)</span></p>
-          <input type="text" formControlName="banco" list="bancos-chave-list"
-                 placeholder="Digite o nome do banco..." autocomplete="off" />
+          <p class="text-sm font-bold mb-1">
+            Banco <span class="text-xs font-normal opacity-50">(opcional)</span>
+          </p>
+          <input
+            type="text"
+            formControlName="banco"
+            list="bancos-chave-list"
+            placeholder="Digite o nome do banco..."
+            autocomplete="off"
+          />
           <datalist id="bancos-chave-list">
             @for (label of bancosFiltrados(); track label) {
               <option [value]="label"></option>
             }
           </datalist>
           @if (bancoinvalido()) {
-            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Selecione um banco da lista de sugestões.</p>
+            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">
+              Selecione um banco da lista de sugestões.
+            </p>
           }
         </div>
 
         <div class="flex gap-2">
-          <ion-button type="submit" fill="solid" color="primary" class="flex-1" [disabled]="salvando()">
+          <ion-button
+            type="submit"
+            fill="solid"
+            color="primary"
+            class="flex-1"
+            [disabled]="salvando()"
+          >
             @if (salvando()) {
-              <ion-spinner name="crescent" style="width:16px;height:16px"></ion-spinner>
+              <ion-spinner name="crescent" style="width: 16px; height: 16px"></ion-spinner>
             }
             Cadastrar
           </ion-button>
-          <ion-button type="button" fill="clear" class="flex-1" (click)="cancelar()">Cancelar</ion-button>
+          <ion-button type="button" fill="clear" class="flex-1" (click)="cancelar()"
+            >Cancelar</ion-button
+          >
         </div>
       </form>
     </div>
@@ -101,22 +144,54 @@
 
   @if (chavePixService.chaves().length === 0 && !adicionando()) {
     <div class="text-center py-16 opacity-60">
-      <svg class="mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+      <svg
+        class="mx-auto mb-3"
+        xmlns="http://www.w3.org/2000/svg"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"
+        />
+        <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
+      </svg>
       <p class="text-sm">Nenhuma chave cadastrada.</p>
-      <ion-button fill="solid" color="primary" size="small" class="mt-4" (click)="abrirFormulario()">Cadastrar primeira chave</ion-button>
+      <ion-button fill="solid" color="primary" size="small" class="mt-4" (click)="abrirFormulario()"
+        >Cadastrar primeira chave</ion-button
+      >
     </div>
   }
 
   <div class="flex flex-col gap-3">
     @for (chave of chavePixService.chaves(); track chave.id) {
-      <div [class]="'rounded-xl p-4 shadow-sm border bg-white dark:bg-neutral-900 ' +
-                    (chave.status === 'ativa' ? 'border-2 border-neutral-900 dark:border-neutral-100' : 'border-neutral-200 dark:border-neutral-700') +
-                    (chave.status === 'arquivada' ? ' opacity-50' : '')"
+      <div
+        [class]="
+          'rounded-xl p-4 shadow-sm border bg-white dark:bg-neutral-900 ' +
+          (chave.status === 'ativa'
+            ? 'border-2 border-neutral-900 dark:border-neutral-100'
+            : 'border-neutral-200 dark:border-neutral-700') +
+          (chave.status === 'arquivada' ? ' opacity-50' : '')
+        "
       >
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1 min-w-0">
             <div class="flex items-center flex-wrap gap-1.5 mb-1">
-              <span [class]="'badge ' + (chave.status === 'ativa' ? 'badge-primary' : chave.status === 'arquivada' ? 'badge-negative' : 'badge-neutral')">
+              <span
+                [class]="
+                  'badge ' +
+                  (chave.status === 'ativa'
+                    ? 'badge-primary'
+                    : chave.status === 'arquivada'
+                      ? 'badge-negative'
+                      : 'badge-neutral')
+                "
+              >
                 {{ statusLabels[chave.status] }}
               </span>
               <span class="badge badge-outline">{{ tipoLabels[chave.tipo] }}</span>
@@ -132,18 +207,65 @@
           </div>
           <div class="flex gap-1 shrink-0">
             @if (chave.status === 'inativa') {
-              <ion-button fill="solid" color="primary" size="small" [disabled]="acaoEmAndamento() === chave.id" (click)="ativar(chave)">
+              <ion-button
+                fill="solid"
+                color="primary"
+                size="small"
+                [disabled]="acaoEmAndamento() === chave.id"
+                (click)="ativar(chave)"
+              >
                 Ativar
               </ion-button>
             }
             @if (chave.status !== 'arquivada') {
-              <ion-button fill="clear" size="small" [disabled]="acaoEmAndamento() === chave.id" (click)="arquivar(chave)" title="Arquivar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+              <ion-button
+                fill="clear"
+                size="small"
+                [disabled]="acaoEmAndamento() === chave.id"
+                (click)="arquivar(chave)"
+                title="Arquivar"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="20" height="5" x="2" y="3" rx="1" />
+                  <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+                  <path d="M10 12h4" />
+                </svg>
               </ion-button>
             }
             @if (chave.status === 'inativa') {
-              <ion-button fill="clear" color="danger" size="small" [disabled]="acaoEmAndamento() === chave.id" (click)="remover(chave)" title="Remover">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              <ion-button
+                fill="clear"
+                color="danger"
+                size="small"
+                [disabled]="acaoEmAndamento() === chave.id"
+                (click)="remover(chave)"
+                title="Remover"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
               </ion-button>
             }
           </div>

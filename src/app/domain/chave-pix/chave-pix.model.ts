@@ -23,7 +23,7 @@ export const TIPO_CHAVE_LABELS: Record<TipoChave, string> = {
   email: 'E-mail',
   telefone: 'Telefone',
   aleatoria: 'Aleatória',
-  desconhecida: 'Desconhecida',
+  desconhecida: 'Outra',
 };
 
 export const STATUS_CHAVE_LABELS: Record<StatusChave, string> = {

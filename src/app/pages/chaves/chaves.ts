@@ -6,7 +6,7 @@ import { ChavePixService } from '../../application/chave-pix.service';
 import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
 import { Subject, takeUntil } from 'rxjs';
-import { IonButton, IonSpinner, IonRadio, IonRadioGroup, AlertController, ToastController } from '@ionic/angular/standalone';
+import { IonButton, IonSpinner, IonRadio, IonRadioGroup, AlertController, ToastController, IonList, IonItem } from '@ionic/angular/standalone';
 import { BancoService } from '../../shared/services/banco.service';
 
 @Component({

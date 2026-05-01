@@ -52,6 +52,48 @@
         }
       </div>
 
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-1">
+          CPF
+          @if (cpfImutavel()) {
+            <span class="text-xs font-normal opacity-60 ml-1">não editável após criação</span>
+          } @else {
+            <span class="text-xs font-normal opacity-60 ml-1">será sua chave Pix</span>
+          }
+        </label>
+        <input
+          id="cpf"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="000.000.000-00"
+          formControlName="cpf"
+          [maskito]="maskCpf"
+        />
+        @if (perfilForm.get('cpf')?.invalid && perfilForm.get('cpf')?.touched) {
+          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">
+            @if (perfilForm.get('cpf')?.hasError('required')) { CPF é obrigatório. }
+            @else if (perfilForm.get('cpf')?.hasError('cpfInvalido')) { CPF inválido. }
+          </p>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-bold mb-1">
+          UF
+          <span class="text-xs font-normal opacity-60 ml-1">estado</span>
+        </label>
+        <select id="merchantUF" formControlName="merchantUF">
+          <option value="">Selecione…</option>
+          @for (uf of ufs; track uf) {
+            <option [value]="uf">{{ uf }}</option>
+          }
+        </select>
+        @if (perfilForm.get('merchantUF')?.invalid && perfilForm.get('merchantUF')?.touched) {
+          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">UF é obrigatória.</p>
+        }
+      </div>
+
       <div class="mb-6">
         <label class="block text-sm font-bold mb-1">
           Cidade
@@ -64,6 +106,7 @@
           list="cidades-list"
           placeholder="São Paulo"
           formControlName="merchantCity"
+          [attr.disabled]="!perfilForm.get('merchantUF')?.value ? '' : null"
         />
         <datalist id="cidades-list">
           @for (c of cidadesFiltradas(); track c) {

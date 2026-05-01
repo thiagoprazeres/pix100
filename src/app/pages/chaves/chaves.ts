@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, effect, computed } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
 import { MaskitoOptions } from '@maskito/core';
@@ -8,6 +8,8 @@ import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS
 import { Subject, takeUntil } from 'rxjs';
 import { IonButton, IonSpinner, IonRadio, IonRadioGroup, AlertController, ToastController, IonList, IonItem } from '@ionic/angular/standalone';
 import { BancoService } from '../../shared/services/banco.service';
+import { BrCodeAdapter } from '../../infrastructure/brcode/brcode.adapter';
+import { sanitizeMerchantName, sanitizeMerchantCity, gerarBrCodeRef } from '../../domain/cobranca/brcode.projection';
 
 @Component({
   selector: 'app-chaves',
@@ -31,9 +33,26 @@ export class Chaves implements OnInit, OnDestroy {
   private readonly bancoService = inject(BancoService);
   private readonly alertController = inject(AlertController);
   private readonly toastController = inject(ToastController);
+  private readonly brCodeAdapter = inject(BrCodeAdapter);
   bancosFiltrados = signal<string[]>([]);
 
   bancoinvalido = signal(false);
+
+  qrAtivoSvg = signal<string | null>(null);
+  private qrAtivoChaveId: string | null = null;
+
+  private readonly tiposUnicos: TipoChave[] = ['cpf', 'cnpj'];
+  tiposDisponiveis = computed<{ v: TipoChave; l: string }[]>(() => {
+    const todos: { v: TipoChave; l: string }[] = [
+      { v: 'cpf', l: 'CPF' },
+      { v: 'cnpj', l: 'CNPJ' },
+      { v: 'telefone', l: 'Telefone' },
+      { v: 'email', l: 'E-mail' },
+      { v: 'aleatoria', l: 'Aleatória' },
+    ];
+    const tiposExistentes = new Set(this.chavePixService.chaves().map((c) => c.tipo));
+    return todos.filter((opt) => !this.tiposUnicos.includes(opt.v) || !tiposExistentes.has(opt.v));
+  });
 
   chaveForm = new FormGroup({
     tipo: new FormControl<TipoChave>('cpf', [Validators.required]),
@@ -87,6 +106,37 @@ export class Chaves implements OnInit, OnDestroy {
     return null;
   }
 
+  constructor() {
+    effect(() => {
+      const ativa = this.chavePixService.chaveAtiva();
+      const perfil = this.perfilService.perfil();
+      if (!ativa || !perfil) {
+        this.qrAtivoSvg.set(null);
+        this.qrAtivoChaveId = null;
+        return;
+      }
+      if (this.qrAtivoChaveId === ativa.id) return;
+      this.qrAtivoChaveId = ativa.id;
+      void this.gerarQrChaveAtiva(ativa.valor, perfil.merchantName, perfil.merchantCity);
+    });
+  }
+
+  private async gerarQrChaveAtiva(pixKey: string, merchantName: string, merchantCity: string) {
+    try {
+      const { qrSvg } = await this.brCodeAdapter.generate({
+        pixKey,
+        merchantName: sanitizeMerchantName(merchantName),
+        merchantCity: sanitizeMerchantCity(merchantCity),
+        transactionAmount: 0,
+        referenceLabel: gerarBrCodeRef(),
+      });
+      this.qrAtivoSvg.set(qrSvg);
+    } catch (e) {
+      console.error('Falha ao gerar QR da chave ativa', e);
+      this.qrAtivoSvg.set(null);
+    }
+  }
+
   ngOnInit(): void {
     void this.bancoService.carregar();
 
@@ -115,7 +165,9 @@ export class Chaves implements OnInit, OnDestroy {
   abrirFormulario(): void {
     this.adicionando.set(true);
     this.erro.set(null);
-    this.chaveForm.reset({ tipo: 'cpf', tipoPessoa: 'PF' });
+    const tipoInicial = this.tiposDisponiveis()[0]?.v ?? 'aleatoria';
+    const tipoPessoaInicial: TipoPessoa = tipoInicial === 'cnpj' ? 'PJ' : 'PF';
+    this.chaveForm.reset({ tipo: tipoInicial, tipoPessoa: tipoPessoaInicial });
   }
 
   cancelar(): void {
@@ -160,7 +212,9 @@ export class Chaves implements OnInit, OnDestroy {
         ...(nomeBanco && { nomeBanco }),
       });
       this.adicionando.set(false);
-      this.chaveForm.reset({ tipo: 'cpf', tipoPessoa: 'PF' });
+      const tipoInicial = this.tiposDisponiveis()[0]?.v ?? 'aleatoria';
+    const tipoPessoaInicial: TipoPessoa = tipoInicial === 'cnpj' ? 'PJ' : 'PF';
+    this.chaveForm.reset({ tipo: tipoInicial, tipoPessoa: tipoPessoaInicial });
     } catch (e: any) {
       this.erro.set(e?.message ?? 'Erro ao cadastrar chave.');
     } finally {

@@ -1,8 +1,8 @@
 import { TipoChave } from '../chave-pix/chave-pix.model';
-import type { ChargeIntent } from '@thiagoprazeres/pix-charge-core';
-import type { AntiFraudDecision } from '@thiagoprazeres/pix-antifraud-core';
-import type { ReconciliationResult } from '@thiagoprazeres/pix-reconcile-core';
-import type { TrustedReceipt } from '@thiagoprazeres/trusted-receipt-core';
+import type { ChargeIntent } from '@origem100/pix-charge-core';
+import type { AntiFraudDecision } from '@origem100/pix-antifraud-core';
+import type { ReconciliationResult } from '@origem100/pix-reconcile-core';
+import type { TrustedReceipt } from '@origem100/trusted-receipt-core';
 
 export type StatusCobranca = 'pendente' | 'paga' | 'expirada' | 'cancelada' | 'devolvida';
 

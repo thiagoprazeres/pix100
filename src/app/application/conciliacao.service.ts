@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { reconcilePixSettlement } from '@thiagoprazeres/pix-reconcile-core';
-import { analyzePixTransaction } from '@thiagoprazeres/pix-antifraud-core';
-import { buildTrustedReceipt } from '@thiagoprazeres/trusted-receipt-core';
-import type { PixLiquidation } from '@thiagoprazeres/pix-charge-core';
+import { reconcilePixSettlement } from '@origem100/pix-reconcile-core';
+import { analyzePixTransaction } from '@origem100/pix-antifraud-core';
+import { buildTrustedReceipt } from '@origem100/trusted-receipt-core';
+import type { PixLiquidation } from '@origem100/pix-charge-core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
 import { CobrancaService } from './cobranca.service';
 import { ChavePixService } from './chave-pix.service';

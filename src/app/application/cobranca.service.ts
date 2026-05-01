@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { createChargeIntent } from '@thiagoprazeres/pix-charge-core';
-import { analyzePixTransaction } from '@thiagoprazeres/pix-antifraud-core';
+import { createChargeIntent } from '@origem100/pix-charge-core';
+import { analyzePixTransaction } from '@origem100/pix-antifraud-core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
 import { BrCodeAdapter } from '../infrastructure/brcode/brcode.adapter';
 import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';

@@ -14,7 +14,7 @@ import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
 import { AvisoRisco } from '../../domain/risco/risco.model';
 import { avaliarRiscoE2EId, validarFormatoE2EId } from '../../domain/risco/e2eid.rules';
-import { type AntiFraudDecision } from '@thiagoprazeres/pix-antifraud-core';
+import { type AntiFraudDecision } from '@origem100/pix-antifraud-core';
 
 @Component({
   selector: 'app-pix-details',

@@ -10,10 +10,6 @@
 /node_modules
 npm-debug.log
 yarn-error.log
-package-lock.json
-
-# Local-only vendor of proprietary @origem100 packages (not for public repo)
-/vendor
 
 # IDEs and editors
 .idea/

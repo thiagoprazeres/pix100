@@ -24,20 +24,13 @@ export class PerfilService {
     this._perfil.set(perfil ?? null);
   }
 
-  async salvar(dados: {
-    merchantName: string;
-    merchantCity: string;
-    merchantUF?: string;
-    cpf?: string;
-  }): Promise<Perfil> {
+  async salvar(dados: { merchantName: string; merchantCity: string }): Promise<Perfil> {
     const now = Date.now();
     const existing = this._perfil();
     const perfil: Perfil = {
       id: existing?.id ?? crypto.randomUUID(),
       merchantName: dados.merchantName.trim(),
       merchantCity: dados.merchantCity.trim(),
-      ...(dados.merchantUF ? { merchantUF: dados.merchantUF } : existing?.merchantUF ? { merchantUF: existing.merchantUF } : {}),
-      ...(existing?.cpf ? { cpf: existing.cpf } : dados.cpf ? { cpf: dados.cpf } : {}),
       criadoEm: existing?.criadoEm ?? now,
       atualizadoEm: now,
     };

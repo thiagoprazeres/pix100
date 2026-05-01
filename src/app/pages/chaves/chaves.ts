@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal, effect, computed } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
 import { MaskitoOptions } from '@maskito/core';
@@ -13,7 +14,7 @@ import { sanitizeMerchantName, sanitizeMerchantCity, gerarBrCodeRef } from '../.
 
 @Component({
   selector: 'app-chaves',
-  imports: [ReactiveFormsModule, MaskitoDirective, IonButton, IonSpinner, IonRadio, IonRadioGroup],
+  imports: [RouterLink, ReactiveFormsModule, MaskitoDirective, IonButton, IonSpinner, IonRadio, IonRadioGroup],
   templateUrl: './chaves.html',
 })
 export class Chaves implements OnInit, OnDestroy {

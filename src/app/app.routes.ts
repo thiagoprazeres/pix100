@@ -32,6 +32,13 @@ export const routes: Routes = [
     canActivate: [perfilGuard],
   },
   {
+    path: 'chaves/:id',
+    loadComponent: () =>
+      import('./pages/chaves-details/chaves-details').then((m) => m.ChavesDetails),
+    title: 'Detalhes da Chave',
+    canActivate: [perfilGuard],
+  },
+  {
     path: 'perfil',
     loadComponent: () => import('./pages/perfil/perfil').then((m) => m.Perfil),
     title: 'Perfil',

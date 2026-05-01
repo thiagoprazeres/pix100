@@ -1,0 +1,195 @@
+@if (chave(); as c) {
+  <header class="navbar">
+    <div class="flex-none pl-2">
+      <ion-button fill="clear" size="small" routerLink="/chaves" title="Voltar">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      </ion-button>
+    </div>
+    <div class="flex-1">
+      <h1 class="text-xl ml-2 font-bold">Detalhes da Chave</h1>
+    </div>
+  </header>
+
+  <main class="px-4 py-2">
+    <div class="flex items-center flex-wrap gap-1.5 mb-4">
+      <span
+        [class]="
+          'badge ' +
+          (c.status === 'ativa'
+            ? 'badge-primary'
+            : c.status === 'arquivada'
+              ? 'badge-negative'
+              : 'badge-neutral')
+        "
+      >
+        {{ statusLabels[c.status] }}
+      </span>
+      <span class="badge badge-outline">{{ tipoLabels[c.tipo] }}</span>
+      <span class="badge badge-neutral">{{ c.tipoPessoa }}</span>
+      @if (c.verificacaoStatus === 'confirmada_por_recebimento') {
+        <span class="badge badge-success">✓ Confirmada</span>
+      }
+    </div>
+
+    <p class="font-mono text-base break-all mb-4">{{ c.valor }}</p>
+
+    <section class="mb-6">
+      @if (qrSvg()) {
+        <div class="flex justify-center mb-3">
+          <img
+            [src]="qrSvg()"
+            alt="QR Code da chave"
+            class="w-64 h-64 bg-white p-3 rounded-lg shadow-sm"
+          />
+        </div>
+        <ion-button
+          type="button"
+          fill="outline"
+          color="primary"
+          expand="block"
+          (click)="copiarBrCode()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="margin-right: 6px"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          Copiar BR Code
+        </ion-button>
+      } @else {
+        <div class="flex justify-center py-8">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+      }
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-bold mb-2 opacity-70">Informações</h2>
+      <dl class="grid grid-cols-2 gap-y-2 gap-x-3 text-sm">
+        <dt class="opacity-60">Tipo</dt>
+        <dd>{{ tipoLabels[c.tipo] }}</dd>
+
+        <dt class="opacity-60">Tipo de pessoa</dt>
+        <dd>{{ c.tipoPessoa === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica' }}</dd>
+
+        <dt class="opacity-60">Status</dt>
+        <dd>{{ statusLabels[c.status] }}</dd>
+
+        <dt class="opacity-60">Verificação</dt>
+        <dd>
+          {{
+            c.verificacaoStatus === 'confirmada_por_recebimento'
+              ? 'Confirmada por recebimento'
+              : 'Não verificada'
+          }}
+        </dd>
+
+        @if (c.nomeBanco || c.banco) {
+          <dt class="opacity-60">Banco</dt>
+          <dd>{{ c.nomeBanco || c.banco }}</dd>
+        }
+
+        <dt class="opacity-60">Criada em</dt>
+        <dd>{{ c.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</dd>
+
+        @if (c.arquivadaEm) {
+          <dt class="opacity-60">Arquivada em</dt>
+          <dd>{{ c.arquivadaEm | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        }
+      </dl>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-bold mb-2 opacity-70">Cobranças geradas</h2>
+      @if (cobrancasDessaChave().length === 0) {
+        <p class="text-sm opacity-60 py-2">Nenhuma cobrança gerada com esta chave.</p>
+      } @else {
+        <div class="flex flex-col gap-2">
+          @for (cob of cobrancasDessaChave(); track cob.id) {
+            <a
+              [routerLink]="['/cobranca', cob.id]"
+              class="block rounded-lg p-3 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-400 dark:hover:border-neutral-500 transition"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <span [class]="'badge ' + (cob.statusAtual | statusClass)">
+                      {{ statusCobrancaLabels[cob.statusAtual] }}
+                    </span>
+                  </div>
+                  <p class="font-bold text-sm">
+                    {{ cob.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                  </p>
+                  @if (cob.descricao) {
+                    <p class="text-xs opacity-60 truncate">{{ cob.descricao }}</p>
+                  }
+                </div>
+                <span class="text-xs opacity-50 shrink-0">
+                  {{ cob.criadaEm | date: 'dd/MM/yy' }}
+                </span>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="mb-6 flex flex-col gap-2">
+      @if (c.status === 'inativa') {
+        <ion-button
+          fill="solid"
+          color="primary"
+          expand="block"
+          [disabled]="acaoEmAndamento()"
+          (click)="ativar()"
+        >
+          Ativar chave
+        </ion-button>
+      }
+      @if (c.status !== 'arquivada') {
+        <ion-button
+          fill="outline"
+          color="medium"
+          expand="block"
+          [disabled]="acaoEmAndamento()"
+          (click)="arquivar()"
+        >
+          Arquivar
+        </ion-button>
+      }
+      @if (c.status === 'inativa') {
+        <ion-button
+          fill="clear"
+          color="danger"
+          expand="block"
+          [disabled]="acaoEmAndamento()"
+          (click)="remover()"
+        >
+          Remover
+        </ion-button>
+      }
+    </section>
+  </main>
+}

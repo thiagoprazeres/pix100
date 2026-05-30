@@ -1,12 +1,7 @@
 import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
-import {
-  IonButton,
-  IonSpinner,
-  AlertController,
-  ToastController,
-} from '@ionic/angular/standalone';
+import { ToastService } from '../../shared/services/toast.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
 import { PerfilService } from '../../application/perfil.service';
@@ -30,8 +25,6 @@ import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
     RouterLink,
     DatePipe,
     CurrencyPipe,
-    IonButton,
-    IonSpinner,
     StatusClassPipe,
   ],
   templateUrl: './chaves-details.html',
@@ -39,8 +32,7 @@ import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 export class ChavesDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly alertController = inject(AlertController);
-  private readonly toastController = inject(ToastController);
+  private readonly toast = inject(ToastService);
   private readonly brCodeAdapter = inject(BrCodeAdapter);
 
   readonly chavePixService = inject(ChavePixService);
@@ -142,19 +134,8 @@ export class ChavesDetails implements OnInit {
   async arquivar(): Promise<void> {
     const c = this.chave();
     if (!c) return;
-    const alert = await this.alertController.create({
-      header: 'Arquivar chave',
-      message: `Arquivar a chave "${c.valor}"? Ela não poderá ser reativada e não poderá ser excluída.`,
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Arquivar',
-          role: 'destructive',
-          handler: () => this.executarArquivar(),
-        },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm(`Arquivar a chave "${c.valor}"? Ela não poderá ser reativada e não poderá ser excluída.`);
+    if (ok) await this.executarArquivar();
   }
 
   private async executarArquivar(): Promise<void> {
@@ -174,19 +155,8 @@ export class ChavesDetails implements OnInit {
   async remover(): Promise<void> {
     const c = this.chave();
     if (!c) return;
-    const alert = await this.alertController.create({
-      header: 'Remover chave',
-      message: `Remover a chave "${c.valor}" definitivamente?`,
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Remover',
-          role: 'destructive',
-          handler: () => this.executarRemover(),
-        },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm(`Remover a chave "${c.valor}" definitivamente?`);
+    if (ok) await this.executarRemover();
   }
 
   private async executarRemover(): Promise<void> {
@@ -203,13 +173,7 @@ export class ChavesDetails implements OnInit {
     }
   }
 
-  private async showToast(message: string, color: string = 'primary'): Promise<void> {
-    const toast = await this.toastController.create({
-      message,
-      duration: 2500,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
+  private async showToast(message: string, color: 'primary' | 'success' | 'warning' | 'danger' = 'primary'): Promise<void> {
+    this.toast.show(message, color, 2500);
   }
 }

@@ -11,11 +11,10 @@ import { Router, RouterLink } from '@angular/router';
 import { sanitizeInfoAdicional } from '../../domain/cobranca/brcode.projection';
 import { avaliarRiscoChave } from '../../domain/risco/risco.rules';
 import { AvisoRisco } from '../../domain/risco/risco.model';
-import { IonButton, IonSpinner } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-pix',
-  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink, IonButton, IonSpinner],
+  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink],
   templateUrl: './pix.html',
 })
 export class Pix {

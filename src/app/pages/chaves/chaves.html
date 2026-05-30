@@ -4,15 +4,12 @@
   </div>
   <div class="flex-none pr-2">
     @if (!adicionando()) {
-      <ion-button
+      <button class="btn btn-sm btn-primary"
         type="button"
-        fill="solid"
-        color="primary"
-        size="small"
         (click)="abrirFormulario()"
       >
         + Adicionar
-      </ion-button>
+      </button>
     }
   </div>
 </header>
@@ -37,30 +34,50 @@
       <form [formGroup]="chaveForm" (ngSubmit)="salvar()">
         <div class="mb-3">
           <p class="text-sm font-bold mb-2">Tipo de chave</p>
-          <ion-radio-group
-            [value]="chaveForm.controls.tipo.value"
-            (ionChange)="chaveForm.controls.tipo.setValue($event.detail.value)"
-          >
-            <div class="flex flex-col gap-2">
-              @for (opt of tiposDisponiveis(); track opt.v) {
-                <ion-radio [value]="opt.v">{{ opt.l }}</ion-radio>
-              }
-            </div>
-          </ion-radio-group>
+          <div class="flex flex-col gap-2">
+            @for (opt of tiposDisponiveis(); track opt.v) {
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="tipoChave"
+                  [value]="opt.v"
+                  [checked]="chaveForm.controls.tipo.value === opt.v"
+                  (change)="chaveForm.controls.tipo.setValue(opt.v)"
+                  class="w-auto"
+                />
+                <span>{{ opt.l }}</span>
+              </label>
+            }
+          </div>
         </div>
 
         @if (exigeTipoPessoa) {
           <div class="mb-3">
             <p class="text-sm font-bold mb-2">Pessoa</p>
-            <ion-radio-group
-              [value]="chaveForm.controls.tipoPessoa.value"
-              (ionChange)="chaveForm.controls.tipoPessoa.setValue($event.detail.value)"
-            >
-              <div class="flex gap-6">
-                <ion-radio value="PF" class="text-sm">Pessoa Física</ion-radio>
-                <ion-radio value="PJ" class="text-sm">Pessoa Jurídica</ion-radio>
-              </div>
-            </ion-radio-group>
+            <div class="flex gap-6">
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="tipoPessoa"
+                  value="PF"
+                  [checked]="chaveForm.controls.tipoPessoa.value === 'PF'"
+                  (change)="chaveForm.controls.tipoPessoa.setValue('PF')"
+                  class="w-auto"
+                />
+                <span>Pessoa Física</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="tipoPessoa"
+                  value="PJ"
+                  [checked]="chaveForm.controls.tipoPessoa.value === 'PJ'"
+                  (change)="chaveForm.controls.tipoPessoa.setValue('PJ')"
+                  class="w-auto"
+                />
+                <span>Pessoa Jurídica</span>
+              </label>
+            </div>
           </div>
         } @else {
           <p class="text-xs opacity-60 mb-3">
@@ -113,21 +130,18 @@
         </div>
 
         <div class="flex gap-2">
-          <ion-button
+          <button
             type="submit"
-            fill="solid"
-            color="primary"
-            class="flex-1"
+            class="btn btn-primary flex-1"
             [disabled]="salvando()"
           >
             @if (salvando()) {
-              <ion-spinner name="crescent" style="width: 16px; height: 16px"></ion-spinner>
+              <span class="spinner"></span>
             }
             Cadastrar
-          </ion-button>
-          <ion-button type="button" fill="clear" class="flex-1" (click)="cancelar()"
-            >Cancelar</ion-button
-          >
+          </button>
+          <button type="button" class="btn btn-clear flex-1" (click)="cancelar()"
+            >Cancelar</button>
         </div>
       </form>
     </div>
@@ -184,20 +198,15 @@
           </a>
           <div class="flex gap-1 shrink-0">
             @if (chave.status === 'inativa') {
-              <ion-button
-                fill="solid"
-                color="primary"
-                size="small"
+              <button type="button" class="btn btn-sm btn-primary"
                 [disabled]="acaoEmAndamento() === chave.id"
                 (click)="ativar(chave)"
               >
                 Ativar
-              </ion-button>
+              </button>
             }
             @if (chave.status !== 'arquivada') {
-              <ion-button
-                fill="clear"
-                size="small"
+              <button type="button" class="btn btn-sm btn-clear"
                 [disabled]="acaoEmAndamento() === chave.id"
                 (click)="arquivar(chave)"
                 title="Arquivar"
@@ -217,13 +226,10 @@
                   <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
                   <path d="M10 12h4" />
                 </svg>
-              </ion-button>
+              </button>
             }
             @if (chave.status === 'inativa') {
-              <ion-button
-                fill="clear"
-                color="danger"
-                size="small"
+              <button type="button" class="btn btn-sm btn-clear"
                 [disabled]="acaoEmAndamento() === chave.id"
                 (click)="remover(chave)"
                 title="Remover"
@@ -243,7 +249,7 @@
                   <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                 </svg>
-              </ion-button>
+              </button>
             }
           </div>
         </div>

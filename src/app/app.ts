@@ -3,7 +3,6 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PerfilService } from './application/perfil.service';
 import { ChavePixService } from './application/chave-pix.service';
 import { ThemeService } from './services/theme-service';
-import { IonTabBar, IonTabButton, IonBadge, IonLabel, IonButton } from '@ionic/angular/standalone';
 import packageJson from '../../package.json';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -13,7 +12,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, IonTabBar, IonTabButton, IonBadge, IonLabel, IonButton],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
 })
 export class App {

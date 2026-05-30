@@ -30,8 +30,6 @@
     "@angular/platform-browser": "22.0.0-rc.2",
     "@angular/router": "22.0.0-rc.2",
     "@angular/service-worker": "22.0.0-rc.2",
-    "@ionic/angular": "^8.8.3",
-    "@ionic/core": "^8.8.3",
     "@maskito/angular": "^5.2.2",
     "@maskito/core": "^5.2.2",
     "@maskito/kit": "^5.2.2",

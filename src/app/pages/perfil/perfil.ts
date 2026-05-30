@@ -7,7 +7,6 @@ import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { ThemeService } from '../../services/theme-service';
 import { Router } from '@angular/router';
-import { IonButton, IonSpinner, AlertController } from '@ionic/angular/standalone';
 import { validarCpf } from '../../domain/chave-pix/chave-pix.rules';
 import { normalizarChave } from '../../domain/chave-pix/chave-pix.normalizer';
 
@@ -26,7 +25,7 @@ function cpfValidator(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule, MaskitoDirective, IonButton, IonSpinner],
+  imports: [ReactiveFormsModule, MaskitoDirective],
   templateUrl: './perfil.html',
 })
 export class Perfil implements OnInit, OnDestroy {
@@ -34,8 +33,6 @@ export class Perfil implements OnInit, OnDestroy {
   chavePixService = inject(ChavePixService);
   themeService = inject(ThemeService);
   router = inject(Router);
-
-  private readonly alertController = inject(AlertController);
 
   salvando = signal(false);
   sucesso = signal(false);
@@ -162,22 +159,10 @@ export class Perfil implements OnInit, OnDestroy {
   }
 
   async removerPerfil() {
-    const alert = await this.alertController.create({
-      header: 'Excluir perfil',
-      message: 'Todos os dados serão apagados permanentemente. Esta ação não pode ser desfeita.',
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Excluir tudo',
-          role: 'destructive',
-          handler: async () => {
-            await this.perfilService.remover();
-            this.perfilForm.reset();
-            this.router.navigate(['/perfil']);
-          },
-        },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm('Excluir perfil: todos os dados serão apagados permanentemente. Esta ação não pode ser desfeita.');
+    if (!ok) return;
+    await this.perfilService.remover();
+    this.perfilForm.reset();
+    this.router.navigate(['/perfil']);
   }
 }

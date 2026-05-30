@@ -8,7 +8,6 @@ import {
   inject,
 } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
-import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -45,7 +44,6 @@ function initializeApp(): () => Promise<void> {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideIonicAngular({ mode: 'md' }),
     provideRouter(routes, withViewTransitions()),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

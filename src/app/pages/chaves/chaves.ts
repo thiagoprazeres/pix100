@@ -7,14 +7,14 @@ import { ChavePixService } from '../../application/chave-pix.service';
 import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
 import { Subject, takeUntil } from 'rxjs';
-import { IonButton, IonSpinner, IonRadio, IonRadioGroup, AlertController, ToastController, IonList, IonItem } from '@ionic/angular/standalone';
+import { ToastService } from '../../shared/services/toast.service';
 import { BancoService } from '../../shared/services/banco.service';
 import { BrCodeAdapter } from '../../infrastructure/brcode/brcode.adapter';
 import { sanitizeMerchantName, sanitizeMerchantCity, gerarBrCodeRef } from '../../domain/cobranca/brcode.projection';
 
 @Component({
   selector: 'app-chaves',
-  imports: [RouterLink, ReactiveFormsModule, MaskitoDirective, IonButton, IonSpinner, IonRadio, IonRadioGroup],
+  imports: [RouterLink, ReactiveFormsModule, MaskitoDirective],
   templateUrl: './chaves.html',
 })
 export class Chaves implements OnInit, OnDestroy {
@@ -32,8 +32,7 @@ export class Chaves implements OnInit, OnDestroy {
   statusLabels = STATUS_CHAVE_LABELS;
 
   private readonly bancoService = inject(BancoService);
-  private readonly alertController = inject(AlertController);
-  private readonly toastController = inject(ToastController);
+  private readonly toast = inject(ToastService);
   private readonly brCodeAdapter = inject(BrCodeAdapter);
   bancosFiltrados = signal<string[]>([]);
 
@@ -235,15 +234,8 @@ export class Chaves implements OnInit, OnDestroy {
   }
 
   async arquivar(chave: ChavePix): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Arquivar chave',
-      message: `Arquivar a chave "${chave.valor}"? Ela não poderá ser reativada e não poderá ser excluída.`,
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        { text: 'Arquivar', role: 'destructive', handler: () => this.executarArquivar(chave) },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm(`Arquivar a chave "${chave.valor}"? Ela não poderá ser reativada e não poderá ser excluída.`);
+    if (ok) await this.executarArquivar(chave);
   }
 
   private async executarArquivar(chave: ChavePix): Promise<void> {
@@ -258,15 +250,8 @@ export class Chaves implements OnInit, OnDestroy {
   }
 
   async remover(chave: ChavePix): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Remover chave',
-      message: `Remover a chave "${chave.valor}" definitivamente?`,
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        { text: 'Remover', role: 'destructive', handler: () => this.executarRemover(chave) },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm(`Remover a chave "${chave.valor}" definitivamente?`);
+    if (ok) await this.executarRemover(chave);
   }
 
   private async executarRemover(chave: ChavePix): Promise<void> {
@@ -280,8 +265,7 @@ export class Chaves implements OnInit, OnDestroy {
     }
   }
 
-  private async showToast(message: string, color: string = 'primary'): Promise<void> {
-    const toast = await this.toastController.create({ message, duration: 3000, position: 'bottom', color });
-    await toast.present();
+  private showToast(message: string, color: 'primary' | 'success' | 'warning' | 'danger' = 'primary'): void {
+    this.toast.show(message, color);
   }
 }

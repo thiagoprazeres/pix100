@@ -9,7 +9,7 @@ import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
-import { IonButton, IonSpinner, ToastController, AlertController } from '@ionic/angular/standalone';
+import { ToastService } from '../../shared/services/toast.service';
 import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
 import { AvisoRisco } from '../../domain/risco/risco.model';
@@ -17,7 +17,7 @@ import { avaliarRiscoE2EId, validarFormatoE2EId } from '../../domain/risco/e2eid
 
 @Component({
   selector: 'app-pix-details',
-  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe, IonButton, IonSpinner],
+  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe],
   templateUrl: './pix-details.html',
 })
 export class PixDetails implements OnInit, OnDestroy {
@@ -25,8 +25,7 @@ export class PixDetails implements OnInit, OnDestroy {
   private readonly cobrancaService = inject(CobrancaService);
   private readonly conciliacaoService = inject(ConciliacaoService);
 
-  private readonly toastController = inject(ToastController);
-  private readonly alertController = inject(AlertController);
+  private readonly toast = inject(ToastService);
   private readonly bancoService = inject(BancoService);
   private readonly destroy$ = new Subject<void>();
 
@@ -221,15 +220,8 @@ export class PixDetails implements OnInit, OnDestroy {
   async cancelar(): Promise<void> {
     const c = this.cobranca();
     if (!c) return;
-    const alert = await this.alertController.create({
-      header: 'Cancelar cobrança',
-      message: 'Esta ação não pode ser desfeita.',
-      buttons: [
-        { text: 'Voltar', role: 'cancel' },
-        { text: 'Cancelar cobrança', role: 'destructive', handler: () => this.executarCancelamento() },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm('Cancelar cobrança: esta ação não pode ser desfeita.');
+    if (ok) await this.executarCancelamento();
   }
 
   private async executarCancelamento(): Promise<void> {
@@ -311,9 +303,8 @@ export class PixDetails implements OnInit, OnDestroy {
     }
   }
 
-  private async showToast(message: string, color: string = 'primary', duration: number = 3000): Promise<void> {
-    const toast = await this.toastController.create({ message, duration, position: 'bottom', color });
-    await toast.present();
+  private showToast(message: string, color: 'primary' | 'success' | 'warning' | 'danger' = 'primary', duration: number = 3000): void {
+    this.toast.show(message, color, duration);
   }
 
   enviarWhatsApp(): void {
@@ -397,15 +388,8 @@ export class PixDetails implements OnInit, OnDestroy {
   async confirmarMed(): Promise<void> {
     const c = this.cobranca();
     if (!c) return;
-    const alert = await this.alertController.create({
-      header: 'Confirmar devolução (MED)',
-      message: 'Registra que o valor foi devolvido via MED. Esta ação altera o status para Devolvida.',
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        { text: 'Confirmar devolução', role: 'destructive', handler: () => this.executarConfirmacaoMed() },
-      ],
-    });
-    await alert.present();
+    const ok = window.confirm('Confirmar devolução (MED): registra que o valor foi devolvido via MED. Esta ação altera o status para Devolvida.');
+    if (ok) await this.executarConfirmacaoMed();
   }
 
   private async executarConfirmacaoMed(): Promise<void> {

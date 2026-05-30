@@ -5,18 +5,18 @@ import { Cobranca, STATUS_COBRANCA_LABELS, StatusCobranca } from '../../domain/c
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
-import { IonButton, ToastController } from '@ionic/angular/standalone';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-historico',
-  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe, IonButton],
+  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe],
   templateUrl: './historico.html',
 })
 export class Historico implements OnInit {
   private readonly cobrancaService = inject(CobrancaService);
   private readonly perfilService = inject(PerfilService);
 
-  private readonly toastController = inject(ToastController);
+  private readonly toast = inject(ToastService);
   statusLabels = STATUS_COBRANCA_LABELS;
 
   filtroStatus = signal<StatusCobranca | 'todas'>('todas');
@@ -60,15 +60,10 @@ export class Historico implements OnInit {
     event.stopPropagation();
     try {
       await navigator.clipboard.writeText(cobranca.brcode);
-      this.showToast('BR Code copiado!', 'success');
+      this.toast.show('BR Code copiado!', 'success', 2000);
     } catch {
-      this.showToast('Não foi possível copiar.', 'warning');
+      this.toast.show('Não foi possível copiar.', 'warning', 2000);
     }
-  }
-
-  private async showToast(message: string, color: string): Promise<void> {
-    const toast = await this.toastController.create({ message, duration: 2000, position: 'bottom', color });
-    await toast.present();
   }
 
   setFiltro(status: string): void {
@@ -78,7 +73,7 @@ export class Historico implements OnInit {
   exportarCsv(): void {
     const lista = this.todasCobrancas();
     if (!lista.length) {
-      this.toastController.create({ message: 'Não há registros para exportar.', duration: 2500, position: 'bottom', color: 'warning' }).then(t => t.present());
+      this.toast.show('Não há registros para exportar.', 'warning', 2500);
       return;
     }
 

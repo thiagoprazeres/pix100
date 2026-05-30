@@ -1,7 +1,7 @@
 @if (chave(); as c) {
   <header class="navbar">
     <div class="flex-none pl-2">
-      <ion-button fill="clear" size="small" routerLink="/chaves" title="Voltar">
+      <button type="button" class="btn btn-sm btn-clear" routerLink="/chaves" title="Voltar">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -15,7 +15,7 @@
         >
           <path d="m15 18-6-6 6-6" />
         </svg>
-      </ion-button>
+      </button>
     </div>
     <div class="flex-1">
       <h1 class="text-xl ml-2 font-bold">Detalhes da Chave</h1>
@@ -54,11 +54,8 @@
             class="w-64 h-64 bg-white p-3 rounded-lg shadow-sm"
           />
         </div>
-        <ion-button
+        <button class="btn btn-block btn-outline"
           type="button"
-          fill="outline"
-          color="primary"
-          expand="block"
           (click)="copiarBrCode()"
         >
           <svg
@@ -77,10 +74,10 @@
             <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
           </svg>
           Copiar BR Code
-        </ion-button>
+        </button>
       } @else {
         <div class="flex justify-center py-8">
-          <ion-spinner name="crescent"></ion-spinner>
+          <span class="spinner"></span>
         </div>
       }
     </section>
@@ -158,37 +155,28 @@
 
     <section class="mb-6 flex flex-col gap-2">
       @if (c.status === 'inativa') {
-        <ion-button
-          fill="solid"
-          color="primary"
-          expand="block"
+        <button type="button" class="btn btn-block btn-primary"
           [disabled]="acaoEmAndamento()"
           (click)="ativar()"
         >
           Ativar chave
-        </ion-button>
+        </button>
       }
       @if (c.status !== 'arquivada') {
-        <ion-button
-          fill="outline"
-          color="medium"
-          expand="block"
+        <button type="button" class="btn btn-block btn-outline"
           [disabled]="acaoEmAndamento()"
           (click)="arquivar()"
         >
           Arquivar
-        </ion-button>
+        </button>
       }
       @if (c.status === 'inativa') {
-        <ion-button
-          fill="clear"
-          color="danger"
-          expand="block"
+        <button type="button" class="btn btn-block btn-clear"
           [disabled]="acaoEmAndamento()"
           (click)="remover()"
         >
           Remover
-        </ion-button>
+        </button>
       }
     </section>
   </main>

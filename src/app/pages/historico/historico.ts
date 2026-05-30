@@ -71,22 +71,6 @@ export class Historico implements OnInit {
     await toast.present();
   }
 
-  verdictLabel(c: Cobranca): string {
-    const v = c.antiFraudDecision?.verdict;
-    if (!v) return '';
-    if (v === 'approved') return 'Aprovado';
-    if (v === 'review') return 'Em revisão';
-    return 'Rejeitado';
-  }
-
-  verdictClass(c: Cobranca): string {
-    const v = c.antiFraudDecision?.verdict;
-    if (!v) return '';
-    if (v === 'approved') return 'badge-success';
-    if (v === 'review') return 'badge-warning';
-    return 'badge-negative';
-  }
-
   setFiltro(status: string): void {
     this.filtroStatus.set(status as StatusCobranca | 'todas');
   }
@@ -103,7 +87,6 @@ export class Historico implements OnInit {
       'Pagador Nome', 'Pagador Documento', 'Pagador Banco', 'Pagador Nome Banco',
       'Pagador Agência', 'Pagador Conta', 'Pagador Tipo Conta', 'Pagador Chave Pix',
       'E2EId', 'Pago em',
-      'Antifraude Verdict', 'Antifraude Score', 'Reconciliação Status', 'Fingerprint Recibo',
     ];
     const linhas = lista.map((c) => [
       c.id,
@@ -124,10 +107,6 @@ export class Historico implements OnInit {
       c.pagador?.chavePix ?? '',
       c.pagador?.endToEndId ?? '',
       c.pagador?.paidAt ? new Date(c.pagador.paidAt).toISOString() : '',
-      this.verdictLabel(c),
-      c.antiFraudDecision?.score.total?.toString() ?? '',
-      c.reconciliationResult?.status ?? '',
-      c.trustedReceipt?.fingerprint ?? '',
     ]);
 
     const csv = [cabecalho, ...linhas]

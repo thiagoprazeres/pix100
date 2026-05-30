@@ -1,6 +1,4 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { createChargeIntent } from '@thiagoprazeres/pix-charge-core';
-import { analyzePixTransaction } from '@thiagoprazeres/pix-antifraud-core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
 import { BrCodeAdapter } from '../infrastructure/brcode/brcode.adapter';
 import { Cobranca, Pagador } from '../domain/cobranca/cobranca.model';
@@ -54,16 +52,6 @@ export class CobrancaService {
       infoAdicional: descricao ? sanitizeInfoAdicional(descricao) : undefined,
     });
 
-    const { intent: chargeIntent } = createChargeIntent({
-      pixKey: chaveAtiva.valor,
-      amount: valor,
-      description: descricao,
-      merchantName,
-      merchantCity,
-      brcode,
-      expiresAt: vencimento,
-    });
-
     const cobranca: Cobranca = {
       id,
       brCodeRef,
@@ -84,7 +72,6 @@ export class CobrancaService {
       qrSvg,
       criadaEm: now,
       atualizadaEm: now,
-      chargeIntent,
     };
 
     await this.storage.saveCobranca(cobranca);
@@ -162,31 +149,11 @@ export class CobrancaService {
     }
 
     const now = Date.now();
-    let atualizada: Cobranca = {
+    const atualizada: Cobranca = {
       ...cobranca,
       pagador,
       atualizadaEm: now,
     };
-
-    if (pagador.endToEndId && atualizada.chargeIntent) {
-      const knownE2EIds = this._cobrancas()
-        .filter(c => c.id !== cobrancaId && c.pagador?.endToEndId)
-        .map(c => c.pagador!.endToEndId!);
-      const { decision } = analyzePixTransaction({
-        txid: atualizada.chargeIntent.txid,
-        e2eid: pagador.endToEndId,
-        expectedAmount: atualizada.valor,
-        settledAmount: atualizada.valor,
-        paidAt: pagador.paidAt,
-        chargeCreatedAt: atualizada.criadaEm,
-        payerISPB: pagador.banco ?? '',
-        pixKey: atualizada.snapshot.chaveValor,
-        userId: atualizada.perfilId,
-        channel: 'manual',
-        knownE2EIds,
-      });
-      atualizada = { ...atualizada, antiFraudDecision: decision };
-    }
 
     await this.storage.saveCobranca(atualizada);
 

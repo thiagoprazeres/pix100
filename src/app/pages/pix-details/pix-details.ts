@@ -14,7 +14,6 @@ import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
 import { AvisoRisco } from '../../domain/risco/risco.model';
 import { avaliarRiscoE2EId, validarFormatoE2EId } from '../../domain/risco/e2eid.rules';
-import { type AntiFraudDecision } from '@thiagoprazeres/pix-antifraud-core';
 
 @Component({
   selector: 'app-pix-details',
@@ -40,27 +39,6 @@ export class PixDetails implements OnInit, OnDestroy {
   registrandoPagador = signal(false);
   salvandoPagador = signal(false);
   avisosE2EId = signal<AvisoRisco[]>([]);
-
-  readonly activeDecision = computed(() =>
-    this.cobranca()?.antiFraudDecision ?? null
-  );
-
-  verdictClass(verdict: string): string {
-    if (verdict === 'approved') return 'badge-success';
-    if (verdict === 'review') return 'badge-warning';
-    return 'badge-negative';
-  }
-
-  verdictLabel(verdict: string): string {
-    if (verdict === 'approved') return 'Aprovado';
-    if (verdict === 'review') return 'Em revisão';
-    return 'Rejeitado';
-  }
-
-  bandLabel(band: string): string {
-    const map: Record<string, string> = { low: 'Baixo', medium: 'Médio', high: 'Alto', critical: 'Crítico' };
-    return map[band] ?? band;
-  }
 
   readonly semPagadorHa24h = computed(() => {
     const c = this.cobranca();
@@ -184,36 +162,7 @@ export class PixDetails implements OnInit, OnDestroy {
   async confirmar(): Promise<void> {
     const c = this.cobranca();
     if (!c) return;
-
-    if (c.pagador?.endToEndId) {
-      await this.executarConfirmacao(c, c.pagador.endToEndId);
-      return;
-    }
-
-    const alert = await this.alertController.create({
-      header: 'Confirmar recebimento',
-      message: 'Informe o ID da transação (E2EId) do comprovante do pagador. Chamado de "ID da transação" no Nubank e outros bancos.',
-      inputs: [
-        {
-          name: 'endToEndId',
-          type: 'text',
-          placeholder: 'E...',
-          attributes: { autocomplete: 'off', spellcheck: false },
-        },
-      ],
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'Confirmar',
-          handler: (data) => {
-            const e2eId = (data.endToEndId ?? '').trim();
-            this.executarConfirmacao(c, e2eId || undefined);
-            return false;
-          },
-        },
-      ],
-    });
-    await alert.present();
+    await this.executarConfirmacao(c, c.pagador?.endToEndId);
   }
 
   private async executarConfirmacao(c: Cobranca, endToEndId?: string): Promise<void> {
@@ -241,18 +190,6 @@ export class PixDetails implements OnInit, OnDestroy {
       });
       this.cobranca.set(atualizada);
       await this.recarregarEventos(atualizada.id);
-
-      const decision = atualizada.antiFraudDecision;
-      if (decision) {
-        const verdict = decision.verdict;
-        const msg = verdict === 'approved'
-          ? '✓ Pagamento aprovado'
-          : verdict === 'review'
-            ? '⚠ Pagamento em revisão'
-            : '✗ Risco alto detectado';
-        const color = verdict === 'approved' ? 'success' : verdict === 'review' ? 'warning' : 'danger';
-        await this.showToast(msg, color, 4000);
-      }
 
       try {
         await gerarPdf(atualizada);

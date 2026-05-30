@@ -250,57 +250,6 @@
       }
     </section>
 
-    @if (activeDecision(); as dec) {
-      <hr class="border-neutral-200 dark:border-neutral-700" />
-      <section>
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide">Análise Antifraude</h2>
-          <span [class]="'badge ' + verdictClass(dec.verdict)">{{ verdictLabel(dec.verdict) }}</span>
-        </div>
-        <div class="rounded-lg p-3 text-sm space-y-1 bg-neutral-50 dark:bg-neutral-900">
-          <div class="flex justify-between">
-            <span class="opacity-60">Score de risco</span>
-            <span class="font-mono font-bold">{{ dec.score.total }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="opacity-60">Nível</span>
-            <span>{{ bandLabel(dec.score.band) }}</span>
-          </div>
-          @if (dec.score.signals.length > 0) {
-            <div class="pt-1 space-y-1">
-              @for (sig of dec.score.signals; track sig.code) {
-                <div [class]="'notification ' + (sig.weight > 3 ? 'notification-warning' : 'notification-neutral')">
-                  <span class="text-xs">{{ sig.description }}</span>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      </section>
-    }
-
-    @if (cobranca()?.trustedReceipt; as receipt) {
-      <hr class="border-neutral-200 dark:border-neutral-700" />
-      <section>
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide">Recibo Confiável</h2>
-          <span [class]="'badge ' + (receipt.trustLevel === 'trusted' ? 'badge-success' : receipt.trustLevel === 'conditional' ? 'badge-warning' : 'badge-negative')">
-            {{ receipt.trustLevel === 'trusted' ? 'Confiável' : receipt.trustLevel === 'conditional' ? 'Condicional' : 'Não confiável' }}
-          </span>
-        </div>
-        <div class="rounded-lg p-3 text-sm space-y-1 bg-neutral-50 dark:bg-neutral-900">
-          <div class="flex justify-between">
-            <span class="opacity-60">Fingerprint</span>
-            <span class="font-mono text-xs break-all">{{ receipt.fingerprint.slice(0, 16) }}…</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="opacity-60">Emitido em</span>
-            <span>{{ receipt.issuedAt | date:'short' }}</span>
-          </div>
-        </div>
-      </section>
-    }
-
     <hr class="border-neutral-200 dark:border-neutral-700" />
 
     <section>

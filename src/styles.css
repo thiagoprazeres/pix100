@@ -4,6 +4,17 @@
 }
 
 @import 'tailwindcss';
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+/* Tema CBF (Canário) — sobrescreve tokens M3 do Material onde aparece */
+:root {
+  --mat-sys-primary: #009C3B;            /* verde CBF */
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-secondary: #FFDF00;          /* amarelo canário */
+  --mat-sys-on-secondary: #1a1a1a;
+  --mat-sys-tertiary: #002776;           /* azul CBF */
+  --mat-sys-on-tertiary: #ffffff;
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 

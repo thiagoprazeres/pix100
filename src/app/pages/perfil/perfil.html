@@ -118,6 +118,22 @@
         }
       </div>
 
+      <div class="mb-6">
+        <label class="block text-sm font-bold mb-1">
+          Ocupação
+          <span class="text-xs font-normal opacity-60 ml-1">usada no Carnê-Leão</span>
+        </label>
+        <select id="ocupacao" formControlName="ocupacao">
+          <option value="">Selecione…</option>
+          @for (o of ocupacoes; track o.codigo) {
+            <option [value]="o.codigo">{{ o.codigo }} – {{ o.label }}</option>
+          }
+        </select>
+        @if (perfilForm.get('ocupacao')?.invalid && perfilForm.get('ocupacao')?.touched) {
+          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Ocupação é obrigatória.</p>
+        }
+      </div>
+
       <button class="btn btn-block btn-primary" type="submit" [disabled]="salvando()">
         @if (salvando()) {
           <span class="spinner"></span>

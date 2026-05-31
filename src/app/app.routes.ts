@@ -39,6 +39,12 @@ export const routes: Routes = [
     canActivate: [perfilGuard],
   },
   {
+    path: 'carne-leao',
+    loadComponent: () => import('./pages/carne-leao/carne-leao').then((m) => m.CarneLeao),
+    title: 'Carnê-Leão',
+    canActivate: [perfilGuard],
+  },
+  {
     path: 'perfil',
     loadComponent: () => import('./pages/perfil/perfil').then((m) => m.Perfil),
     title: 'Perfil',

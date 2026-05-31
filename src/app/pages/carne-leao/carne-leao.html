@@ -1,0 +1,168 @@
+<header class="navbar">
+  <div class="flex-1">
+    <h1 class="text-xl ml-4 font-bold">Carnê-Leão</h1>
+  </div>
+</header>
+
+<main class="px-4 py-4 max-w-3xl mx-auto">
+  <p class="text-sm opacity-70 mb-4">
+    Exporte os recebimentos do mês no formato oficial da Receita Federal para
+    importar no Carnê-Leão. Ocupação atual: <strong>{{ ocupacaoLabel() }}</strong>.
+  </p>
+
+  @if (erro()) {
+    <div class="notification notification-negative mb-4">{{ erro() }}</div>
+  }
+
+  <form [formGroup]="filtroForm" (ngSubmit)="atualizarPrevia()" class="flex gap-3 items-end mb-6">
+    <mat-form-field appearance="outline" class="flex-1">
+      <mat-label>Mês</mat-label>
+      <mat-select formControlName="mes">
+        @for (m of meses; let i = $index; track i) {
+          <mat-option [value]="i + 1">{{ m }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-32">
+      <mat-label>Ano</mat-label>
+      <mat-select formControlName="ano">
+        @for (a of anos; track a) {
+          <mat-option [value]="a">{{ a }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit">Atualizar</button>
+  </form>
+
+  <section class="mb-6">
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="font-bold">Prévia ({{ previa().length }} lançamento(s))</h2>
+      <button mat-flat-button color="primary" (click)="exportar()" [disabled]="previa().length === 0">
+        <mat-icon>download</mat-icon>
+        Exportar .txt
+      </button>
+    </div>
+
+    @if (previa().length === 0) {
+      <p class="text-sm opacity-60">Nenhum recebimento elegível no período.</p>
+    } @else {
+      <table mat-table [dataSource]="previa()" class="w-full">
+        <ng-container matColumnDef="data">
+          <th mat-header-cell *matHeaderCellDef>Data</th>
+          <td mat-cell *matCellDef="let l">{{ formatarData(l.data) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="pagador">
+          <th mat-header-cell *matHeaderCellDef>Pagador</th>
+          <td mat-cell *matCellDef="let l">{{ docPagador(l) }} ({{ l.indicadorRecebidoDe }})</td>
+        </ng-container>
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef>Valor</th>
+          <td mat-cell *matCellDef="let l">{{ formatarValor(l.valorRecebido) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="historico">
+          <th mat-header-cell *matHeaderCellDef>Histórico</th>
+          <td mat-cell *matCellDef="let l" class="text-xs opacity-70">{{ l.historico }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="colunasPrevia"></tr>
+        <tr mat-row *matRowDef="let row; columns: colunasPrevia"></tr>
+      </table>
+    }
+  </section>
+
+  <section>
+    <h2 class="font-bold mb-2">Importar arquivo do Carnê-Leão</h2>
+    <p class="text-sm opacity-70 mb-3">
+      Importe um arquivo já existente para reconciliar com seus recebimentos locais.
+    </p>
+    <input
+      type="file"
+      accept=".txt,text/plain"
+      (change)="aoSelecionarArquivo($event)"
+      class="block text-sm"
+    />
+
+    @if (relatorio(); as rel) {
+      <div class="mt-4">
+        <p class="text-sm mb-2">Total de lançamentos no arquivo: <strong>{{ rel.total }}</strong></p>
+        <mat-tab-group>
+          <mat-tab [label]="'Já no app (' + rel.jaLocal.length + ')'">
+            @if (rel.jaLocal.length === 0) {
+              <p class="text-sm opacity-60 py-4">Nenhum.</p>
+            } @else {
+              <table mat-table [dataSource]="rel.jaLocal" class="w-full mt-2">
+                <ng-container matColumnDef="data">
+                  <th mat-header-cell *matHeaderCellDef>Data</th>
+                  <td mat-cell *matCellDef="let i">{{ formatarData(i.doArquivo.data) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="tipo">
+                  <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                  <td mat-cell *matCellDef="let i">{{ i.doArquivo.indicadorRecebidoDe }}</td>
+                </ng-container>
+                <ng-container matColumnDef="doc">
+                  <th mat-header-cell *matHeaderCellDef>Doc</th>
+                  <td mat-cell *matCellDef="let i">{{ docPagador(i.doArquivo) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="valor">
+                  <th mat-header-cell *matHeaderCellDef>Valor</th>
+                  <td mat-cell *matCellDef="let i">{{ formatarValor(i.doArquivo.valorRecebido) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="historico">
+                  <th mat-header-cell *matHeaderCellDef>Histórico</th>
+                  <td mat-cell *matCellDef="let i" class="text-xs opacity-70">{{ i.doArquivo.historico }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="colunasItens"></tr>
+                <tr mat-row *matRowDef="let row; columns: colunasItens"></tr>
+              </table>
+            }
+          </mat-tab>
+          <mat-tab [label]="'Só no arquivo (' + rel.apenasArquivo.length + ')'">
+            @if (rel.apenasArquivo.length === 0) {
+              <p class="text-sm opacity-60 py-4">Nenhum.</p>
+            } @else {
+              <table mat-table [dataSource]="rel.apenasArquivo" class="w-full mt-2">
+                <ng-container matColumnDef="data">
+                  <th mat-header-cell *matHeaderCellDef>Data</th>
+                  <td mat-cell *matCellDef="let i">{{ formatarData(i.doArquivo.data) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="tipo">
+                  <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                  <td mat-cell *matCellDef="let i">{{ i.doArquivo.indicadorRecebidoDe }}</td>
+                </ng-container>
+                <ng-container matColumnDef="doc">
+                  <th mat-header-cell *matHeaderCellDef>Doc</th>
+                  <td mat-cell *matCellDef="let i">{{ docPagador(i.doArquivo) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="valor">
+                  <th mat-header-cell *matHeaderCellDef>Valor</th>
+                  <td mat-cell *matCellDef="let i">{{ formatarValor(i.doArquivo.valorRecebido) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="historico">
+                  <th mat-header-cell *matHeaderCellDef>Histórico</th>
+                  <td mat-cell *matCellDef="let i" class="text-xs opacity-70">{{ i.doArquivo.historico }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="colunasItens"></tr>
+                <tr mat-row *matRowDef="let row; columns: colunasItens"></tr>
+              </table>
+            }
+          </mat-tab>
+          <mat-tab [label]="'Divergentes (' + rel.divergentes.length + ')'">
+            @if (rel.divergentes.length === 0) {
+              <p class="text-sm opacity-60 py-4">Nenhum.</p>
+            } @else {
+              <ul class="py-2 space-y-2">
+                @for (item of rel.divergentes; track item.cobrancaIdLocal) {
+                  <li class="text-sm border-l-4 border-yellow-400 pl-3">
+                    <div>{{ formatarData(item.doArquivo.data) }} — {{ formatarValor(item.doArquivo.valorRecebido) }}</div>
+                    <div class="text-xs opacity-70">{{ item.diffs?.join('; ') }}</div>
+                  </li>
+                }
+              </ul>
+            }
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    }
+  </section>
+</main>

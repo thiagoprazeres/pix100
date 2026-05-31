@@ -9,6 +9,7 @@ import { ThemeService } from '../../services/theme-service';
 import { Router } from '@angular/router';
 import { validarCpf } from '../../domain/chave-pix/chave-pix.rules';
 import { normalizarChave } from '../../domain/chave-pix/chave-pix.normalizer';
+import { OCUPACOES_SAUDE, OcupacaoSaude } from '../../domain/carne-leao/ocupacao.model';
 
 const UFS = [
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
@@ -39,6 +40,7 @@ export class Perfil implements OnInit, OnDestroy {
   erro = signal<string | null>(null);
 
   readonly ufs = UFS;
+  readonly ocupacoes = OCUPACOES_SAUDE;
   readonly maskCpf: MaskitoOptions = {
     mask: [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/],
   };
@@ -52,6 +54,7 @@ export class Perfil implements OnInit, OnDestroy {
     cpf: new FormControl({ value: '', disabled: false }, [cpfValidator]),
     merchantUF: new FormControl('', [Validators.required]),
     merchantCity: new FormControl('', [Validators.required]),
+    ocupacao: new FormControl<OcupacaoSaude | ''>('', [Validators.required]),
   });
 
   cpfImutavel = computed(() => !!this.perfilService.perfil()?.cpf);
@@ -64,6 +67,7 @@ export class Perfil implements OnInit, OnDestroy {
         cpf: perfil.cpf ? this.formatarCpf(perfil.cpf) : '',
         merchantUF: perfil.merchantUF ?? '',
         merchantCity: perfil.merchantCity,
+        ocupacao: perfil.ocupacao ?? '',
       });
       if (perfil.cpf) {
         this.perfilForm.controls.cpf.disable();
@@ -137,6 +141,7 @@ export class Perfil implements OnInit, OnDestroy {
         merchantName: this.perfilForm.value.merchantName!,
         merchantCity: this.perfilForm.value.merchantCity!,
         merchantUF: this.perfilForm.value.merchantUF!,
+        ocupacao: (this.perfilForm.value.ocupacao || undefined) as OcupacaoSaude | undefined,
         ...(ehPrimeiroAcesso && cpfRaw ? { cpf: cpfRaw } : {}),
       });
 

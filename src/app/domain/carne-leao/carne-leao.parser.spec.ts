@@ -50,12 +50,17 @@ describe('parse', () => {
     expect(parsed.recebimentos[1].indicadorRecebidoDe).toBe('PJ');
   });
 
-  it('skips blank lines and unknown ocupacao', () => {
-    const txt = [
-      '# header',
-      '',
-      'REC;01/05/2025;R01.001.001;999;100,00;0,00;x;PF;11111111111;11111111111;22222222222;;N;N;;S',
-    ].join('\n');
+  it('skips blank lines and malformed (too few fields) lines', () => {
+    const txt = ['# header', '', 'REC;01/05/2025;incompleto'].join('\n');
     expect(parse(txt).recebimentos.length).toBe(0);
+  });
+
+  it('keeps any occupation code (not only Receita Saúde)', () => {
+    const txt =
+      'REC;01/05/2025;R01.001.001;241;100,00;0,00;x;PF;11111111111;11111111111;22222222222;;N;N;;N';
+    const parsed = parse(txt);
+    expect(parsed.recebimentos.length).toBe(1);
+    expect(parsed.recebimentos[0].codigoOcupacao).toBe('241');
+    expect(parsed.recebimentos[0].receitaSaude).toBe('N');
   });
 });

@@ -6,7 +6,7 @@ import {
   LancamentoRecebimento,
   SimNao,
 } from './carne-leao.model';
-import { OcupacaoSaude } from './ocupacao.model';
+import { CodigoOcupacao, ehReceitaSaude } from './ocupacao.model';
 
 /** Cobrança elegível para virar lançamento no Carnê-Leão. */
 export function cobrancaElegivel(c: Cobranca): boolean {
@@ -27,9 +27,10 @@ export function inferirTipoPagador(documento?: string): IndicadorRecebidoDe {
 
 export function cobrancaParaLancamento(
   c: Cobranca,
-  perfil: Pick<Perfil, 'cpf'> & { ocupacao: OcupacaoSaude },
+  perfil: Pick<Perfil, 'cpf'> & { ocupacao: CodigoOcupacao },
   opts?: { nomeBancoPagador?: string },
 ): LancamentoRecebimento {
+  const receitaSaude: SimNao = ehReceitaSaude(perfil.ocupacao) ? 'S' : 'N';
   const documento = (c.pagador?.documento ?? '').replace(/\D/g, '');
   const tipo = inferirTipoPagador(documento);
   const cpfTitular = (perfil.cpf ?? '').replace(/\D/g, '');
@@ -57,6 +58,6 @@ export function cobrancaParaLancamento(
     cnpjPagador: tipo === 'PJ' && documento ? documento : undefined,
     cpfNaoInformado,
     indicadorIrrf: 'N',
-    receitaSaude: 'S',
+    receitaSaude,
   };
 }

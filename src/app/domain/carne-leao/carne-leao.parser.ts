@@ -4,7 +4,6 @@ import {
   LancamentoRecebimento,
   SimNao,
 } from './carne-leao.model';
-import { isOcupacaoSaude } from './ocupacao.model';
 
 /** Inverso de carne-leao.serializer. Tolerante a linhas em branco e comentários. */
 
@@ -61,7 +60,7 @@ export function parse(texto: string): ArquivoCarneLeao {
       receitaSaude,
     ] = campos;
 
-    if (!isOcupacaoSaude(codigoOcupacao)) continue;
+    if (!codigoOcupacao) continue;
     if (!isPF(indicadorRecebidoDe)) continue;
 
     recebimentos.push({

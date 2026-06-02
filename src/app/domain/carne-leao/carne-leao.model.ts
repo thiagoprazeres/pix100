@@ -1,4 +1,4 @@
-import { OcupacaoSaude } from './ocupacao.model';
+import { CodigoOcupacao } from './ocupacao.model';
 
 /**
  * Modelo dos lançamentos do arquivo de importação do Carnê-Leão.
@@ -17,8 +17,8 @@ export interface LancamentoRecebimento {
   data: Date;
   /** Código do rendimento (11 chars). Default: R01.001.001 (Receita Saúde). */
   codigoRendimento: string;
-  /** Código da ocupação do titular (3 chars). */
-  codigoOcupacao: OcupacaoSaude;
+  /** Código da ocupação principal do titular (3 chars). */
+  codigoOcupacao: CodigoOcupacao;
   /** Valor recebido em reais (number — serializer formata). */
   valorRecebido: number;
   /** Valor da dedução. */

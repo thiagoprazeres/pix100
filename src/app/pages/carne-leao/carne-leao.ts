@@ -9,7 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { CarneLeaoService } from '../../application/carne-leao.service';
 import { PerfilService } from '../../application/perfil.service';
-import { OCUPACAO_LABELS } from '../../domain/carne-leao/ocupacao.model';
+import { descricaoOcupacao, ehReceitaSaude } from '../../domain/carne-leao/ocupacao.model';
 import {
   LancamentoRecebimento,
   RelatorioConciliacao,
@@ -39,10 +39,8 @@ export class CarneLeao {
   perfilService = inject(PerfilService);
 
   readonly meses = MESES;
-  readonly ocupacaoLabel = computed(() => {
-    const oc = this.perfilService.perfil()?.ocupacao;
-    return oc ? OCUPACAO_LABELS[oc] : '—';
-  });
+  readonly ocupacaoLabel = computed(() => descricaoOcupacao(this.perfilService.perfil()?.ocupacao));
+  readonly ehReceitaSaude = computed(() => ehReceitaSaude(this.perfilService.perfil()?.ocupacao));
 
   readonly anos = (() => {
     const atual = new Date().getFullYear();

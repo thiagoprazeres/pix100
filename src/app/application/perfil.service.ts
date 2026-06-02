@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { StoragePort } from '../infrastructure/storage/storage.port';
 import { Perfil } from '../domain/perfil/perfil.model';
-import { OcupacaoSaude } from '../domain/carne-leao/ocupacao.model';
+import { CodigoOcupacao } from '../domain/carne-leao/ocupacao.model';
 
 @Injectable({ providedIn: 'root' })
 export class PerfilService {
@@ -30,7 +30,7 @@ export class PerfilService {
     merchantCity: string;
     merchantUF?: string;
     cpf?: string;
-    ocupacao?: OcupacaoSaude;
+    ocupacao?: CodigoOcupacao;
   }): Promise<Perfil> {
     const now = Date.now();
     const existing = this._perfil();

@@ -125,10 +125,17 @@
         </label>
         <select id="ocupacao" formControlName="ocupacao">
           <option value="">Selecione…</option>
-          @for (o of ocupacoes; track o.codigo) {
-            <option [value]="o.codigo">{{ o.codigo }} – {{ o.label }}</option>
+          @for (g of gruposOcupacao; track g.grupo) {
+            <optgroup [label]="g.grupo">
+              @for (o of g.itens; track o.codigo) {
+                <option [value]="o.codigo">
+                  {{ o.codigo }} – {{ o.descricao }}{{ o.receitaSaude ? ' ★' : '' }}
+                </option>
+              }
+            </optgroup>
           }
         </select>
+        <p class="text-xs mt-1 opacity-60">★ Ocupações com recibo eletrônico Receita Saúde.</p>
         @if (perfilForm.get('ocupacao')?.invalid && perfilForm.get('ocupacao')?.touched) {
           <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Ocupação é obrigatória.</p>
         }

@@ -7,7 +7,12 @@
 <main class="px-4 py-4 max-w-3xl mx-auto">
   <p class="text-sm opacity-70 mb-4">
     Exporte os recebimentos do mês no formato oficial da Receita Federal para
-    importar no Carnê-Leão. Ocupação atual: <strong>{{ ocupacaoLabel() }}</strong>.
+    importar no Carnê-Leão. Ocupação atual: <strong>{{ ocupacaoLabel() }}</strong>
+    @if (ehReceitaSaude()) {
+      <span class="badge badge-success ml-1">Receita Saúde</span>
+    } @else {
+      <span class="badge badge-outline ml-1">Trabalho não assalariado</span>
+    }
   </p>
 
   @if (erro()) {

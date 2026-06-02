@@ -1,4 +1,4 @@
-import { OcupacaoSaude } from '../carne-leao/ocupacao.model';
+import { CodigoOcupacao } from '../carne-leao/ocupacao.model';
 
 export interface Perfil {
   id: string;
@@ -6,8 +6,8 @@ export interface Perfil {
   merchantCity: string;
   merchantUF?: string;
   cpf?: string;
-  /** Código de ocupação RFB (Carnê-Leão). Obrigatório para exportar. */
-  ocupacao?: OcupacaoSaude;
+  /** Código de ocupação principal RFB (Carnê-Leão). Obrigatório para exportar. */
+  ocupacao?: CodigoOcupacao;
   criadoEm: number;
   atualizadoEm: number;
 }

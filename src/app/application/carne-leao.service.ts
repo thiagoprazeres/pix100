@@ -15,7 +15,6 @@ import {
   LancamentoRecebimento,
   RelatorioConciliacao,
 } from '../domain/carne-leao/carne-leao.model';
-import { OcupacaoSaude } from '../domain/carne-leao/ocupacao.model';
 import { Cobranca } from '../domain/cobranca/cobranca.model';
 
 export interface PreviaExportacao {
@@ -46,7 +45,7 @@ export class CarneLeaoService {
     const lancamentos = cobrancas.map((c) =>
       cobrancaParaLancamento(
         c,
-        { cpf: perfil.cpf!, ocupacao: perfil.ocupacao as OcupacaoSaude },
+        { cpf: perfil.cpf!, ocupacao: perfil.ocupacao! },
         { nomeBancoPagador: this.nomeBancoDaCobranca(c) },
       ),
     );

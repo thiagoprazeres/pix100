@@ -4,6 +4,12 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { MaskitoDirective } from '@maskito/angular';
 import { MaskitoOptions, MaskitoPreprocessor } from '@maskito/core';
 import { maskitoNumberOptionsGenerator, maskitoParseNumber } from '@maskito/kit';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
@@ -14,7 +20,17 @@ import { AvisoRisco } from '../../domain/risco/risco.model';
 
 @Component({
   selector: 'app-pix',
-  imports: [ReactiveFormsModule, MaskitoDirective, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    MaskitoDirective,
+    RouterLink,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './pix.html',
 })
 export class Pix {

@@ -2,6 +2,14 @@ import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular
 import { Subject, takeUntil } from 'rxjs';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MaskitoOptions } from '@maskito/core';
 import { PerfilService } from '../../application/perfil.service';
 import { ChavePixService } from '../../application/chave-pix.service';
@@ -26,7 +34,18 @@ function cpfValidator(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'app-perfil',
-  imports: [ReactiveFormsModule, MaskitoDirective],
+  imports: [
+    ReactiveFormsModule,
+    MaskitoDirective,
+    MatToolbarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatAutocompleteModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './perfil.html',
 })
 export class Perfil implements OnInit, OnDestroy {

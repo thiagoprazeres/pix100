@@ -1,5 +1,7 @@
 import { Component, inject, HostListener, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { PerfilService } from './application/perfil.service';
 import { ChavePixService } from './application/chave-pix.service';
 import { ThemeService } from './services/theme-service';
@@ -12,7 +14,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule],
   templateUrl: './app.html',
 })
 export class App {

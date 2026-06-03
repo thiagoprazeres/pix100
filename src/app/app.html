@@ -1,55 +1,55 @@
-<div class="min-h-screen flex flex-col">
-    <div class="pb-16">
+<div class="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
+    <div class="pb-20">
       @if (deferredPrompt()) {
         <div class="bg-neutral-900 text-white p-3 flex justify-between items-center sm:px-6 z-50 sticky top-0 shadow-md dark:bg-white dark:text-neutral-900">
           <div class="leading-tight">
             <p class="font-bold text-sm">Baixe o App Origem100</p>
             <p class="text-xs opacity-90">Acesso rápido e offline no seu celular!</p>
           </div>
-          <button type="button" class="btn btn-sm btn-primary" (click)="installPwa()">Instalar</button>
+          <button mat-flat-button color="primary" class="!text-xs" (click)="installPwa()">Instalar</button>
         </div>
       }
       <router-outlet></router-outlet>
     </div>
 
     @if (perfilService.perfil()) {
-      <nav class="tab-bar fixed bottom-0 inset-x-0 z-50 h-16">
-        <a routerLink="/historico" routerLinkActive="tab-active" class="tab-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 14v2.2l1.6 1"/><path d="M16 4h2a2 2 0 0 1 2 2v.832"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect x="8" y="2" width="8" height="4" rx="1"/>
-          </svg>
-          <span>Histórico</span>
+      <nav class="fixed bottom-0 inset-x-0 z-50 h-16 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-around">
+        <a routerLink="/historico" routerLinkActive class="flex-1 flex flex-col items-center justify-center text-neutral-500 dark:text-neutral-400 no-underline transition text-[11px] font-medium" #rHistorico="routerLinkActive">
+          <div class="px-5 py-1 rounded-full transition-colors flex items-center justify-center" [class.bg-neutral-200]="rHistorico.isActive" [class.text-neutral-900]="rHistorico.isActive" [class.dark:bg-neutral-800]="rHistorico.isActive" [class.dark:text-white]="rHistorico.isActive">
+            <mat-icon>history</mat-icon>
+          </div>
+          <span class="mt-0.5" [class.font-semibold]="rHistorico.isActive" [class.text-neutral-900]="rHistorico.isActive" [class.dark:text-white]="rHistorico.isActive">Histórico</span>
         </a>
 
-        <a routerLink="/cobranca" routerLinkActive="tab-active" class="tab-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>
-          </svg>
-          <span>Cobrar</span>
+        <a routerLink="/cobranca" routerLinkActive class="flex-1 flex flex-col items-center justify-center text-neutral-500 dark:text-neutral-400 no-underline transition text-[11px] font-medium" #rCobrar="routerLinkActive">
+          <div class="px-5 py-1 rounded-full transition-colors flex items-center justify-center" [class.bg-neutral-200]="rCobrar.isActive" [class.text-neutral-900]="rCobrar.isActive" [class.dark:bg-neutral-800]="rCobrar.isActive" [class.dark:text-white]="rCobrar.isActive">
+            <mat-icon>qr_code</mat-icon>
+          </div>
+          <span class="mt-0.5" [class.font-semibold]="rCobrar.isActive" [class.text-neutral-900]="rCobrar.isActive" [class.dark:text-white]="rCobrar.isActive">Cobrar</span>
         </a>
 
-        <a routerLink="/chaves" routerLinkActive="tab-active" class="tab-button relative">
+        <a routerLink="/chaves" routerLinkActive class="flex-1 flex flex-col items-center justify-center text-neutral-500 dark:text-neutral-400 no-underline transition text-[11px] font-medium relative" #rChaves="routerLinkActive">
           @if (!chavePixService.chaveAtiva()) {
-            <span class="absolute top-2 right-6 text-[0.5rem] rounded-full bg-neutral-500 text-white px-1">!</span>
+            <span class="absolute top-1 right-[30%] flex h-2 w-2 rounded-full bg-red-500"></span>
           }
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>
-          </svg>
-          <span>Chaves</span>
+          <div class="px-5 py-1 rounded-full transition-colors flex items-center justify-center" [class.bg-neutral-200]="rChaves.isActive" [class.text-neutral-900]="rChaves.isActive" [class.dark:bg-neutral-800]="rChaves.isActive" [class.dark:text-white]="rChaves.isActive">
+            <mat-icon>key</mat-icon>
+          </div>
+          <span class="mt-0.5" [class.font-semibold]="rChaves.isActive" [class.text-neutral-900]="rChaves.isActive" [class.dark:text-white]="rChaves.isActive">Chaves</span>
         </a>
 
-        <a routerLink="/carne-leao" routerLinkActive="tab-active" class="tab-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
-          </svg>
-          <span>Imposto</span>
+        <a routerLink="/carne-leao" routerLinkActive class="flex-1 flex flex-col items-center justify-center text-neutral-500 dark:text-neutral-400 no-underline transition text-[11px] font-medium" #rImposto="routerLinkActive">
+          <div class="px-5 py-1 rounded-full transition-colors flex items-center justify-center" [class.bg-neutral-200]="rImposto.isActive" [class.text-neutral-900]="rImposto.isActive" [class.dark:bg-neutral-800]="rImposto.isActive" [class.dark:text-white]="rImposto.isActive">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <span class="mt-0.5" [class.font-semibold]="rImposto.isActive" [class.text-neutral-900]="rImposto.isActive" [class.dark:text-white]="rImposto.isActive">Imposto</span>
         </a>
 
-        <a routerLink="/perfil" routerLinkActive="tab-active" class="tab-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-          <span>Perfil</span>
+        <a routerLink="/perfil" routerLinkActive class="flex-1 flex flex-col items-center justify-center text-neutral-500 dark:text-neutral-400 no-underline transition text-[11px] font-medium" #rPerfil="routerLinkActive">
+          <div class="px-5 py-1 rounded-full transition-colors flex items-center justify-center" [class.bg-neutral-200]="rPerfil.isActive" [class.text-neutral-900]="rPerfil.isActive" [class.dark:bg-neutral-800]="rPerfil.isActive" [class.dark:text-white]="rPerfil.isActive">
+            <mat-icon>person</mat-icon>
+          </div>
+          <span class="mt-0.5" [class.font-semibold]="rPerfil.isActive" [class.text-neutral-900]="rPerfil.isActive" [class.dark:text-white]="rPerfil.isActive">Perfil</span>
         </a>
       </nav>
     }
@@ -58,3 +58,4 @@
       v{{ version }}
     </div>
 </div>
+

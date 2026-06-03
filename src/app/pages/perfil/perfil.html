@@ -1,26 +1,21 @@
 <form [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
-  <header class="navbar">
-    <div class="flex-1">
-      <h1 class="text-xl ml-4 font-bold">
-        {{ !perfilService.perfil() ? 'Criar Perfil' : 'Meu Perfil' }}
-      </h1>
-    </div>
-    <div class="flex-none pr-1">
-      <button type="button" class="p-2 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition" (click)="themeService.toggleTheme()">
-        @if (themeService.currentTheme() === 'dark') {
-          <svg fill="currentColor" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/></svg>
-        } @else {
-          <svg fill="currentColor" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/></svg>
-        }
-      </button>
-    </div>
-  </header>
+  <mat-toolbar class="!sticky !top-0 !z-40 border-b border-neutral-200 dark:border-neutral-800">
+    <span class="ml-2 font-bold">{{ !perfilService.perfil() ? 'Criar Perfil' : 'Meu Perfil' }}</span>
+    <span class="flex-auto"></span>
+    <button type="button" mat-icon-button (click)="themeService.toggleTheme()">
+      @if (themeService.currentTheme() === 'dark') {
+        <mat-icon>light_mode</mat-icon>
+      } @else {
+        <mat-icon>dark_mode</mat-icon>
+      }
+    </button>
+  </mat-toolbar>
 
-  <main>
-    <div class="w-full my-4 px-6">
+  <main class="max-w-md mx-auto">
+    <div class="w-full my-6 px-6">
       @if (!perfilService.perfil()) {
         <section class="text-center mb-6">
-          <h1 class="text-5xl font-black">Origem100</h1>
+          <h1 class="text-5xl font-black tracking-tight text-neutral-900 dark:text-white">Origem100</h1>
           <p class="text-sm font-extralight mt-2 opacity-70">Cobranças Pix simples e organizadas</p>
         </section>
         <p class="text-sm mb-6 opacity-70">
@@ -35,124 +30,116 @@
         <div class="notification notification-positive mb-4">Perfil salvo com sucesso!</div>
       }
 
-      <div class="mb-4">
-        <label class="block text-sm font-bold mb-1">
-          Nome do recebedor
-          <span class="text-xs font-normal opacity-60 ml-1">nome completo ou razão social</span>
-        </label>
-        <input
-          id="merchantName"
-          type="text"
-          autocomplete="name"
-          placeholder="Ex: João da Silva ou Minha Loja ME"
-          formControlName="merchantName"
-        />
-        @if (perfilForm.get('merchantName')?.invalid && perfilForm.get('merchantName')?.touched) {
-          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Mínimo 3 caracteres.</p>
-        }
+      <div class="flex flex-col gap-1">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Nome do recebedor</mat-label>
+          <input
+            matInput
+            id="merchantName"
+            type="text"
+            autocomplete="name"
+            placeholder="Ex: João da Silva ou Minha Loja ME"
+            formControlName="merchantName"
+          />
+          <mat-hint>Nome completo ou razão social</mat-hint>
+          @if (perfilForm.get('merchantName')?.invalid && perfilForm.get('merchantName')?.touched) {
+            <mat-error>Mínimo 3 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mt-2">
+          <mat-label>CPF</mat-label>
+          <input
+            matInput
+            id="cpf"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="000.000.000-00"
+            formControlName="cpf"
+            [maskito]="maskCpf"
+          />
+          <mat-hint>{{ cpfImutavel() ? 'Não editável após criação' : 'Será sua chave Pix principal' }}</mat-hint>
+          @if (perfilForm.get('cpf')?.invalid && perfilForm.get('cpf')?.touched) {
+            <mat-error>
+              @if (perfilForm.get('cpf')?.hasError('required')) { CPF é obrigatório. }
+              @else if (perfilForm.get('cpf')?.hasError('cpfInvalido')) { CPF inválido. }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mt-2">
+          <mat-label>UF (Estado)</mat-label>
+          <mat-select id="merchantUF" formControlName="merchantUF">
+            <mat-option value="">Selecione…</mat-option>
+            @for (uf of ufs; track uf) {
+              <mat-option [value]="uf">{{ uf }}</mat-option>
+            }
+          </mat-select>
+          @if (perfilForm.get('merchantUF')?.invalid && perfilForm.get('merchantUF')?.touched) {
+            <mat-error>UF é obrigatória.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mt-2">
+          <mat-label>Cidade</mat-label>
+          <input
+            matInput
+            id="merchantCity"
+            type="text"
+            autocomplete="off"
+            placeholder="São Paulo"
+            formControlName="merchantCity"
+            [matAutocomplete]="autoCidades"
+          />
+          <mat-autocomplete #autoCidades="matAutocomplete">
+            @for (c of cidadesFiltradas(); track c) {
+              <mat-option [value]="c">{{ c }}</mat-option>
+            }
+          </mat-autocomplete>
+          <mat-hint>Sem UF</mat-hint>
+          @if (perfilForm.get('merchantCity')?.invalid && perfilForm.get('merchantCity')?.touched) {
+            <mat-error>Cidade é obrigatória.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full mt-2">
+          <mat-label>Ocupação (Carnê-Leão)</mat-label>
+          <mat-select id="ocupacao" formControlName="ocupacao">
+            <mat-option value="">Selecione…</mat-option>
+            @for (g of gruposOcupacao; track g.grupo) {
+              <mat-optgroup [label]="g.grupo">
+                @for (o of g.itens; track o.codigo) {
+                  <mat-option [value]="o.codigo">
+                    {{ o.codigo }} – {{ o.descricao }}{{ o.receitaSaude ? ' ★' : '' }}
+                  </mat-option>
+                }
+              </mat-optgroup>
+            }
+          </mat-select>
+          <mat-hint>★ Com recibo eletrônico Receita Saúde</mat-hint>
+          @if (perfilForm.get('ocupacao')?.invalid && perfilForm.get('ocupacao')?.touched) {
+            <mat-error>Ocupação é obrigatória.</mat-error>
+          }
+        </mat-form-field>
       </div>
 
-      <div class="mb-4">
-        <label class="block text-sm font-bold mb-1">
-          CPF
-          @if (cpfImutavel()) {
-            <span class="text-xs font-normal opacity-60 ml-1">não editável após criação</span>
+      <div class="mt-6">
+        <button mat-flat-button color="primary" class="w-full !py-6 text-base" type="submit" [disabled]="salvando()">
+          @if (salvando()) {
+            Salvando...
           } @else {
-            <span class="text-xs font-normal opacity-60 ml-1">será sua chave Pix</span>
+            <ng-container>
+              <mat-icon class="mr-2">save</mat-icon>
+              Salvar Perfil
+            </ng-container>
           }
-        </label>
-        <input
-          id="cpf"
-          type="text"
-          inputmode="numeric"
-          autocomplete="off"
-          placeholder="000.000.000-00"
-          formControlName="cpf"
-          [maskito]="maskCpf"
-        />
-        @if (perfilForm.get('cpf')?.invalid && perfilForm.get('cpf')?.touched) {
-          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">
-            @if (perfilForm.get('cpf')?.hasError('required')) { CPF é obrigatório. }
-            @else if (perfilForm.get('cpf')?.hasError('cpfInvalido')) { CPF inválido. }
-          </p>
-        }
+        </button>
       </div>
-
-      <div class="mb-4">
-        <label class="block text-sm font-bold mb-1">
-          UF
-          <span class="text-xs font-normal opacity-60 ml-1">estado</span>
-        </label>
-        <select id="merchantUF" formControlName="merchantUF">
-          <option value="">Selecione…</option>
-          @for (uf of ufs; track uf) {
-            <option [value]="uf">{{ uf }}</option>
-          }
-        </select>
-        @if (perfilForm.get('merchantUF')?.invalid && perfilForm.get('merchantUF')?.touched) {
-          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">UF é obrigatória.</p>
-        }
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-sm font-bold mb-1">
-          Cidade
-          <span class="text-xs font-normal opacity-60 ml-1">só o nome da cidade, sem UF</span>
-        </label>
-        <input
-          id="merchantCity"
-          type="text"
-          autocomplete="off"
-          list="cidades-list"
-          placeholder="São Paulo"
-          formControlName="merchantCity"
-          [attr.disabled]="!perfilForm.get('merchantUF')?.value ? '' : null"
-        />
-        <datalist id="cidades-list">
-          @for (c of cidadesFiltradas(); track c) {
-            <option [value]="c"></option>
-          }
-        </datalist>
-        @if (perfilForm.get('merchantCity')?.invalid && perfilForm.get('merchantCity')?.touched) {
-          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Cidade é obrigatória.</p>
-        }
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-sm font-bold mb-1">
-          Ocupação
-          <span class="text-xs font-normal opacity-60 ml-1">usada no Carnê-Leão</span>
-        </label>
-        <select id="ocupacao" formControlName="ocupacao">
-          <option value="">Selecione…</option>
-          @for (g of gruposOcupacao; track g.grupo) {
-            <optgroup [label]="g.grupo">
-              @for (o of g.itens; track o.codigo) {
-                <option [value]="o.codigo">
-                  {{ o.codigo }} – {{ o.descricao }}{{ o.receitaSaude ? ' ★' : '' }}
-                </option>
-              }
-            </optgroup>
-          }
-        </select>
-        <p class="text-xs mt-1 opacity-60">★ Ocupações com recibo eletrônico Receita Saúde.</p>
-        @if (perfilForm.get('ocupacao')?.invalid && perfilForm.get('ocupacao')?.touched) {
-          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Ocupação é obrigatória.</p>
-        }
-      </div>
-
-      <button class="btn btn-block btn-primary" type="submit" [disabled]="salvando()">
-        @if (salvando()) {
-          <span class="spinner"></span>
-        } @else {
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        }
-        Salvar Perfil
-      </button>
 
       @if (perfilService.perfil()) {
-        <div class="mt-10">
-          <button class="btn btn-block btn-outline-danger" type="button" (click)="removerPerfil()">
+        <div class="mt-8">
+          <button mat-stroked-button color="warn" class="w-full" type="button" (click)="removerPerfil()">
             Excluir Perfil e Todos os Dados
           </button>
         </div>
@@ -160,3 +147,4 @@
     </div>
   </main>
 </form>
+

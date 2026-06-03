@@ -1,38 +1,43 @@
-<header class="navbar">
-  <h1 class="ml-4 font-bold">Nova Cobrança</h1>
-</header>
-<main>
+<mat-toolbar class="!sticky !top-0 !z-40 border-b border-neutral-200 dark:border-neutral-800">
+  <span class="ml-2 font-bold">Nova Cobrança</span>
+</mat-toolbar>
+
+<main class="max-w-md mx-auto py-2">
   @if (chavePixService.chaveAtiva()) {
-    <div class="py-5 text-center">
-      <p class="text-lg font-bold">{{ perfilService.perfil()?.merchantName }}</p>
-      <p class="text-xs font-mono opacity-60 mt-1">{{ chavePixService.chaveAtiva()?.valor }}</p>
-      <p class="text-xs opacity-50">{{ perfilService.perfil()?.merchantCity }}</p>
+    <div class="py-5 text-center px-6">
+      <p class="text-xl font-black tracking-tight text-neutral-900 dark:text-white">{{ perfilService.perfil()?.merchantName }}</p>
+      <p class="text-xs font-mono opacity-60 mt-1.5 bg-neutral-100 dark:bg-neutral-800 py-1 px-3 rounded-full inline-block">{{ chavePixService.chaveAtiva()?.valor }}</p>
+      <p class="text-xs opacity-50 mt-1">{{ perfilService.perfil()?.merchantCity }}</p>
     </div>
   } @else {
     <div class="flex flex-col items-center justify-center gap-4 px-8 py-16 text-center">
       <div class="rounded-full p-5 bg-neutral-100 dark:bg-neutral-800">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-600 dark:text-neutral-400"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <mat-icon class="scale-150 opacity-60">warning</mat-icon>
       </div>
       <div>
-        <p class="font-bold text-base mb-1">Nenhuma chave Pix cadastrada</p>
-        <p class="text-sm opacity-60">Cadastre uma chave Pix para começar a gerar cobranças.</p>
+        <p class="font-bold text-base mb-1">Nenhuma chave Pix ativa</p>
+        <p class="text-sm opacity-60">Cadastre ou ative uma chave Pix para começar a gerar cobranças.</p>
       </div>
-      <button type="button" class="btn btn-sm btn-primary" routerLink="/chaves">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
-        Cadastrar chave Pix
+      <button mat-flat-button color="primary" routerLink="/chaves" class="mt-2">
+        <mat-icon class="mr-2">key</mat-icon>
+        Gerenciar Chaves Pix
       </button>
     </div>
   }
 
   @if (chavePixService.chaveAtiva()) {
-    <form [formGroup]="pixForm" (ngSubmit)="gerarCobranca()" class="px-6 pb-6">
+    <form [formGroup]="pixForm" (ngSubmit)="gerarCobranca()" class="px-6 pb-6 flex flex-col gap-3">
       @if (erro()) {
-        <div class="notification notification-negative mb-4">{{ erro() }}</div>
+        <div class="flex items-center gap-2 rounded bg-red-50 dark:bg-red-950/20 text-red-800 dark:text-red-200 p-3 mb-3 text-xs">
+          <mat-icon class="scale-75">error</mat-icon>
+          <span>{{ erro() }}</span>
+        </div>
       }
 
-      <div class="mb-3">
-        <label class="block text-sm font-bold mb-1">Valor</label>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Valor</mat-label>
         <input
+          matInput
           type="text"
           inputmode="numeric"
           placeholder="R$ 0,00"
@@ -40,43 +45,47 @@
           formControlName="transactionAmount"
         />
         @if (pixForm.get('transactionAmount')?.invalid && pixForm.get('transactionAmount')?.touched) {
-          <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">Valor é obrigatório</p>
+          <mat-error>Valor é obrigatório</mat-error>
         }
-      </div>
+      </mat-form-field>
 
-      <div class="mb-3">
-        <label class="block text-sm font-bold mb-1">Descrição (opcional)</label>
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Descrição (opcional)</mat-label>
         <input
+          matInput
           type="text"
           placeholder="Ex: Produto X, Servico Y..."
           formControlName="infoAdicional"
         />
         @if (descricaoSanitizada()) {
-          <p class="text-xs opacity-60 mt-1">No QR: "{{ descricaoSanitizada() }}"</p>
+          <mat-hint>No QR aparecerá: "{{ descricaoSanitizada() }}"</mat-hint>
         }
-      </div>
+      </mat-form-field>
 
       @if (avisos().length > 0) {
-        <div class="mt-4 space-y-2">
+        <div class="mt-2 space-y-2">
           @for (aviso of avisos(); track aviso.codigo) {
-            <div [class]="'notification ' + (aviso.nivel === 'atencao' ? 'notification-warning' : 'notification-neutral')">
-              <span class="font-medium">{{ aviso.nivel === 'atencao' ? '⚠ ' : 'ℹ ' }}{{ aviso.mensagem }}</span>
+            <div class="flex items-start gap-2.5 rounded bg-yellow-50 dark:bg-yellow-950/20 p-3 text-xs text-yellow-800 dark:text-yellow-200">
+              <mat-icon class="scale-75">warning</mat-icon>
+              <span>{{ aviso.mensagem }}</span>
             </div>
           }
         </div>
       }
 
-      <div class="mt-6">
-        <button class="btn btn-block btn-primary" type="submit" [disabled]="gerando() || !chavePixService.chaveAtiva()">
+      <div class="mt-4">
+        <button mat-flat-button color="primary" class="w-full !py-6 text-base" type="submit" [disabled]="gerando() || !chavePixService.chaveAtiva()">
           @if (gerando()) {
-            <span class="spinner"></span>
             Gerando...
           } @else {
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 12v4a1 1 0 0 1-1 1h-4"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M17 8V7"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M7 17h.01"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="5" height="5" rx="1"/></svg>
-            Gerar Cobrança
+            <ng-container>
+              <mat-icon class="mr-2">qr_code</mat-icon>
+              Gerar Cobrança
+            </ng-container>
           }
         </button>
       </div>
     </form>
   }
 </main>
+

@@ -1,6 +1,11 @@
 import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../shared/services/toast.service';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { CobrancaService } from '../../application/cobranca.service';
@@ -17,7 +22,6 @@ import {
   sanitizeMerchantCity,
   gerarBrCodeRef,
 } from '../../domain/cobranca/brcode.projection';
-import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 
 @Component({
   selector: 'app-chaves-details',
@@ -25,7 +29,11 @@ import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
     RouterLink,
     DatePipe,
     CurrencyPipe,
-    StatusClassPipe,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './chaves-details.html',
 })

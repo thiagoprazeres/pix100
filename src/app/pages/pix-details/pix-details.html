@@ -1,122 +1,133 @@
-<header class="navbar">
-  <div class="flex-1 flex items-center">
-    <button type="button" class="btn btn-sm btn-clear" (click)="goBack()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-    </button>
-    <h1 class="text-lg font-bold">Cobrança</h1>
-  </div>
-  <div class="flex-none pr-2">
-    <button type="button" class="btn btn-sm btn-primary" (click)="shareBrcodeAndQrBase64()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/></svg>
-      Compartilhar
-    </button>
-  </div>
-</header>
+<mat-toolbar class="!sticky !top-0 !z-40 border-b border-neutral-200 dark:border-neutral-800">
+  <button mat-icon-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <span class="ml-2 font-bold">Cobrança</span>
+  <span class="flex-auto"></span>
+  <button mat-flat-button color="primary" (click)="shareBrcodeAndQrBase64()">
+    <mat-icon class="mr-1">share</mat-icon>
+    Compartilhar
+  </button>
+</mat-toolbar>
 
-<main class="p-4 space-y-4 pb-8">
+<main class="max-w-md mx-auto p-4 space-y-4 pb-8">
   @if (carregando()) {
     <div class="flex justify-center mt-16">
-      <span class="spinner"></span>
+      <mat-spinner diameter="40"></mat-spinner>
     </div>
   } @else if (!cobranca()) {
     <p class="text-center text-sm opacity-60 mt-16">Cobrança não encontrada.</p>
   } @else {
     <div class="flex items-center gap-3">
-      <span class="text-2xl font-black">{{ cobranca()!.valor | currency }}</span>
-      <span [class]="'badge ' + (cobranca()!.statusAtual | statusClass)">
+      <span class="text-2xl font-black text-neutral-900 dark:text-white">{{ cobranca()!.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</span>
+      <span
+        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+        [class.bg-green-100]="cobranca()!.statusAtual === 'paga'"
+        [class.text-green-700]="cobranca()!.statusAtual === 'paga'"
+        [class.dark:bg-green-950/30]="cobranca()!.statusAtual === 'paga'"
+        [class.dark:text-green-300]="cobranca()!.statusAtual === 'paga'"
+        [class.bg-yellow-100]="cobranca()!.statusAtual === 'pendente'"
+        [class.text-yellow-700]="cobranca()!.statusAtual === 'pendente'"
+        [class.dark:bg-yellow-950/30]="cobranca()!.statusAtual === 'pendente'"
+        [class.dark:text-yellow-300]="cobranca()!.statusAtual === 'pendente'"
+        [class.bg-red-100]="cobranca()!.statusAtual === 'cancelada' || cobranca()!.statusAtual === 'expirada'"
+        [class.text-red-700]="cobranca()!.statusAtual === 'cancelada' || cobranca()!.statusAtual === 'expirada'"
+        [class.dark:bg-red-950/30]="cobranca()!.statusAtual === 'cancelada' || cobranca()!.statusAtual === 'expirada'"
+        [class.dark:text-red-300]="cobranca()!.statusAtual === 'cancelada' || cobranca()!.statusAtual === 'expirada'"
+      >
         {{ statusLabels[cobranca()!.statusAtual] }}
       </span>
     </div>
 
     @if (cobranca()!.qrSvg || cobranca()!.qrBase64) {
-      <img [src]="cobranca()!.qrSvg || cobranca()!.qrBase64" alt="QR Code PIX" class="max-w-xs mx-auto rounded-lg shadow" />
+      <img [src]="cobranca()!.qrSvg || cobranca()!.qrBase64" alt="QR Code PIX" class="max-w-xs mx-auto rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-800" />
     }
 
     <div class="flex flex-col gap-2">
-      <button type="button" class="btn btn-block btn-primary" (click)="copyToClipboard()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+      <button mat-flat-button color="primary" class="w-full !py-6 text-base" (click)="copyToClipboard()">
+        <mat-icon class="mr-2">content_copy</mat-icon>
         Copiar Código PIX
       </button>
       <div class="flex gap-2">
-        <button type="button" class="btn btn-outline flex-1" (click)="enviarWhatsApp()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <button mat-stroked-button class="flex-1 !py-5" (click)="enviarWhatsApp()">
+          <mat-icon class="mr-1">chat</mat-icon>
           WhatsApp
         </button>
-        <button type="button" class="btn btn-outline flex-1" (click)="salvarImagem()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+        <button mat-stroked-button class="flex-1 !py-5" (click)="salvarImagem()">
+          <mat-icon class="mr-1">image</mat-icon>
           Imagem
         </button>
-        <button type="button" class="btn btn-outline flex-1" (click)="baixarPdf()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" x2="12" y1="18" y2="12"/><line x1="9" x2="15" y1="15" y2="15"/></svg>
+        <button mat-stroked-button class="flex-1 !py-5" (click)="baixarPdf()">
+          <mat-icon class="mr-1">picture_as_pdf</mat-icon>
           PDF
         </button>
       </div>
     </div>
 
-    <hr class="border-neutral-200 dark:border-neutral-700" />
+    <hr class="border-neutral-200 dark:border-neutral-800" />
 
     <section>
-      <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Conciliação</h2>
+      <h2 class="text-xs font-bold opacity-60 uppercase tracking-wide mb-2.5">Conciliação</h2>
       <div class="flex gap-2 flex-wrap">
         @if (podeConfirmar) {
-          <button type="button" class="btn btn-sm btn-success" [disabled]="conciliando()" (click)="confirmar()">
-            @if (conciliando()) { <span class="spinner"></span> }
+          <button mat-flat-button color="primary" [disabled]="conciliando()" (click)="confirmar()">
             ✓ Confirmar recebimento
           </button>
         }
         @if (podeDesconfirmar) {
-          <button type="button" class="btn btn-sm btn-clear" [disabled]="conciliando()" (click)="desconfirmar()">
+          <button mat-button [disabled]="conciliando()" (click)="desconfirmar()">
             Desfazer confirmação
           </button>
         }
         @if (podeCancelar) {
-          <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="conciliando()" (click)="cancelar()">
+          <button mat-stroked-button color="warn" [disabled]="conciliando()" (click)="cancelar()">
             Cancelar
           </button>
         }
         @if (podeSolicitarMed) {
-          <button type="button" class="btn btn-sm btn-outline-warning" [disabled]="conciliando()" (click)="solicitarMed()">
+          <button mat-stroked-button color="accent" [disabled]="conciliando()" (click)="solicitarMed()">
             Solicitar devolução (MED)
           </button>
         }
         @if (podeConfirmarMed) {
-          <button type="button" class="btn btn-sm btn-warning" [disabled]="conciliando()" (click)="confirmarMed()">
+          <button mat-flat-button color="warn" [disabled]="conciliando()" (click)="confirmarMed()">
             Confirmar devolução (MED)
           </button>
         }
       </div>
       @if (semPagadorHa24h()) {
-        <div class="notification notification-warning mt-3">
+        <div class="flex items-start gap-2.5 rounded-lg border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20 p-3 mt-3 text-xs text-yellow-800 dark:text-yellow-200">
+          <mat-icon class="scale-75">warning</mat-icon>
           <span>Cobrança confirmada há mais de 24h sem dados do pagador. Registre o E2EId para fins de rastreabilidade.</span>
         </div>
       }
     </section>
 
-    <hr class="border-neutral-200 dark:border-neutral-700" />
+    <hr class="border-neutral-200 dark:border-neutral-800" />
 
     <section>
-      <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Dados do Pagador</h2>
+      <h2 class="text-xs font-bold opacity-60 uppercase tracking-wide mb-2.5">Dados do Pagador</h2>
 
       @if (cobranca()!.pagador; as pag) {
-        <div class="rounded-lg p-3 text-sm space-y-1 bg-neutral-50 dark:bg-neutral-900">
+        <mat-card class="p-4 text-sm space-y-2 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
           <div class="flex justify-between">
             <span class="opacity-60">TXID</span>
-            <span class="font-mono text-xs break-all">{{ cobranca()?.brCodeRef }}</span>
+            <span class="font-mono text-xs break-all select-all">{{ cobranca()?.brCodeRef }}</span>
           </div>
           @if (pag.endToEndId) {
             <div class="flex justify-between">
               <span class="opacity-60">ID da transação</span>
-              <span class="font-mono text-xs break-all">{{ pag.endToEndId }}</span>
+              <span class="font-mono text-xs break-all select-all">{{ pag.endToEndId }}</span>
             </div>
           }
           <div class="flex justify-between">
             <span class="opacity-60">Pago em</span>
-            <span>{{ pag.paidAt | date:'short' }}</span>
+            <span class="font-semibold">{{ pag.paidAt | date:'short' }}</span>
           </div>
           @if (pag.nome) {
             <div class="flex justify-between">
               <span class="opacity-60">Nome</span>
-              <span class="font-medium">{{ pag.nome }}</span>
+              <span class="font-semibold">{{ pag.nome }}</span>
             </div>
           }
           @if (pag.documento) {
@@ -128,7 +139,7 @@
           @if (pag.nomeBanco || pag.banco) {
             <div class="flex justify-between">
               <span class="opacity-60">Banco</span>
-              <span>{{ pag.nomeBanco || pag.banco }}</span>
+              <span class="font-semibold">{{ pag.nomeBanco || pag.banco }}</span>
             </div>
           }
           @if (pag.agencia || pag.conta) {
@@ -140,7 +151,7 @@
           @if (pag.tipoConta) {
             <div class="flex justify-between">
               <span class="opacity-60">Tipo de conta</span>
-              <span>{{ tipoContaLabels[pag.tipoConta] }}</span>
+              <span class="font-semibold">{{ tipoContaLabels[pag.tipoConta] }}</span>
             </div>
           }
           @if (pag.chavePix) {
@@ -149,161 +160,182 @@
               <span class="font-mono text-xs break-all">{{ pag.chavePix }}</span>
             </div>
           }
-        </div>
-        <button type="button" class="btn btn-sm btn-clear mt-2" (click)="abrirFormPagador()">Editar dados do pagador</button>
+        </mat-card>
+        <button mat-button class="mt-1" (click)="abrirFormPagador()">Editar dados do pagador</button>
       } @else if (!registrandoPagador()) {
-        <p class="text-sm opacity-60 mb-2">Nenhum pagador registrado.</p>
-        <button type="button" class="btn btn-sm btn-outline" (click)="abrirFormPagador()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+        <p class="text-sm opacity-60 mb-3">Nenhum pagador registrado.</p>
+        <button mat-stroked-button (click)="abrirFormPagador()">
+          <mat-icon class="mr-2">person_add</mat-icon>
           Registrar pagador
         </button>
       }
 
       @if (registrandoPagador()) {
-        <form [formGroup]="pagadorForm" class="mt-3 space-y-2" (ngSubmit)="salvarPagador()">
-          <div class="grid grid-cols-2 gap-2">
+        <form [formGroup]="pagadorForm" class="mt-3 space-y-3" (ngSubmit)="salvarPagador()">
+          <mat-card class="p-4 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+            <div class="flex flex-col gap-3">
+              <div>
+                <span class="block text-xs font-bold mb-1 opacity-60">Ref. cobrança (TXID)</span>
+                <p class="font-mono text-xs px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 opacity-80 break-all select-all">
+                  {{ cobranca()?.brCodeRef }}
+                </p>
+              </div>
 
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Ref. cobrança (TXID)</label>
-              <p class="font-mono text-xs px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 opacity-70 break-all select-all">
-                {{ cobranca()?.brCodeRef }}
-              </p>
-            </div>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>ID da transação (E2EId)</mat-label>
+                <input matInput formControlName="endToEndId" type="text" placeholder="E..." class="font-mono" />
+                <mat-hint>Aparece no comprovante do pagador</mat-hint>
+              </mat-form-field>
 
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">ID da transação (E2EId)</label>
-              <input formControlName="endToEndId" type="text" placeholder="E..." class="font-mono text-xs" />
-              <p class="text-xs opacity-50 mt-1">Chamado de "ID da transação" no Nubank e outros bancos. Aparece no comprovante do pagador. Preenchido automaticamente no futuro.</p>
               @if (avisosE2EId().length > 0) {
-                <div class="mt-2 space-y-1">
+                <div class="space-y-1">
                   @for (aviso of avisosE2EId(); track aviso.codigo) {
-                    <div [class]="'notification ' + (aviso.nivel === 'atencao' ? 'notification-warning' : 'notification-neutral')">
-                      <span class="text-xs">{{ aviso.nivel === 'atencao' ? '⚠ ' : 'ℹ ' }}{{ aviso.mensagem }}</span>
+                    <div class="flex items-start gap-2.5 rounded bg-yellow-50 dark:bg-yellow-950/20 p-2.5 text-xs text-yellow-800 dark:text-yellow-200">
+                      <mat-icon class="scale-75">warning</mat-icon>
+                      <span>{{ aviso.mensagem }}</span>
                     </div>
                   }
                 </div>
               }
-            </div>
 
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Pago em *</label>
-              <input formControlName="paidAt" type="datetime-local" />
-              <p class="text-xs opacity-50 mt-1">Pré-preenchido com agora. Ajuste se necessário.</p>
-            </div>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Pago em *</mat-label>
+                <input matInput formControlName="paidAt" type="datetime-local" />
+                <mat-hint>Ajuste se necessário</mat-hint>
+              </mat-form-field>
 
-            <div class="col-span-2 pt-2 border-t border-neutral-200 dark:border-neutral-700">
-              <p class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wide">Dados do pagador <span class="font-normal normal-case">(opcionais)</span></p>
-            </div>
+              <div class="pt-2 border-t border-neutral-100 dark:border-neutral-800">
+                <p class="text-xs font-bold opacity-50 mb-2 uppercase tracking-wide">Dados opcionais</p>
+              </div>
 
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Nome</label>
-              <input formControlName="nome" type="text" placeholder="Nome do pagador" />
-            </div>
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">CPF / CNPJ</label>
-              <input formControlName="documento" type="text" placeholder="000.000.000-00" class="font-mono" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold mb-1">Banco (ISPB)</label>
-              <input formControlName="banco" type="text" list="bancos-list" placeholder="ISPB ou nome" class="font-mono" autocomplete="off" />
-              <datalist id="bancos-list">
-                @for (b of bancosFiltrados(); track b.ispb) {
-                  <option [value]="b.ispb">{{ b.nomeReduzido || b.nome }}</option>
-                }
-              </datalist>
-            </div>
-            <div>
-              <label class="block text-xs font-bold mb-1">Nome do banco</label>
-              <input formControlName="nomeBanco" type="text" placeholder="Auto" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold mb-1">Agência</label>
-              <input formControlName="agencia" type="text" placeholder="0001" class="font-mono" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold mb-1">Conta</label>
-              <input formControlName="conta" type="text" placeholder="12345-6" class="font-mono" />
-            </div>
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Tipo de conta</label>
-              <select formControlName="tipoConta">
-                <option value="">— Não informado —</option>
-                @for (tipo of tiposContaOpcoes; track tipo) {
-                  <option [value]="tipo">{{ tipoContaLabels[tipo] }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-span-2">
-              <label class="block text-xs font-bold mb-1">Chave Pix do pagador</label>
-              <input formControlName="chavePix" type="text" placeholder="CPF, e-mail, telefone ou chave aleatória" class="font-mono" />
-            </div>
-          </div>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Nome do pagador</mat-label>
+                <input matInput formControlName="nome" type="text" placeholder="Nome completo" />
+              </mat-form-field>
 
-          <div class="flex gap-2 pt-1">
-            <button type="submit" class="btn btn-sm btn-primary flex-1" [disabled]="pagadorForm.invalid || salvandoPagador()">
-              @if (salvandoPagador()) { <span class="spinner"></span> }
-              Salvar
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>CPF / CNPJ</mat-label>
+                <input matInput formControlName="documento" type="text" placeholder="000.000.000-00" class="font-mono" />
+              </mat-form-field>
+
+              <div class="grid grid-cols-2 gap-2">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Banco (ISPB)</mat-label>
+                  <input matInput formControlName="banco" type="text" [matAutocomplete]="autoBancos" placeholder="ISPB" class="font-mono" autocomplete="off" />
+                  <mat-autocomplete #autoBancos="matAutocomplete">
+                    @for (b of bancosFiltrados(); track b.ispb) {
+                      <mat-option [value]="b.ispb">{{ b.nomeReduzido || b.nome }}</mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nome do banco</mat-label>
+                  <input matInput formControlName="nomeBanco" type="text" placeholder="Auto" />
+                </mat-form-field>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Agência</mat-label>
+                  <input matInput formControlName="agencia" type="text" placeholder="0001" class="font-mono" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Conta</mat-label>
+                  <input matInput formControlName="conta" type="text" placeholder="12345-6" class="font-mono" />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Tipo de conta</mat-label>
+                <mat-select formControlName="tipoConta">
+                  <mat-option value="">— Não informado —</mat-option>
+                  @for (tipo of tiposContaOpcoes; track tipo) {
+                    <mat-option [value]="tipo">{{ tipoContaLabels[tipo] }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Chave Pix do pagador</mat-label>
+                <input matInput formControlName="chavePix" type="text" placeholder="E-mail, CPF, Tel ou Aleatória" class="font-mono" />
+              </mat-form-field>
+            </div>
+          </mat-card>
+
+          <div class="flex gap-2">
+            <button mat-flat-button color="primary" type="submit" class="flex-1 !py-5" [disabled]="pagadorForm.invalid || salvandoPagador()">
+              @if (salvandoPagador()) {
+                Salvando...
+              } @else {
+                Salvar
+              }
             </button>
-            <button class="btn btn-sm btn-clear" type="button" (click)="cancelarFormPagador()">Cancelar</button>
+            <button mat-button class="flex-1 !py-5" type="button" (click)="cancelarFormPagador()">Cancelar</button>
           </div>
         </form>
       }
     </section>
 
-    <hr class="border-neutral-200 dark:border-neutral-700" />
+    <hr class="border-neutral-200 dark:border-neutral-800" />
 
-    <section>
-      <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Detalhes</h2>
-      <div class="text-sm space-y-1">
-        <div class="flex justify-between">
-          <span class="opacity-60">Recebedor</span>
-          <span class="font-medium">{{ cobranca()!.snapshot.merchantName }}</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="opacity-60">Cidade</span>
-          <span>{{ cobranca()!.snapshot.merchantCity }}</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="opacity-60">Chave Pix</span>
-          <span class="font-mono text-xs">{{ cobranca()!.snapshot.chaveValor }}</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="opacity-60">Descrição</span>
-          <span>{{ cobranca()!.descricao || '—' }}</span>
-        </div>
-        @if (cobranca()!.vencimento) {
+    <mat-card class="p-4 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <mat-card-header class="!pb-2">
+        <mat-card-title class="!text-sm !font-bold !opacity-70 !uppercase !tracking-wide">Detalhes</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="!pt-2">
+        <div class="text-sm space-y-2">
           <div class="flex justify-between">
-            <span class="opacity-60">Vencimento</span>
-            <span>{{ cobranca()!.vencimento! | date:'shortDate' }}</span>
+            <span class="opacity-60">Recebedor</span>
+            <span class="font-medium text-neutral-900 dark:text-white">{{ cobranca()!.snapshot.merchantName }}</span>
           </div>
-        }
-        <div class="flex justify-between">
-          <span class="opacity-60">Gerada em</span>
-          <span>{{ cobranca()!.criadaEm | date:'short' }}</span>
+          <div class="flex justify-between">
+            <span class="opacity-60">Cidade</span>
+            <span class="font-medium text-neutral-900 dark:text-white">{{ cobranca()!.snapshot.merchantCity }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="opacity-60">Chave Pix</span>
+            <span class="font-mono text-xs text-neutral-900 dark:text-white">{{ cobranca()!.snapshot.chaveValor }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="opacity-60">Descrição</span>
+            <span class="font-medium text-neutral-900 dark:text-white">{{ cobranca()!.descricao || '—' }}</span>
+          </div>
+          @if (cobranca()!.vencimento) {
+            <div class="flex justify-between">
+              <span class="opacity-60">Vencimento</span>
+              <span class="font-medium text-neutral-900 dark:text-white">{{ cobranca()!.vencimento! | date:'shortDate' }}</span>
+            </div>
+          }
+          <div class="flex justify-between">
+            <span class="opacity-60">Gerada em</span>
+            <span class="font-medium text-neutral-900 dark:text-white">{{ cobranca()!.criadaEm | date:'short' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="opacity-60">Ref BR Code</span>
+            <span class="font-mono text-xs text-neutral-900 dark:text-white">{{ cobranca()!.brCodeRef }}</span>
+          </div>
         </div>
-        <div class="flex justify-between">
-          <span class="opacity-60">Ref BR Code</span>
-          <span class="font-mono text-xs">{{ cobranca()!.brCodeRef }}</span>
-        </div>
-      </div>
-    </section>
+      </mat-card-content>
+    </mat-card>
 
-    <hr class="border-neutral-200 dark:border-neutral-700" />
+    <hr class="border-neutral-200 dark:border-neutral-800" />
 
     <section>
-      <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Código PIX</h2>
-      <p class="text-xs font-mono break-all rounded p-2 bg-neutral-50 dark:bg-neutral-900">{{ cobranca()!.brcode }}</p>
+      <h2 class="text-xs font-bold opacity-60 uppercase tracking-wide mb-2">Código PIX</h2>
+      <p class="text-xs font-mono break-all rounded-lg p-3 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 select-all">{{ cobranca()!.brcode }}</p>
     </section>
 
     @if (eventos().length > 0) {
-      <hr class="border-neutral-200 dark:border-neutral-700" />
+      <hr class="border-neutral-200 dark:border-neutral-800" />
       <section>
-        <h2 class="text-sm font-bold opacity-60 uppercase tracking-wide mb-2">Trilha de eventos</h2>
-        <div class="pix-timeline text-xs">
+        <h2 class="text-xs font-bold opacity-60 uppercase tracking-wide mb-2.5">Trilha de eventos</h2>
+        <div class="pix-timeline text-xs pl-2">
           @for (ev of eventos(); track ev.id) {
             <div class="pix-timeline-item">
-              <span class="font-medium">{{ eventoLabels[ev.tipo] }}</span>
-              <span class="opacity-50 ml-2">{{ ev.origem }}</span>
+              <span class="font-semibold text-neutral-900 dark:text-white">{{ eventoLabels[ev.tipo] }}</span>
+              <span class="opacity-50 ml-2">({{ ev.origem }})</span>
               <br />
               <span class="opacity-40">{{ ev.timestamp | date:'short' }}</span>
             </div>
@@ -313,3 +345,4 @@
     }
   }
 </main>
+

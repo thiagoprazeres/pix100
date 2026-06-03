@@ -3,6 +3,14 @@ import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MaskitoDirective } from '@maskito/angular';
 import { MaskitoOptions } from '@maskito/core';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCardModule } from '@angular/material/card';
 import { ChavePixService } from '../../application/chave-pix.service';
 import { PerfilService } from '../../application/perfil.service';
 import { TipoChave, TipoPessoa, ChavePix, TIPO_CHAVE_LABELS, STATUS_CHAVE_LABELS } from '../../domain/chave-pix/chave-pix.model';
@@ -14,7 +22,19 @@ import { sanitizeMerchantName, sanitizeMerchantCity, gerarBrCodeRef } from '../.
 
 @Component({
   selector: 'app-chaves',
-  imports: [RouterLink, ReactiveFormsModule, MaskitoDirective],
+  imports: [
+    RouterLink,
+    ReactiveFormsModule,
+    MaskitoDirective,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatRadioModule,
+    MatAutocompleteModule,
+    MatCardModule
+  ],
   templateUrl: './chaves.html',
 })
 export class Chaves implements OnInit, OnDestroy {

@@ -1,188 +1,183 @@
-<header class="navbar">
-  <div class="flex-1">
-    <h1 class="text-xl ml-4 font-bold">Chaves Pix</h1>
-  </div>
-  <div class="flex-none pr-2">
-    @if (!adicionando()) {
-      <button class="btn btn-sm btn-primary"
-        type="button"
-        (click)="abrirFormulario()"
-      >
-        + Adicionar
-      </button>
-    }
-  </div>
-</header>
+<mat-toolbar class="!sticky !top-0 !z-40 border-b border-neutral-200 dark:border-neutral-800">
+  <span class="ml-2 font-bold">Chaves Pix</span>
+  <span class="flex-auto"></span>
+  @if (!adicionando()) {
+    <button mat-flat-button color="primary" (click)="abrirFormulario()">
+      <mat-icon>add</mat-icon>
+      Adicionar
+    </button>
+  }
+</mat-toolbar>
 
-<main class="px-4 py-2">
+<main class="max-w-md mx-auto px-4 py-4">
   @if (!chavePixService.chaveAtiva()) {
-    <div class="notification notification-warning mb-4">
-      Nenhuma chave ativa. Cadastre ou ative uma chave para gerar cobranças.
+    <div class="flex items-start gap-2.5 rounded-lg border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20 p-3.5 mb-4 text-sm text-yellow-800 dark:text-yellow-200">
+      <mat-icon class="scale-90">warning</mat-icon>
+      <span>Nenhuma chave ativa. Cadastre ou ative uma chave para gerar cobranças.</span>
     </div>
   }
 
   @if (adicionando()) {
-    <div
-      class="rounded-xl p-4 mb-6 shadow-sm bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700"
-    >
-      <h2 class="text-base font-bold mb-3">Nova Chave Pix</h2>
-
-      @if (erro()) {
-        <div class="notification notification-negative mb-3">{{ erro() }}</div>
-      }
-
-      <form [formGroup]="chaveForm" (ngSubmit)="salvar()">
-        <div class="mb-3">
-          <p class="text-sm font-bold mb-2">Tipo de chave</p>
-          <div class="flex flex-col gap-2">
-            @for (opt of tiposDisponiveis(); track opt.v) {
-              <label class="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="radio"
-                  name="tipoChave"
-                  [value]="opt.v"
-                  [checked]="chaveForm.controls.tipo.value === opt.v"
-                  (change)="chaveForm.controls.tipo.setValue(opt.v)"
-                  class="w-auto"
-                />
-                <span>{{ opt.l }}</span>
-              </label>
-            }
+    <mat-card class="p-4 mb-6 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <mat-card-header class="!pb-3">
+        <mat-card-title class="!text-base !font-bold">Nova Chave Pix</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (erro()) {
+          <div class="flex items-center gap-2 rounded bg-red-50 dark:bg-red-950/20 text-red-800 dark:text-red-200 p-3 mb-3 text-xs">
+            <mat-icon class="scale-75">error</mat-icon>
+            <span>{{ erro() }}</span>
           </div>
-        </div>
-
-        @if (exigeTipoPessoa) {
-          <div class="mb-3">
-            <p class="text-sm font-bold mb-2">Pessoa</p>
-            <div class="flex gap-6">
-              <label class="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="radio"
-                  name="tipoPessoa"
-                  value="PF"
-                  [checked]="chaveForm.controls.tipoPessoa.value === 'PF'"
-                  (change)="chaveForm.controls.tipoPessoa.setValue('PF')"
-                  class="w-auto"
-                />
-                <span>Pessoa Física</span>
-              </label>
-              <label class="flex items-center gap-2 text-sm cursor-pointer">
-                <input
-                  type="radio"
-                  name="tipoPessoa"
-                  value="PJ"
-                  [checked]="chaveForm.controls.tipoPessoa.value === 'PJ'"
-                  (change)="chaveForm.controls.tipoPessoa.setValue('PJ')"
-                  class="w-auto"
-                />
-                <span>Pessoa Jurídica</span>
-              </label>
-            </div>
-          </div>
-        } @else {
-          <p class="text-xs opacity-60 mb-3">
-            Tipo de pessoa:
-            <strong>{{
-              tipoDerivadoAutomaticamente === 'PF'
-                ? 'Pessoa Física (CPF)'
-                : 'Pessoa Jurídica (CNPJ)'
-            }}</strong>
-          </p>
         }
 
-        <div class="mb-4">
-          <p class="text-sm font-bold mb-1">Chave</p>
-          <input
-            [type]="inputType"
-            [attr.inputmode]="inputMode"
-            placeholder="Informe a chave"
-            [maskito]="maskitoOptions"
-            formControlName="valor"
-          />
-          @if (chaveForm.get('valor')?.invalid && chaveForm.get('valor')?.touched) {
-            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">
-              Chave obrigatória
+        <form [formGroup]="chaveForm" (ngSubmit)="salvar()" class="flex flex-col gap-3">
+          <div>
+            <p class="text-xs font-bold mb-1.5 opacity-60">Tipo de chave</p>
+            <mat-radio-group
+              formControlName="tipo"
+              class="flex flex-col gap-1.5"
+            >
+              @for (opt of tiposDisponiveis(); track opt.v) {
+                <mat-radio-button [value]="opt.v">
+                  <span class="text-sm">{{ opt.l }}</span>
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          </div>
+
+          @if (exigeTipoPessoa) {
+            <div class="mt-1">
+              <p class="text-xs font-bold mb-1.5 opacity-60">Pessoa</p>
+              <mat-radio-group
+                formControlName="tipoPessoa"
+                class="flex gap-4"
+              >
+                <mat-radio-button value="PF">
+                  <span class="text-sm">Pessoa Física</span>
+                </mat-radio-button>
+                <mat-radio-button value="PJ">
+                  <span class="text-sm">Pessoa Jurídica</span>
+                </mat-radio-button>
+              </mat-radio-group>
+            </div>
+          } @else {
+            <p class="text-xs opacity-60 my-1">
+              Tipo de pessoa:
+              <strong>{{
+                tipoDerivadoAutomaticamente === 'PF'
+                  ? 'Pessoa Física (CPF)'
+                  : 'Pessoa Jurídica (CNPJ)'
+              }}</strong>
             </p>
           }
-        </div>
 
-        <div class="mb-4">
-          <p class="text-sm font-bold mb-1">
-            Banco <span class="text-xs font-normal opacity-50">(opcional)</span>
-          </p>
-          <input
-            type="text"
-            formControlName="banco"
-            list="bancos-chave-list"
-            placeholder="Digite o nome do banco..."
-            autocomplete="off"
-          />
-          <datalist id="bancos-chave-list">
-            @for (label of bancosFiltrados(); track label) {
-              <option [value]="label"></option>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Chave</mat-label>
+            <input
+              matInput
+              [type]="inputType"
+              [attr.inputmode]="inputMode"
+              placeholder="Informe a chave"
+              [maskito]="maskitoOptions"
+              formControlName="valor"
+            />
+            @if (chaveForm.get('valor')?.invalid && chaveForm.get('valor')?.touched) {
+              <mat-error>Chave obrigatória</mat-error>
             }
-          </datalist>
-          @if (bancoinvalido()) {
-            <p class="text-xs mt-1 font-medium text-neutral-900 dark:text-neutral-200">
-              Selecione um banco da lista de sugestões.
-            </p>
-          }
-        </div>
+          </mat-form-field>
 
-        <div class="flex gap-2">
-          <button
-            type="submit"
-            class="btn btn-primary flex-1"
-            [disabled]="salvando()"
-          >
-            @if (salvando()) {
-              <span class="spinner"></span>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Banco (opcional)</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="banco"
+              [matAutocomplete]="autoBancos"
+              placeholder="Digite o nome do banco..."
+              autocomplete="off"
+            />
+            <mat-autocomplete #autoBancos="matAutocomplete">
+              @for (label of bancosFiltrados(); track label) {
+                <mat-option [value]="label">{{ label }}</mat-option>
+              }
+            </mat-autocomplete>
+            @if (bancoinvalido()) {
+              <mat-error>Selecione um banco da lista de sugestões.</mat-error>
             }
-            Cadastrar
-          </button>
-          <button type="button" class="btn btn-clear flex-1" (click)="cancelar()"
-            >Cancelar</button>
-        </div>
-      </form>
-    </div>
+          </mat-form-field>
+
+          <div class="flex gap-2 mt-2">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              class="flex-1 !py-5"
+              [disabled]="salvando()"
+            >
+              @if (salvando()) {
+                Salvando...
+              } @else {
+                Cadastrar
+              }
+            </button>
+            <button
+              mat-button
+              type="button"
+              class="flex-1 !py-5"
+              (click)="cancelar()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
   }
 
   <div class="flex flex-col gap-3">
     @for (chave of chavePixService.chaves(); track chave.id) {
-      <div
-        [class]="
-          'rounded-xl p-4 shadow-sm border bg-white dark:bg-neutral-900 ' +
-          (chave.status === 'ativa'
-            ? 'border-2 border-neutral-900 dark:border-neutral-100'
-            : 'border-neutral-200 dark:border-neutral-700') +
-          (chave.status === 'arquivada' ? ' opacity-50' : '')
-        "
+      <mat-card
+        class="border transition-all"
+        [class.border-neutral-900]="chave.status === 'ativa'"
+        [class.dark:border-white]="chave.status === 'ativa'"
+        [class.border-2]="chave.status === 'ativa'"
+        [class.border-neutral-200]="chave.status !== 'ativa'"
+        [class.dark:border-neutral-800]="chave.status !== 'ativa'"
+        [class.opacity-50]="chave.status === 'arquivada'"
+        class="p-4 bg-white dark:bg-neutral-900"
       >
         <div class="flex items-start justify-between gap-2">
           <a
             [routerLink]="['/chaves', chave.id]"
-            class="block flex-1 min-w-0 cursor-pointer"
+            class="block flex-1 min-w-0 no-underline text-inherit cursor-pointer"
           >
-            <div class="flex items-center flex-wrap gap-1.5 mb-1">
+            <div class="flex items-center flex-wrap gap-1.5 mb-1.5">
               <span
-                [class]="
-                  'badge ' +
-                  (chave.status === 'ativa'
-                    ? 'badge-primary'
-                    : chave.status === 'arquivada'
-                      ? 'badge-negative'
-                      : 'badge-neutral')
-                "
+                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold"
+                [class.bg-neutral-900]="chave.status === 'ativa'"
+                [class.text-white]="chave.status === 'ativa'"
+                [class.dark:bg-white]="chave.status === 'ativa'"
+                [class.dark:text-neutral-900]="chave.status === 'ativa'"
+                [class.bg-neutral-100]="chave.status !== 'ativa'"
+                [class.text-neutral-700]="chave.status !== 'ativa'"
+                [class.dark:bg-neutral-800]="chave.status !== 'ativa'"
+                [class.dark:text-neutral-300]="chave.status !== 'ativa'"
               >
                 {{ statusLabels[chave.status] }}
               </span>
-              <span class="badge badge-outline">{{ tipoLabels[chave.tipo] }}</span>
-              <span class="badge badge-neutral">{{ chave.tipoPessoa }}</span>
+              <span class="inline-flex items-center rounded-full border border-neutral-300 dark:border-neutral-700 px-2 py-0.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                {{ tipoLabels[chave.tipo] }}
+              </span>
+              <span class="inline-flex items-center rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                {{ chave.tipoPessoa }}
+              </span>
               @if (chave.verificacaoStatus === 'confirmada_por_recebimento') {
-                <span class="badge badge-success">✓ Confirmada</span>
+                <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-950/30 px-2 py-0.5 text-xs font-semibold text-green-700 dark:text-green-300">
+                  ✓ Confirmada
+                </span>
               }
             </div>
-            <p class="font-mono text-sm truncate">{{ chave.valor }}</p>
+            <p class="font-mono text-sm truncate font-semibold">{{ chave.valor }}</p>
             @if (chave.nomeBanco || chave.banco) {
               <p class="text-xs opacity-50 mt-0.5">{{ chave.nomeBanco || chave.banco }}</p>
             }
@@ -191,14 +186,17 @@
                 <img
                   [src]="qrAtivoSvg()"
                   alt="QR Code da chave ativa"
-                  class="w-48 h-48 bg-white p-2 rounded-md"
+                  class="w-48 h-48 bg-white p-2 rounded-md shadow-sm border border-neutral-100"
                 />
               </div>
             }
           </a>
           <div class="flex gap-1 shrink-0">
             @if (chave.status === 'inativa') {
-              <button type="button" class="btn btn-sm btn-primary"
+              <button
+                mat-flat-button
+                color="primary"
+                class="!text-xs !px-3 !py-1 !min-w-0"
                 [disabled]="acaoEmAndamento() === chave.id"
                 (click)="ativar(chave)"
               >
@@ -206,54 +204,30 @@
               </button>
             }
             @if (chave.status !== 'arquivada') {
-              <button type="button" class="btn btn-sm btn-clear"
+              <button
+                mat-icon-button
                 [disabled]="acaoEmAndamento() === chave.id"
                 (click)="arquivar(chave)"
                 title="Arquivar"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <rect width="20" height="5" x="2" y="3" rx="1" />
-                  <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
-                  <path d="M10 12h4" />
-                </svg>
+                <mat-icon>archive</mat-icon>
               </button>
             }
             @if (chave.status === 'inativa') {
-              <button type="button" class="btn btn-sm btn-clear"
+              <button
+                mat-icon-button
+                color="warn"
                 [disabled]="acaoEmAndamento() === chave.id"
                 (click)="remover(chave)"
                 title="Remover"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                </svg>
+                <mat-icon>delete</mat-icon>
               </button>
             }
           </div>
         </div>
-      </div>
+      </mat-card>
     }
   </div>
 </main>
+

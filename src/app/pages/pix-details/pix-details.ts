@@ -2,13 +2,21 @@ import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular
 import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CobrancaService } from '../../application/cobranca.service';
 import { ConciliacaoService } from '../../application/conciliacao.service';
 import { Cobranca, Pagador, STATUS_COBRANCA_LABELS, TIPO_CONTA_LABELS, TipoConta } from '../../domain/cobranca/cobranca.model';
 import { EventoConciliacao, TIPO_EVENTO_LABELS } from '../../domain/conciliacao/evento-conciliacao.model';
 import { transicaoValida } from '../../domain/cobranca/cobranca.rules';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
 import { ToastService } from '../../shared/services/toast.service';
 import { BancoService, BancoEntry } from '../../shared/services/banco.service';
 import { gerarTicketBase64, base64ToFile, gerarPdf } from '../../domain/cobranca/ticket.projection';
@@ -17,7 +25,20 @@ import { avaliarRiscoE2EId, validarFormatoE2EId } from '../../domain/risco/e2eid
 
 @Component({
   selector: 'app-pix-details',
-  imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, StatusClassPipe],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatAutocompleteModule,
+    MatCardModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './pix-details.html',
 })
 export class PixDetails implements OnInit, OnDestroy {

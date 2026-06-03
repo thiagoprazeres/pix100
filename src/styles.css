@@ -103,70 +103,23 @@
            dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400;
   }
 
-  /* Tab bar */
-  .tab-bar {
-    @apply flex items-stretch border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950;
+  /* SnackBar custom styles */
+  .snack-success {
+    --mdc-snackbar-container-color: #009C3B;
+    --mdc-snackbar-supporting-text-color: #ffffff;
   }
-  .tab-button {
-    @apply flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] text-neutral-500 dark:text-neutral-400 transition;
+  .snack-danger {
+    --mdc-snackbar-container-color: #ba1a1a;
+    --mdc-snackbar-supporting-text-color: #ffffff;
   }
-  .tab-button.tab-active {
-    @apply text-neutral-900 dark:text-neutral-100 font-semibold;
-    svg { stroke-width: 2; }
+  .snack-warning {
+    --mdc-snackbar-container-color: #eab308;
+    --mdc-snackbar-supporting-text-color: #1a1a1a;
   }
-
-  /* Botões */
-  .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition
-           disabled:opacity-50 disabled:cursor-not-allowed;
+  .snack-primary {
+    --mdc-snackbar-container-color: #002776;
+    --mdc-snackbar-supporting-text-color: #ffffff;
   }
-  .btn-sm { @apply px-2.5 py-1.5 text-xs; }
-  .btn-block { @apply w-full; }
-  .btn-primary {
-    @apply bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200;
-  }
-  .btn-success {
-    @apply bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200;
-  }
-  .btn-warning {
-    @apply bg-neutral-500 text-white hover:bg-neutral-600 dark:bg-neutral-400 dark:text-neutral-900 dark:hover:bg-neutral-300;
-  }
-  .btn-danger {
-    @apply bg-neutral-700 text-white hover:bg-neutral-800 dark:bg-neutral-300 dark:text-neutral-900 dark:hover:bg-neutral-200;
-  }
-  .btn-outline {
-    @apply border border-neutral-300 text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-800;
-  }
-  .btn-outline-danger {
-    @apply border border-neutral-400 text-neutral-700 hover:bg-neutral-100 dark:border-neutral-500 dark:text-neutral-300 dark:hover:bg-neutral-800;
-  }
-  .btn-outline-warning {
-    @apply border border-neutral-400 text-neutral-700 hover:bg-neutral-100 dark:border-neutral-500 dark:text-neutral-300 dark:hover:bg-neutral-800;
-  }
-  .btn-clear {
-    @apply text-neutral-900 hover:bg-neutral-100 dark:text-neutral-100 dark:hover:bg-neutral-800;
-  }
-
-  /* Spinner */
-  .spinner {
-    @apply inline-block rounded-full border-2 border-current border-r-transparent animate-spin;
-    width: 1rem;
-    height: 1rem;
-  }
-
-  /* Toasts */
-  .toast-container {
-    @apply fixed bottom-4 inset-x-0 z-50 flex flex-col items-center gap-2 pointer-events-none px-4;
-  }
-  .toast {
-    @apply pointer-events-auto rounded-lg px-4 py-2 text-sm shadow-lg opacity-0 translate-y-2 transition;
-    max-width: 90vw;
-  }
-  .toast-show { @apply opacity-100 translate-y-0; }
-  .toast-primary { @apply bg-neutral-900 text-white dark:bg-white dark:text-neutral-900; }
-  .toast-success { @apply bg-neutral-900 text-white dark:bg-white dark:text-neutral-900; }
-  .toast-warning { @apply bg-neutral-500 text-white dark:bg-neutral-400 dark:text-neutral-900; }
-  .toast-danger  { @apply bg-neutral-800 text-white dark:bg-neutral-200 dark:text-neutral-900; }
 
   /* Timeline */
   .pix-timeline {

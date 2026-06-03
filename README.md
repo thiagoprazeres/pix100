@@ -199,7 +199,7 @@ type TipoEvento =
 |---|---|---|
 | [Angular](https://angular.dev/) | 21 | Framework — Standalone Components + Signals |
 | [Tailwind CSS](https://tailwindcss.com/) | 4 | Estilização utilitária, badges, notificações, inputs, dark mode |
-| [Ionic](https://ionicframework.com/) | 8 | Componentes UI (botões, toggle, spinner, tab bar, toast) |
+| [Angular Material](https://material.angular.io/) | 22 | Componentes UI (botões, inputs, autocomplete, chips, snackbar) |
 | [idb](https://github.com/jakearchibald/idb) | 8 | IndexedDB com suporte a TypeScript |
 | [pix-utils](https://github.com/vagnercardosoweb/pix-utils) | 2 | Geração de BR Code e QR Code offline |
 | [Maskito](https://maskito.dev/) | 3 | Máscaras de input (CPF, CNPJ, Telefone) |

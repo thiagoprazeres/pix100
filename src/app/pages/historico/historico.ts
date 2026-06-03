@@ -4,12 +4,25 @@ import { PerfilService } from '../../application/perfil.service';
 import { Cobranca, STATUS_COBRANCA_LABELS, StatusCobranca } from '../../domain/cobranca/cobranca.model';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { StatusClassPipe } from '../../shared/pipes/status-class.pipe';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatListModule } from '@angular/material/list';
 import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-historico',
-  imports: [DatePipe, CurrencyPipe, RouterLink, StatusClassPipe],
+  imports: [
+    DatePipe,
+    CurrencyPipe,
+    RouterLink,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatListModule
+  ],
   templateUrl: './historico.html',
 })
 export class Historico implements OnInit {
